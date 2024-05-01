@@ -1,0 +1,23 @@
+[package]
+name = "as3razen"
+version = "0.1.0"
+edition = "2021"
+authors = ["hydroper <matheusdiasdesouzads@gmail.com>"]
+repository = "https://github.com/hydroper/as3razen"
+keywords = ["actionscript", "as3", "compiler"]
+description = "AS3Razen compiler"
+license = "Apache-2.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "as3razen"
+path = "lib.rs"
+
+[dependencies]
+as3_parser = "1.0"
+bitflags = { version = "2.4.1", features = ["serde"] }
+bytes = "1"
+file_paths = "1.0.0"
+maplit = "1.0.2"
+smodel = "1.0.8"
