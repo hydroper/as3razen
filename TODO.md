@@ -6,10 +6,6 @@
 * [ ] Symbols
 * [ ] Symbol factory
 
-## Verifier
-
-No notes as of yet.
-
 ## SWC inclusion
 
 No notes as of yet.
