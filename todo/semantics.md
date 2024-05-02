@@ -22,6 +22,8 @@
     * [x] Any type
     * [x] Void type
     * [ ] Class type
+      * [ ] `is_option_set()`
+      * [ ] `set_is_option_set()`
     * [ ] Enum type
     * [ ] Interface type
     * [ ] Type after substitution
