@@ -28,7 +28,7 @@
       * [ ] Override `set_parent()`
       * [ ] Override `private_ns()`
       * [ ] Override `set_private_ns()`
-      * [ ] Override `implements()`
+      * [ ] Override `enum_members()`
       * [ ] Override `is_abstract()`
         * Return false
       * [ ] Override `is_dynamic()`
