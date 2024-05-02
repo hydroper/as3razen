@@ -8,6 +8,7 @@ Do not forget to set source locations of entities such as classes and variables.
 * [ ] Classes
 * [ ] Enumerations
 * [ ] Interfaces
+* [ ] Type parameter types
 * [ ] Variable slots
 * [ ] Virtual slots
 * [ ] Method slots
