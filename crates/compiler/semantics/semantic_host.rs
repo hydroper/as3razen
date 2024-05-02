@@ -1,13 +1,13 @@
 use crate::ns::*;
 
 pub struct SemanticHost {
-    arena: SymbolArena,
-    void_type: Symbol,
+    arena: ThingyArena,
+    void_type: Thingy,
 }
 
 impl SemanticHost {
     pub fn new() -> Self {
-        let arena = SymbolArena::new();
+        let arena = ThingyArena::new();
         let void_type = VoidType::new(&arena).into();
         Self {
             arena,
@@ -16,11 +16,11 @@ impl SemanticHost {
     }
 
     #[inline(always)]
-    pub fn factory(&self) -> SymbolFactory {
-        SymbolFactory(self)
+    pub fn factory(&self) -> ThingyFactory {
+        ThingyFactory(self)
     }
 
-    pub fn void_type(&self) -> Symbol {
+    pub fn void_type(&self) -> Thingy {
         self.void_type.clone()
     }
 }

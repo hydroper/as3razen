@@ -3,8 +3,16 @@
 ## Semantic model
 
 * [ ] Semantic host
-* [ ] Symbols
-* [ ] Symbol factory
+* [ ] Things
+  * [ ] Packages
+    * [ ] Public namespace
+    * [ ] Internal namespace
+  * [ ] Scopes
+    * [ ] Package property imports
+      * [ ] Mapping from package to property
+    * [ ] Package wildcard imports
+      * [ ] Set of packages
+* [ ] Thingy factory
 
 ## SWC inclusion
 

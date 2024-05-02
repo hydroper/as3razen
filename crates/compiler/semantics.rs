@@ -1,8 +1,8 @@
 mod semantic_host;
 pub use semantic_host::*;
 
-mod symbol;
-pub use symbol::*;
+mod thingy;
+pub use thingy::*;
 
-mod symbol_factory;
-pub use symbol_factory::*;
+mod thingy_factory;
+pub use thingy_factory::*;

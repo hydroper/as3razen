@@ -2,12 +2,12 @@ use crate::ns::*;
 use smodel::smodel;
 
 smodel! {
-    type Arena = SymbolArena;
+    type Arena = ThingyArena;
 
     /// Unified semantic data type representing
-    /// one of several ActionScript 3 symbol variants,
+    /// one of several ActionScript 3 variants,
     /// such as classes, variable slots, and reference values.
-    pub struct Symbol {
+    pub struct Thingy {
         pub fn system_ns_kind(&self) -> Option<SystemNamespaceKind> {
             None
         }
@@ -22,41 +22,33 @@ smodel! {
             "".into()
         }
 
-        pub fn namespace(&self) -> Symbol {
-            panic!();
-        }
-
-        pub fn local_name(&self) -> String {
-            "".into()
-        }
-
         fn to_string_1(&self) -> String {
             "".into()
         }
     }
 
-    pub struct UnresolvedSymbol: Symbol {
-        pub fn UnresolvedSymbol() {
+    pub struct UnresolvedThingy: Thingy {
+        pub fn UnresolvedThingy() {
             super();
         }
     }
 
-    pub struct InvalidationSymbol: Symbol {
-        pub fn InvalidationSymbol() {
+    pub struct InvalidationThingy: Thingy {
+        pub fn InvalidationThingy() {
             super();
         }
     }
 
-    pub struct NamespaceSymbol: Symbol {
-        pub fn NamespaceSymbol() {
+    pub struct NamespaceThingy: Thingy {
+        pub fn NamespaceThingy() {
             super();
         }
     }
 
-    pub struct SystemNamespaceSymbol: NamespaceSymbol {
+    pub struct SystemNamespaceThingy: NamespaceThingy {
         let m_kind: SystemNamespaceKind = SystemNamespaceKind::Public;
 
-        pub fn SystemNamespaceSymbol(kind: SystemNamespaceKind) {
+        pub fn SystemNamespaceThingy(kind: SystemNamespaceKind) {
             super();
             self.set_m_kind(kind);
         }
@@ -70,11 +62,11 @@ smodel! {
         }
     }
 
-    pub struct UserNamespaceSymbol: NamespaceSymbol {
+    pub struct UserNamespaceThingy: NamespaceThingy {
         let ref m_asdoc: Option<Rc<AsDoc>> = None;
         let ref m_uri: String = "".into();
 
-        pub fn UserNamespaceSymbol(uri: String) {
+        pub fn UserNamespaceThingy(uri: String) {
             super();
             self.set_m_uri(uri);
         }
@@ -96,11 +88,11 @@ smodel! {
         }
     }
 
-    pub struct ExplicitNamespaceSymbol: NamespaceSymbol {
+    pub struct ExplicitNamespaceThingy: NamespaceThingy {
         let ref m_asdoc: Option<Rc<AsDoc>> = None;
         let ref m_uri: String = "".into();
 
-        pub fn ExplicitNamespaceSymbol(uri: String) {
+        pub fn ExplicitNamespaceThingy(uri: String) {
             super();
             self.set_m_uri(uri);
         }
@@ -122,35 +114,7 @@ smodel! {
         }
     }
 
-    pub struct QName: Symbol {
-        let ref m_namespace: Option<Symbol> = None;
-        let ref m_local_name: String = "".into();
-
-        pub fn QName(namespace: Symbol, local_name: String) {
-            super();
-            self.set_m_namespace(Some(namespace));
-            self.set_m_local_name(local_name);
-        }
-
-        pub override fn namespace(&self) -> Symbol {
-            self.m_namespace().unwrap()
-        }
-
-        pub override fn local_name(&self) -> String {
-            self.m_local_name()
-        }
-
-        override fn to_string_1(&self) -> String {
-            let q = self.namespace();
-            let ln = self.local_name();
-            if q.is::<SystemNamespaceSymbol>() {
-                return ln;
-            }
-            format!("{}::{ln}", q.uri())
-        }
-    }
-
-    pub struct Type: Symbol {
+    pub struct Type: Thingy {
     }
 
     pub struct VoidType : Type {
@@ -164,13 +128,13 @@ smodel! {
     }
 }
 
-impl ToString for Symbol {
+impl ToString for Thingy {
     fn to_string(&self) -> String {
         self.to_string_1()
     }
 }
 
-impl DiagnosticArgument for Symbol {}
+impl DiagnosticArgument for Thingy {}
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum SystemNamespaceKind {
@@ -192,3 +156,38 @@ impl ToString for SystemNamespaceKind {
         }
     }
 }
+
+pub struct QName {
+    m_namespace: Thingy,
+    m_local_name: String,
+}
+
+impl QName {
+    pub fn new(namespace: Thingy, local_name: String) -> Self {
+        Self {
+            m_namespace: namespace,
+            m_local_name: local_name,
+        }
+    }
+
+    pub fn namespace(&self) -> Thingy {
+        self.m_namespace.clone()
+    }
+
+    pub fn local_name(&self) -> String {
+        self.m_local_name.clone()
+    }
+}
+
+impl ToString for QName {
+    fn to_string(&self) -> String {
+        let q = self.namespace();
+        let ln = self.local_name();
+        if q.is::<SystemNamespaceThingy>() {
+            return ln;
+        }
+        format!("{}::{ln}", q.uri())
+    }
+}
+
+impl DiagnosticArgument for QName {}
