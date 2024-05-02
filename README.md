@@ -8,7 +8,11 @@ FXRazen aims to comply with either the Apache Flex or Royale compilers which are
 
 **Goal**
 
-I enjoy developing a compiler from scratch and have spent too much time implementing parsers, and a few time spans with semantic analysis. I am by no means expert with semantic analysis, but I have learned certain lessons for preventing bugs such as those in type substitution through the use of throwing *defer* verification errors instead of using a number of phases for partially verifying a series of compilation units.
+I enjoy developing a compiler from scratch and have spent too much time implementing parsers, and a few time spans with semantic analysis.
+
+I have learned certain lessons for preventing bugs such as those in type substitution through the use of throwing *defer* verification errors instead of using a number of phases for partially verifying a series of compilation units.
+
+In previous verifiers I was not creating control flow graphs because I assumed labeled controls such as `break` would not affect return value expectation, but it may, and I also never reached code generation in a compiler codebase. Control flow graphs have vertices and edges (which connect two vertices).
 
 **ASDoc**
 
