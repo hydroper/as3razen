@@ -22,41 +22,31 @@
     * [x] Any type
     * [x] Void type
     * [x] Class type
-      * [x] Override `name()`
-      * [x] Override `parent()`
-      * [x] Override `set_parent()`
-      * [x] Override `private_ns()`
-      * [x] Override `set_private_ns()`
-      * [x] Override `protected_ns()`
-      * [x] Override `set_protected_ns()`
-      * [x] Override `static_protected_ns()`
-      * [x] Override `set_static_protected_ns()`
-      * [x] Flex `[Event]` mapping
-      * [x] Override `is_abstract()`
-      * [x] Override `set_is_abstract()`
-      * [x] Override `is_final()`
-      * [x] Override `set_is_final()`
-      * [x] Override `is_dynamic()`
-      * [x] Override `set_is_dynamic()`
-      * [x] Override `is_option_set()`
-      * [x] Override `set_is_option_set()`
-      * [x] Override `constructor_method()`
-      * [x] Override `set_constructor_method()`
-      * [x] Override `implements()`
-      * [x] Override `extends_class()`
-      * [x] Override `set_extends_class()`
-      * [x] Override `type_parameters()`
-      * [x] Override `set_type_parameters()`
-      * [x] Override `properties()`
-      * [x] Override `prototype()`
-      * [x] Override `known_subclasses()`
-      * [x] Override `includes_null()`
-      * [x] Override `includes_undefined()`
-      * [x] Override `asdoc()`
-      * [x] Override `set_asdoc()`
-      * [x] Override `metadata()`
-      * [x] Override `to_string_1()`
     * [ ] Enum type
+      * [ ] Override `name()`
+      * [ ] Override `parent()`
+      * [ ] Override `set_parent()`
+      * [ ] Override `private_ns()`
+      * [ ] Override `set_private_ns()`
+      * [ ] Override `implements()`
+      * [ ] Override `is_abstract()`
+        * Return false
+      * [ ] Override `is_dynamic()`
+        * Return false
+      * [ ] Override `is_final()`
+        * Return true
+      * [ ] Override `is_option_set()`
+        * Return false
+      * [ ] Override `extends_class()`
+        * Return `Object`
+      * [ ] Override `properties()`
+      * [ ] Override `prototype()`
+      * [ ] Override `includes_null()`
+      * [ ] Override `includes_undefined()`
+      * [ ] Override `asdoc()`
+      * [ ] Override `set_asdoc()`
+      * [ ] Override `metadata()`
+      * [ ] Override `to_string_1()`
     * [ ] Interface type
     * [ ] Type after substitution
       * [ ] Override fully qualified name
@@ -69,9 +59,11 @@
     * [ ] Field: Parent
     * [ ] Field: Open namespace set
     * [ ] Field: Package property imports
-      * [ ] Description: Mapping from package to property
+      * [ ] Description: Mapping from package to PackagePropertyImport
+        * [ ] A PackagePropertyImport holds a reference to a package's property and the location of an `import ns.x;` directive.
     * [ ] Field: Package wildcard imports
-      * [ ] Description: Set of packages
+      * [ ] Description: List of PackageWildcardImport
+        * [ ] A PackageWildcardImport holds a reference to a package and the location of an `import ns.*;` directive.
     * [ ] WithScope
     * [ ] FilterOperatorScope
     * [ ] ActivationScope

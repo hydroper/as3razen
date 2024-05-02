@@ -13,6 +13,7 @@ pub struct SemanticHost {
     unresolved_thingy: Thingy,
     pub(crate) top_level_package: Package,
     void_type: Type,
+    object_type: RefCell<Option<Thingy>>,
     boolean_type: RefCell<Option<Thingy>>,
     number_type: RefCell<Option<Thingy>>,
     int_type: RefCell<Option<Thingy>>,
@@ -42,6 +43,7 @@ impl SemanticHost {
             invalidation_thingy,
             unresolved_thingy,
             void_type,
+            object_type: RefCell::new(None),
             boolean_type: RefCell::new(None),
             number_type: RefCell::new(None),
             int_type: RefCell::new(None),
@@ -78,6 +80,7 @@ impl SemanticHost {
         self.void_type.clone()
     }
 
+    global_lookup!(object_type, "Object");
     global_lookup!(boolean_type, "Boolean");
     global_lookup!(number_type, "Number");
     global_lookup!(int_type, "int");

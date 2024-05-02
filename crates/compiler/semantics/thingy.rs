@@ -138,7 +138,7 @@ smodel! {
             panic!();
         }
 
-        pub fn extends_class(&self) -> Option<Thingy> {
+        pub fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
             panic!();
         }
 
@@ -576,7 +576,7 @@ smodel! {
             self.m_implements()
         }
 
-        pub override fn extends_class(&self) -> Option<Thingy> {
+        pub override fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
             self.m_extends_class()
         }
 
