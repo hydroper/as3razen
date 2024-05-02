@@ -39,13 +39,7 @@ impl NameMap {
         let mut r: Option<Thingy> = None;
         for (qname, thingy) in self.borrow().iter() {
             let ns1 = qname.namespace();
-            let mut found_ns = false;
-            for ns2 in ns_set.ns_set_list().iter() {
-                if ns1 == ns2 {
-                    found_ns = true;
-                    break;
-                }
-            }
+            let found_ns = ns_set.ns_set_list().iter().find(|ns2| &ns1 == ns2).is_some();
             if !found_ns {
                 continue;
             }
