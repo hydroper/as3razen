@@ -4,3 +4,4 @@ pub use smodel::util::{
     shared_array,
     shared_map,
 };
+pub use by_address::ByAddress;

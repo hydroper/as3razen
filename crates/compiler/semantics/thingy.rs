@@ -63,7 +63,6 @@ smodel! {
     }
 
     pub struct UserNamespace: Namespace {
-        let ref m_asdoc: Option<Rc<AsDoc>> = None;
         let ref m_uri: String = "".into();
 
         pub fn UserNamespace(uri: String) {
@@ -75,21 +74,12 @@ smodel! {
             self.m_uri()
         }
 
-        pub fn asdoc(&self) -> Option<Rc<AsDoc>> {
-            self.m_asdoc()
-        }
-
-        pub fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {
-            self.set_m_asdoc(asdoc);
-        }
-
         override fn to_string_1(&self) -> String {
             self.m_uri()
         }
     }
 
     pub struct ExplicitNamespace: Namespace {
-        let ref m_asdoc: Option<Rc<AsDoc>> = None;
         let ref m_uri: String = "".into();
 
         pub fn ExplicitNamespace(uri: String) {
@@ -99,14 +89,6 @@ smodel! {
 
         pub override fn uri(&self) -> String {
             self.m_uri()
-        }
-
-        pub fn asdoc(&self) -> Option<Rc<AsDoc>> {
-            self.m_asdoc()
-        }
-
-        pub fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {
-            self.set_m_asdoc(asdoc);
         }
 
         override fn to_string_1(&self) -> String {
@@ -157,36 +139,49 @@ impl ToString for SystemNamespaceKind {
     }
 }
 
-pub struct QName {
-    m_namespace: Thingy,
-    m_local_name: String,
-}
+/// A qualified name in ActionScript 3 consisting of
+/// a namespace and a local name.
+/// 
+/// This structure is not intended for E4X, but for representing
+/// ActionScript 3 property names.
+#[derive(Clone)]
+pub struct QName(pub(crate) Rc<QName1>);
 
 impl QName {
-    pub fn new(namespace: Thingy, local_name: String) -> Self {
-        Self {
-            m_namespace: namespace,
-            m_local_name: local_name,
-        }
-    }
-
-    pub fn namespace(&self) -> Thingy {
-        self.m_namespace.clone()
+    pub fn namespace(&self) -> Namespace {
+        self.0.m_namespace.clone()
     }
 
     pub fn local_name(&self) -> String {
-        self.m_local_name.clone()
+        self.0.m_local_name.clone()
     }
+}
+
+impl std::hash::Hash for QName {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        Rc::as_ptr(&self.0).hash(state)
+    }
+}
+
+impl PartialEq for QName {
+    fn eq(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.0, &other.0)
+    }
+}
+
+pub(crate) struct QName1 {
+    pub(crate) m_namespace: Namespace,
+    pub(crate) m_local_name: String,
 }
 
 impl ToString for QName {
     fn to_string(&self) -> String {
         let q = self.namespace();
-        let ln = self.local_name();
+        let lname = self.local_name();
         if q.is::<SystemNamespace>() {
-            return ln;
+            return lname;
         }
-        format!("{}::{ln}", q.uri())
+        format!("{}::{lname}", q.uri())
     }
 }
 

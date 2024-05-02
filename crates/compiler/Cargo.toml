@@ -17,7 +17,9 @@ path = "lib.rs"
 [dependencies]
 as3_parser = "1.0"
 bitflags = { version = "2.4.1", features = ["serde"] }
+by_address = "1.2.1"
 bytes = "1"
+dotenvy = "0.15.7"
 file_paths = "1.0.0"
 maplit = "1.0.2"
 smodel = "1.0.9"
