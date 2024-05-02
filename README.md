@@ -16,7 +16,7 @@ In previous verifiers I was not creating control flow graphs because I assumed l
 
 **ASDoc**
 
-I have found ASDoc's implementation to be problematic in certain ways, and there is no compiler option in Flex to allow optional Markdown support.
+I have found Flex ASDoc's implementation to be problematic in certain ways, and there is no compiler option in Flex to allow optional Markdown support.
 
 **Package manager**
 
