@@ -17,12 +17,10 @@
   * [x] Namespaces
   * [x] NamespaceSet
   * [x] Packages
-  * [ ] PackageSet
-    * [ ] Description: Package sets may be used in a future version for recursive package aliases, and possibly `q.**` XML namespaces in Flex rather than just `q.*`.
-  * [ ] Alias
+  * [x] Alias
   * [ ] Types
-    * [ ] Any type
-    * [ ] Void type
+    * [x] Any type
+    * [x] Void type
     * [ ] Class type
     * [ ] Enum type
     * [ ] Interface type

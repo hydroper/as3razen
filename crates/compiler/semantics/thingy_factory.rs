@@ -99,4 +99,8 @@ impl<'a> ThingyFactory<'a> {
         }
         result
     }
+
+    pub fn create_alias(&self, name: QName, alias_of: Thingy) -> Thingy {
+        Alias::new(&self.0.arena, name, alias_of).into()
+    }
 }

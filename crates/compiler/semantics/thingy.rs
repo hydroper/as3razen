@@ -8,6 +8,14 @@ smodel! {
     /// one of several ActionScript 3 variants,
     /// such as classes, variable slots, and reference values.
     pub struct Thingy {
+        pub fn defer(&self) -> Result<(), DeferError> {
+            if self.is::<UnresolvedThingy>() {
+                Err(DeferError::new())
+            } else {
+                Ok(())
+            }
+        }
+
         pub fn system_ns_kind(&self) -> Option<SystemNamespaceKind> {
             None
         }
@@ -17,6 +25,10 @@ smodel! {
         }
 
         pub fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {}
+
+        pub fn metadata(&self) -> SharedArray<Rc<Metadata>> {
+            panic!();
+        }
 
         pub fn uri(&self) -> String {
             "".into()
@@ -62,12 +74,20 @@ smodel! {
             panic!();
         }
 
-        pub fn defer_if_unresolved(&self) -> Result<(), DeferError> {
-            if self.is::<UnresolvedThingy>() {
-                Err(DeferError::new())
-            } else {
-                Ok(())
-            }
+        pub fn alias_of(&self) -> Thingy {
+            panic!();
+        }
+
+        pub fn resolve_alias(&self) -> Thingy {
+            self.clone()
+        }
+
+        pub fn includes_undefined(&self) -> bool {
+            panic!();
+        }
+
+        pub fn includes_null(&self) -> bool {
+            panic!();
         }
 
         pub fn name(&self) -> QName {
@@ -106,6 +126,7 @@ smodel! {
         }
     }
 
+    /// Thingy used to indicate that an entity is invalidated.
     pub struct InvalidationThingy: Thingy {
         pub fn InvalidationThingy() {
             super();
@@ -249,14 +270,94 @@ smodel! {
         pub override fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {
             self.set_m_asdoc(asdoc);
         }
+
+        override fn to_string_1(&self) -> String {
+            self.fully_qualified_name()
+        }
+    }
+
+    pub struct Alias: Thingy {
+        let ref m_name: Option<QName> = None;
+        let ref m_alias_of: Option<Thingy> = None;
+        let ref m_parent: Option<Thingy> = None;
+        let ref m_asdoc: Option<Rc<AsDoc>> = None;
+        let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
+
+        pub fn Alias(name: QName, alias_of: Thingy) {
+            super();
+            self.set_m_name(Some(name));
+            self.set_m_alias_of(Some(alias_of));
+        }
+
+        pub override fn name(&self) -> QName {
+            self.m_name().unwrap()
+        }
+
+        pub override fn alias_of(&self) -> Thingy {
+            self.m_alias_of().unwrap()
+        }
+
+        pub override fn resolve_alias(&self) -> Thingy {
+            self.alias_of().resolve_alias()
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.m_parent()
+        }
+
+        pub override fn set_parent(&self, p: Option<Thingy>) {
+            self.set_m_parent(p);
+        }
+
+        pub override fn asdoc(&self) -> Option<Rc<AsDoc>> {
+            self.m_asdoc()
+        }
+
+        pub override fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {
+            self.set_m_asdoc(asdoc);
+        }
+
+        pub override fn metadata(&self) -> SharedArray<Rc<Metadata>> {
+            self.m_metadata()
+        }
+
+        override fn to_string_1(&self) -> String {
+            self.alias_of().to_string_1()
+        }
     }
 
     pub struct Type: Thingy {
     }
 
+    pub struct AnyType : Type {
+        pub fn AnyType() {
+            super();
+        }
+
+        pub override fn includes_undefined(&self) -> bool {
+            true
+        }
+
+        pub override fn includes_null(&self) -> bool {
+            true
+        }
+
+        override fn to_string_1(&self) -> String {
+            "*".into()
+        }
+    }
+
     pub struct VoidType : Type {
         pub fn VoidType() {
             super();
+        }
+
+        pub override fn includes_undefined(&self) -> bool {
+            true
+        }
+
+        pub override fn includes_null(&self) -> bool {
+            false
         }
 
         override fn to_string_1(&self) -> String {
