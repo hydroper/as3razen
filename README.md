@@ -28,19 +28,21 @@ I would like to have friendly package management in ActionScript 3 comparable to
 | ----- | ----------- |
 | [![](https://img.shields.io/badge/Rust-blue)](https://github.com/hydroper/as3parser/wiki/Rust-for-ActionScript-developers) | A Rust quickstart introduction. |
 | [![](https://img.shields.io/badge/Compiler-blue)](https://github.com/hydroper/as3parser/blob/master/docs/building-a-compiler.md) | Several important points about an ActionScript 3 compiler. |
-| [![](https://img.shields.io/badge/Semantic%20model-blue)](https://github.com/hydroper/as3parser/wiki/Semantic-model) | Techniques for the semantic model. Pretty simple actually. |
+| [![](https://img.shields.io/badge/Semantics-blue)](https://github.com/hydroper/as3parser/wiki/Semantic-model) | Techniques for the semantic model. Pretty simple actually. |
 | [![](https://img.shields.io/badge/References-blue)](https://github.com/hydroper/as3parser/blob/master/docs/references.md) | Links to documents such as language specifications, AVM2 overview, SWF 19 spec., and more. |
-| [![](https://img.shields.io/badge/Jet%20codebase-blue)](https://github.com/hydroper-jet/privcompiler/tree/master/src/compiler) | I was for a short time working in a dialect codenamed Jet, which I've abandoned. It contains code that may be mimmicked in semantic cases, such as type substitution, and a few logical parts. |
+| [![](https://img.shields.io/badge/Jet-blue)](https://github.com/hydroper-jet/privcompiler/tree/master/src/compiler) | I was for a short time working in a dialect codenamed Jet, which I've abandoned. It contains code that may be mimmicked in semantic cases, such as type substitution, and a few logical parts. |
 
 ## To do
 
 [![](https://img.shields.io/badge/APM-blue)](todo/apm.md)
-[![](https://img.shields.io/badge/Compilation%20units-blue)](todo/compilation-units.md)
+[![](https://img.shields.io/badge/CUnits-blue)](todo/compilation-units.md)
 [![](https://img.shields.io/badge/Misc%2E-blue)](todo/misc.md)
 [![](https://img.shields.io/badge/Semantics-blue)](todo/semantics.md)
-[![](https://img.shields.io/badge/Unused%20warning-blue)](todo/unused-warning.md)
+[![](https://img.shields.io/badge/Warning-blue)](todo/unused-warning.md)
 [![](https://img.shields.io/badge/Verifier-blue)](todo/verifier.md)
 
 ## License
 
 Apache 2.0, copyright © Hydroper
+
+[First commit](https://github.com/hydroper/fxrazen/commit/38d07aa5e382b131a11e222fe3745a37d4728e61)
