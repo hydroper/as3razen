@@ -20,21 +20,13 @@ I would like to have friendly package management in ActionScript 3 comparable to
 
 ## Research
 
-The following links may be useful:
-
-[Rust for ActionScript developers](https://github.com/hydroper/as3parser/wiki/Rust-for-ActionScript-developers)
-
-[Building a compiler](https://github.com/hydroper/as3parser/blob/master/docs/building-a-compiler.md)
-
-[Semantic model](https://github.com/hydroper/as3parser/wiki/Semantic-model)
-
-[Reference documents](https://github.com/hydroper/as3parser/blob/master/docs/references.md)
-
-### Old code
-
-I was for a short time working in a dialect codenamed Jet, which I've abandoned. It contains code that may be mimmicked in semantic cases, such as type substitution, and a few logical parts.
-
-[Jet compiler](https://github.com/hydroper-jet/privcompiler/tree/master/src/compiler)
+| Title | Description |
+| ----- | ----------- |
+| [Rust for ActionScript developers](https://github.com/hydroper/as3parser/wiki/Rust-for-ActionScript-developers) | A Rust quickstart introduction. |
+| [Building a compiler](https://github.com/hydroper/as3parser/blob/master/docs/building-a-compiler.md) | Several important points about an ActionScript 3 compiler. |
+| [Semantic model](https://github.com/hydroper/as3parser/wiki/Semantic-model) | Techniques for the semantic model. Pretty simple actually. |
+| [Reference documents](https://github.com/hydroper/as3parser/blob/master/docs/references.md) | Links to documents such as language specifications, AVM2 overview, SWF 19 spec., and more. |
+| [Jet code](https://github.com/hydroper-jet/privcompiler/tree/master/src/compiler) | I was for a short time working in a dialect codenamed Jet, which I've abandoned. It contains code that may be mimmicked in semantic cases, such as type substitution, and a few logical parts. |
 
 ## License
 
