@@ -1,3 +1,3 @@
-# AS3Razen
+# FXRazen
 
-AS3Razen is a future reserved ActionScript 3 compiler.
+FXRazen is a future reserved ActionScript 3 compiler.

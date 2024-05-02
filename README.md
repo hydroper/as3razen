@@ -1,8 +1,8 @@
-# AS3Razen
+# FXRazen
 
-AS3Razen is an ActionScript 3 compiler in alpha development phase.
+FXRazen is an ActionScript 3 compiler in alpha development phase.
 
-AS3Razen aims to comply with either the Apache Flex or Royale compilers which are implemented in the Java language using the Maven ecosystem. AS3Razen would be completely in Rust, using the Cargo (crates.io) ecosystem of dependencies.
+FXRazen aims to comply with either the Apache Flex or Royale compilers which are implemented in the Java language using the Maven ecosystem. FXRazen would be completely in Rust, using the Cargo (crates.io) ecosystem of dependencies.
 
 ## Motivation
 

@@ -1,17 +1,17 @@
 [package]
-name = "as3razen"
+name = "fxrazen"
 version = "0.1.0"
 edition = "2021"
 authors = ["hydroper <matheusdiasdesouzads@gmail.com>"]
-repository = "https://github.com/hydroper/as3razen"
+repository = "https://github.com/hydroper/fxrazen"
 keywords = ["actionscript", "as3", "compiler"]
-description = "AS3Razen compiler"
+description = "FXRazen compiler"
 license = "Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "as3razen"
+name = "fxrazen"
 path = "lib.rs"
 
 [dependencies]

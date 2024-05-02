@@ -43,20 +43,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "as3razen"
-version = "0.1.0"
-dependencies = [
- "as3_parser",
- "bitflags",
- "by_address",
- "bytes",
- "dotenvy",
- "file_paths",
- "maplit",
- "smodel",
-]
-
-[[package]]
 name = "autocfg"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -111,6 +97,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6655a548f719048f152b0349acf5f1b0fa7ce430acb49d4afc1d42513f160549"
 dependencies = [
  "lazy-regex",
+]
+
+[[package]]
+name = "fxrazen"
+version = "0.1.0"
+dependencies = [
+ "as3_parser",
+ "bitflags",
+ "by_address",
+ "bytes",
+ "dotenvy",
+ "file_paths",
+ "maplit",
+ "smodel",
 ]
 
 [[package]]
