@@ -32,12 +32,12 @@ I would like to have friendly package management in ActionScript 3 comparable to
 
 | Title | Description |
 | ----- | ----------- |
-| [APM](apm.md) | |
-| [Compilation units](compilation-units.md) | |
-| [Misc.](misc.md) | |
-| [Semantics](semantics.md) | |
-| [Unused warning](unused-warning.md) | |
-| [Verifier](verifier.md) | |
+| [APM](todo/apm.md) | |
+| [Compilation units](todo/compilation-units.md) | |
+| [Misc.](todo/misc.md) | |
+| [Semantics](todo/semantics.md) | |
+| [Unused warning](todo/unused-warning.md) | |
+| [Verifier](todo/verifier.md) | |
 
 ## License
 
