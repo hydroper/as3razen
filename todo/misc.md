@@ -1,4 +1,4 @@
-# To do
+# Miscellaneous
 
 ## SWC inclusion
 
@@ -8,7 +8,7 @@ No notes as of yet.
 
 No notes as of yet.
 
-## Miscellaneous
+## Uncategorized
 
 * [ ] Compiler options
 * [ ] Diagnostics
