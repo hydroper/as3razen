@@ -5,8 +5,8 @@
 * [ ] Semantic host
 * [x] NameMap
 * [ ] Warning: Entities, including classes, aliases, variable slots and so on, all must have an optional "location" field pointing to where they were defined in the source code.
-  * [ ] Alias
-  * [ ] Class
+  * [x] Alias
+  * [x] Class
   * [ ] Enum
   * [ ] Interface
   * [ ] Type parameter type
@@ -24,6 +24,8 @@
     * [x] Class type
     * [ ] Enum type
       * [ ] Override `name()`
+      * [ ] Override `location()`
+      * [ ] Override `set_location()`
       * [ ] Override `parent()`
       * [ ] Override `set_parent()`
       * [ ] Override `private_ns()`

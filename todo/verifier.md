@@ -1,5 +1,17 @@
 # Verifier
 
+## Locations
+
+Do not forget to set source locations of entities such as classes and variables.
+
+* [ ] Aliases
+* [ ] Classes
+* [ ] Enumerations
+* [ ] Interfaces
+* [ ] Variable slots
+* [ ] Virtual slots
+* [ ] Method slots
+
 ## ASDoc
 
 * [ ] Set ASDoc comments properly.

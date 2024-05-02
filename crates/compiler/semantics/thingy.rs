@@ -17,6 +17,14 @@ smodel! {
             }
         }
 
+        pub fn location(&self) -> Option<Location> {
+            panic!();
+        }
+
+        pub fn set_location(&self, loc: Option<Location>) {
+            panic!();
+        }
+
         pub fn system_ns_kind(&self) -> Option<SystemNamespaceKind> {
             None
         }
@@ -373,6 +381,7 @@ smodel! {
         let ref m_parent: Option<Thingy> = None;
         let ref m_asdoc: Option<Rc<AsDoc>> = None;
         let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
+        let ref m_location: Option<Location> = None;
 
         pub fn Alias(name: QName, alias_of: Thingy) {
             super();
@@ -386,6 +395,14 @@ smodel! {
 
         pub override fn alias_of(&self) -> Thingy {
             self.m_alias_of().unwrap()
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.m_location()
+        }
+
+        pub override fn set_location(&self, loc: Option<Location>) {
+            self.set_m_location(loc);
         }
 
         pub override fn resolve_alias(&self) -> Thingy {
@@ -480,6 +497,7 @@ smodel! {
         let ref m_flex_events: SharedMap<String, Thingy> = SharedMap::new();
         let ref m_asdoc: Option<Rc<AsDoc>> = None;
         let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
+        let ref m_location: Option<Location> = None;
 
         pub fn ClassType(name: QName) {
             super();
@@ -488,6 +506,14 @@ smodel! {
 
         pub override fn name(&self) -> QName {
             self.m_name().unwrap()
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.m_location()
+        }
+
+        pub override fn set_location(&self, loc: Option<Location>) {
+            self.set_m_location(loc);
         }
 
         #[inheritdoc]
