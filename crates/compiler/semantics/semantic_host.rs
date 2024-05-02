@@ -8,7 +8,7 @@ pub struct SemanticHost {
 
     pub(crate) explicit_namespaces: RefCell<HashMap<String, Namespace>>,
     pub(crate) user_namespaces: RefCell<HashMap<String, Namespace>>,
-    pub(crate) qnames: RefCell<HashMap<ByAddress<Namespace>, HashMap<String, QName>>>,
+    pub(crate) qnames: RefCell<HashMap<Namespace, HashMap<String, QName>>>,
     void_type: Type,
 }
 

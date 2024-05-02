@@ -1,3 +1,6 @@
+mod name_map;
+pub use name_map::*;
+
 mod number_variant;
 pub use number_variant::*;
 

@@ -25,10 +25,12 @@
     * [ ] Non nullable type
     * [ ] Type parameter type
   * [ ] Scopes
-    * [ ] Package property imports
-      * [ ] Mapping from package to property
-    * [ ] Package wildcard imports
-      * [ ] Set of packages
+    * [ ] Field: Parent
+    * [ ] Field: Open namespace set
+    * [ ] Field: Package property imports
+      * [ ] Description: Mapping from package to property
+    * [ ] Field: Package wildcard imports
+      * [ ] Description: Set of packages
     * [ ] WithScope
     * [ ] FilterOperatorScope
     * [ ] ActivationScope

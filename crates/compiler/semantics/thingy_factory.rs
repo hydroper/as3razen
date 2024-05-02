@@ -25,7 +25,7 @@ impl<'a> ThingyFactory<'a> {
 
     pub fn create_qname(&self, namespace: &Namespace, local_name: String) -> QName {
         let mut ns_mappings = self.0.qnames.borrow_mut();
-        if let Some(qn_mappings) = ns_mappings.get_mut(&ByAddress(namespace.clone())) {
+        if let Some(qn_mappings) = ns_mappings.get_mut(namespace) {
             if let Some(qn) = qn_mappings.get(&local_name) {
                 return qn.clone();
             }
@@ -42,7 +42,7 @@ impl<'a> ThingyFactory<'a> {
         }));
         let mut qn_mappings = HashMap::new();
         qn_mappings.insert(local_name, qn.clone());
-        ns_mappings.insert(ByAddress(namespace.clone()), qn_mappings);
+        ns_mappings.insert(namespace.clone(), qn_mappings);
         qn
     }
 }

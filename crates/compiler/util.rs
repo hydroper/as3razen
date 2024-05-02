@@ -5,3 +5,7 @@ pub use smodel::util::{
     shared_map,
 };
 pub use by_address::ByAddress;
+pub use maplit::{
+    hashmap,
+    hashset,
+};

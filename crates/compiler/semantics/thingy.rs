@@ -169,6 +169,8 @@ impl PartialEq for QName {
     }
 }
 
+impl Eq for QName {}
+
 pub(crate) struct QName1 {
     pub(crate) m_namespace: Namespace,
     pub(crate) m_local_name: String,
