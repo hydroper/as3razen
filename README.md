@@ -25,18 +25,27 @@ I would like to have friendly package management in ActionScript 3 comparable to
 ## Research
 
 [![](https://img.shields.io/badge/Rust%20guide-blue)](https://github.com/hydroper/as3parser/wiki/Rust-for-ActionScript-developers)
+
 [![](https://img.shields.io/badge/Compiler-blue)](https://github.com/hydroper/as3parser/blob/master/docs/building-a-compiler.md)
+
 [![](https://img.shields.io/badge/Semantic%20model-blue)](https://github.com/hydroper/as3parser/wiki/Semantic-model)
+
 [![](https://img.shields.io/badge/References-blue)](https://github.com/hydroper/as3parser/blob/master/docs/references.md)
+
 [![](https://img.shields.io/badge/Jet%20codebase-blue)](https://github.com/hydroper-jet/privcompiler/tree/master/src/compiler)
 
 ## To do
 
 [![](https://img.shields.io/badge/APM-blue)](todo/apm.md)
+
 [![](https://img.shields.io/badge/Compilation%20units-blue)](todo/compilation-units.md)
+
 [![](https://img.shields.io/badge/Misc%2E-blue)](todo/misc.md)
+
 [![](https://img.shields.io/badge/Semantics-blue)](todo/semantics.md)
+
 [![](https://img.shields.io/badge/Unused%20warning-blue)](todo/unused-warning.md)
+
 [![](https://img.shields.io/badge/Verifier-blue)](todo/verifier.md)
 
 ## License
