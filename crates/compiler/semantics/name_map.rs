@@ -81,8 +81,20 @@ impl NameMap {
         self.0.borrow()
     }
 
+    pub fn borrow_mut(&self) -> std::cell::RefMut<HashMap<QName, Thingy>> {
+        self.0.borrow_mut()
+    }
+
     /// Clones this `NameMap` by content, and not by reference.
     pub fn clone_content(&self) -> Self {
         Self(self.0.clone_content())
+    }
+
+    pub fn length(&self) -> usize {
+        self.0.length()
+    }
+
+    pub fn clear(&mut self) {
+        self.0.clear();
     }
 }
