@@ -21,7 +21,7 @@
   * [ ] Types
     * [x] Any type
     * [x] Void type
-    * [ ] Class type
+    * [x] Class type
       * [x] Override `name()`
       * [x] Override `parent()`
       * [x] Override `set_parent()`
@@ -31,25 +31,25 @@
       * [x] Override `set_protected_ns()`
       * [x] Override `static_protected_ns()`
       * [x] Override `set_static_protected_ns()`
-      * [ ] Flex `[Event]` mapping
-      * [ ] Override `is_abstract()`
-      * [ ] Override `set_is_abstract()`
-      * [ ] Override `is_final()`
-      * [ ] Override `set_is_final()`
-      * [ ] Override `is_dynamic()`
-      * [ ] Override `set_is_dynamic()`
-      * [ ] Override `is_option_set()`
-      * [ ] Override `set_is_option_set()`
-      * [ ] Override `constructor_method()`
-      * [ ] Override `set_constructor_method()`
-      * [ ] Override `implements()`
-      * [ ] Override `extends_class()`
-      * [ ] Override `set_extends_class()`
+      * [x] Flex `[Event]` mapping
+      * [x] Override `is_abstract()`
+      * [x] Override `set_is_abstract()`
+      * [x] Override `is_final()`
+      * [x] Override `set_is_final()`
+      * [x] Override `is_dynamic()`
+      * [x] Override `set_is_dynamic()`
+      * [x] Override `is_option_set()`
+      * [x] Override `set_is_option_set()`
+      * [x] Override `constructor_method()`
+      * [x] Override `set_constructor_method()`
+      * [x] Override `implements()`
+      * [x] Override `extends_class()`
+      * [x] Override `set_extends_class()`
       * [x] Override `type_parameters()`
       * [x] Override `set_type_parameters()`
-      * [ ] Override `properties()`
-      * [ ] Override `prototype()`
-      * [ ] Override `known_subclasses()`
+      * [x] Override `properties()`
+      * [x] Override `prototype()`
+      * [x] Override `known_subclasses()`
       * [x] Override `includes_null()`
       * [x] Override `includes_undefined()`
       * [x] Override `asdoc()`

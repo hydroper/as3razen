@@ -91,6 +91,65 @@ smodel! {
             panic!();
         }
 
+        /// Event mapping from `[Event(name="eventName", type="T")]` meta-data.
+        pub fn flex_events(&self) -> SharedMap<String, Thingy> {
+            panic!();
+        }
+
+        pub fn is_abstract(&self) -> bool {
+            false
+        }
+
+        pub fn set_is_abstract(&self, value: bool) {
+        }
+
+        pub fn is_final(&self) -> bool {
+            false
+        }
+
+        pub fn set_is_final(&self, value: bool) {
+        }
+
+        pub fn is_dynamic(&self) -> bool {
+            false
+        }
+
+        pub fn set_is_dynamic(&self, value: bool) {
+        }
+
+        pub fn is_option_set(&self) -> bool {
+            false
+        }
+
+        pub fn set_is_option_set(&self, value: bool) {
+        }
+
+        pub fn constructor_method(&self) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn set_constructor_method(&self, m: Option<Thingy>) {}
+
+        pub fn known_subclasses(&self) -> SharedArray<Thingy> {
+            panic!();
+        }
+
+        pub fn implements(&self) -> SharedArray<Thingy> {
+            panic!();
+        }
+
+        pub fn extends_class(&self) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn set_extends_class(&self, entity: Option<Thingy>) {
+            panic!();
+        }
+
+        pub fn prototype(&self, host: &SemanticHost) -> NameMap {
+            panic!();
+        }
+
         pub fn properties(&self, host: &SemanticHost) -> NameMap {
             panic!();
         }
@@ -418,6 +477,7 @@ smodel! {
         let ref m_static_protected_ns: Option<Namespace> = None;
         let ref m_properties: NameMap = NameMap::new();
         let ref m_prototype: NameMap = NameMap::new();
+        let ref m_flex_events: SharedMap<String, Thingy> = SharedMap::new();
         let ref m_asdoc: Option<Rc<AsDoc>> = None;
         let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
 
@@ -428,6 +488,11 @@ smodel! {
 
         pub override fn name(&self) -> QName {
             self.m_name().unwrap()
+        }
+
+        #[inheritdoc]
+        pub override fn flex_events(&self) -> SharedMap<String, Thingy> {
+            self.m_flex_events().clone()
         }
 
         pub override fn private_ns(&self) -> Option<Namespace> {
@@ -460,6 +525,79 @@ smodel! {
 
         pub override fn set_type_parameters(&self, list: Option<SharedArray<Thingy>>) {
             self.set_m_type_parameters(list);
+        }
+
+        pub override fn is_abstract(&self) -> bool {
+            self.m_flags().contains(ClassTypeFlags::IS_ABSTRACT)
+        }
+
+        pub override fn set_is_abstract(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(ClassTypeFlags::IS_ABSTRACT, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn is_final(&self) -> bool {
+            self.m_flags().contains(ClassTypeFlags::IS_FINAL)
+        }
+
+        pub override fn set_is_final(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(ClassTypeFlags::IS_FINAL, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn is_dynamic(&self) -> bool {
+            self.m_flags().contains(ClassTypeFlags::IS_DYNAMIC)
+        }
+
+        pub override fn set_is_dynamic(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(ClassTypeFlags::IS_DYNAMIC, value);
+            self.set_m_flags(v);
+        }
+
+        /// Whether the class is an `[OptionSet]` class.
+        pub override fn is_option_set(&self) -> bool {
+            self.m_flags().contains(ClassTypeFlags::IS_OPTION_SET)
+        }
+
+        pub override fn set_is_option_set(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(ClassTypeFlags::IS_OPTION_SET, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn known_subclasses(&self) -> SharedArray<Thingy> {
+            self.m_known_subclasses()
+        }
+
+        pub override fn implements(&self) -> SharedArray<Thingy> {
+            self.m_implements()
+        }
+
+        pub override fn extends_class(&self) -> Option<Thingy> {
+            self.m_extends_class()
+        }
+
+        pub override fn set_extends_class(&self, entity: Option<Thingy>) {
+            self.set_m_extends_class(entity);
+        }
+
+        pub override fn properties(&self, host: &SemanticHost) -> NameMap {
+            self.m_properties()
+        }
+
+        pub override fn prototype(&self, host: &SemanticHost) -> NameMap {
+            self.m_prototype()
+        }
+
+        pub override fn constructor_method(&self) -> Option<Thingy> {
+            self.m_constructor_method()
+        }
+
+        pub override fn set_constructor_method(&self, m: Option<Thingy>) {
+            self.set_m_constructor_method(m);
         }
 
         pub override fn parent(&self) -> Option<Thingy> {
