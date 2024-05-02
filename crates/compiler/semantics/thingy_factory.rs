@@ -15,6 +15,10 @@ impl<'a> ThingyFactory<'a> {
         SystemNamespace::new(&self.0.arena, SystemNamespaceKind::Protected, parent).into()
     }
 
+    pub fn create_static_protected_namespace(&self, parent: Option<Thingy>) -> Namespace {
+        SystemNamespace::new(&self.0.arena, SystemNamespaceKind::StaticProtected, parent).into()
+    }
+
     pub fn create_internal_namespace(&self, parent: Option<Thingy>) -> Namespace {
         SystemNamespace::new(&self.0.arena, SystemNamespaceKind::Internal, parent).into()
     }
@@ -102,5 +106,13 @@ impl<'a> ThingyFactory<'a> {
 
     pub fn create_alias(&self, name: QName, alias_of: Thingy) -> Thingy {
         Alias::new(&self.0.arena, name, alias_of).into()
+    }
+
+    pub fn create_class_type(&self, name: QName) -> Thingy {
+        let r = ClassType::new(&self.0.arena, name);
+        r.set_private_ns(Some(self.create_private_namespace(Some(r.clone().into()))));
+        r.set_protected_ns(Some(self.create_protected_namespace(Some(r.clone().into()))));
+        r.set_static_protected_ns(Some(self.create_static_protected_namespace(Some(r.clone().into()))));
+        r.into()
     }
 }

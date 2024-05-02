@@ -2,7 +2,7 @@
 
 ## SWC inclusion
 
-No notes as of yet.
+* [ ] External inclusion (include SWC solely into semantic model)
 
 ## ANEs
 

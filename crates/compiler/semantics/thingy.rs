@@ -1,4 +1,5 @@
 use crate::ns::*;
+use bitflags::bitflags;
 use smodel::smodel;
 
 smodel! {
@@ -58,6 +59,30 @@ smodel! {
             panic!();
         }
 
+        pub fn private_ns(&self) -> Option<Namespace> {
+            panic!();
+        }
+
+        pub fn set_private_ns(&self, ns: Option<Namespace>) {
+            panic!();
+        }
+
+        pub fn protected_ns(&self) -> Option<Namespace> {
+            panic!();
+        }
+
+        pub fn set_protected_ns(&self, ns: Option<Namespace>) {
+            panic!();
+        }
+
+        pub fn static_protected_ns(&self) -> Option<Namespace> {
+            panic!();
+        }
+
+        pub fn set_static_protected_ns(&self, ns: Option<Namespace>) {
+            panic!();
+        }
+
         pub fn internal_ns(&self) -> Option<Namespace> {
             panic!();
         }
@@ -82,11 +107,11 @@ smodel! {
             self.clone()
         }
 
-        pub fn includes_undefined(&self) -> bool {
+        pub fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
             panic!();
         }
 
-        pub fn includes_null(&self) -> bool {
+        pub fn includes_null(&self, host: &SemanticHost) -> Result<bool, DeferError> {
             panic!();
         }
 
@@ -113,6 +138,13 @@ smodel! {
                 p = p1.parent();
             }
             r
+        }
+
+        pub fn type_parameters(&self) -> Option<SharedArray<Thingy>> {
+            None
+        }
+
+        pub fn set_type_parameters(&self, list: Option<SharedArray<Thingy>>) {
         }
 
         fn to_string_1(&self) -> String {
@@ -327,6 +359,13 @@ smodel! {
     }
 
     pub struct Type: Thingy {
+        pub override fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(true)
+        }
+
+        pub override fn includes_null(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(false)
+        }
     }
 
     pub struct AnyType : Type {
@@ -334,12 +373,12 @@ smodel! {
             super();
         }
 
-        pub override fn includes_undefined(&self) -> bool {
-            true
+        pub override fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(true)
         }
 
-        pub override fn includes_null(&self) -> bool {
-            true
+        pub override fn includes_null(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(true)
         }
 
         override fn to_string_1(&self) -> String {
@@ -352,16 +391,112 @@ smodel! {
             super();
         }
 
-        pub override fn includes_undefined(&self) -> bool {
-            true
+        pub override fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(true)
         }
 
-        pub override fn includes_null(&self) -> bool {
-            false
+        pub override fn includes_null(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(false)
         }
 
         override fn to_string_1(&self) -> String {
             "void".into()
+        }
+    }
+
+    pub struct ClassType: Type {
+        let ref m_name: Option<QName> = None;
+        let m_flags: ClassTypeFlags = ClassTypeFlags::empty();
+        let ref m_type_parameters: Option<SharedArray<Thingy>> = None;
+        let ref m_extends_class: Option<Thingy> = None;
+        let ref m_implements: SharedArray<Thingy> = SharedArray::new();
+        let ref m_known_subclasses: SharedArray<Thingy> = SharedArray::new();
+        let ref m_constructor_method: Option<Thingy> = None;
+        let ref m_parent: Option<Thingy> = None;
+        let ref m_private_ns: Option<Namespace> = None;
+        let ref m_protected_ns: Option<Namespace> = None;
+        let ref m_static_protected_ns: Option<Namespace> = None;
+        let ref m_properties: NameMap = NameMap::new();
+        let ref m_prototype: NameMap = NameMap::new();
+        let ref m_asdoc: Option<Rc<AsDoc>> = None;
+        let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
+
+        pub fn ClassType(name: QName) {
+            super();
+            self.set_m_name(Some(name));
+        }
+
+        pub override fn name(&self) -> QName {
+            self.m_name().unwrap()
+        }
+
+        pub override fn private_ns(&self) -> Option<Namespace> {
+            self.m_private_ns()
+        }
+
+        pub override fn set_private_ns(&self, ns: Option<Namespace>) {
+            self.set_m_private_ns(ns);
+        }
+
+        pub override fn protected_ns(&self) -> Option<Namespace> {
+            self.m_protected_ns()
+        }
+
+        pub override fn set_protected_ns(&self, ns: Option<Namespace>) {
+            self.set_m_protected_ns(ns);
+        }
+
+        pub override fn static_protected_ns(&self) -> Option<Namespace> {
+            self.m_static_protected_ns()
+        }
+
+        pub override fn set_static_protected_ns(&self, ns: Option<Namespace>) {
+            self.set_m_static_protected_ns(ns);
+        }
+
+        pub override fn type_parameters(&self) -> Option<SharedArray<Thingy>> {
+            self.m_type_parameters()
+        }
+
+        pub override fn set_type_parameters(&self, list: Option<SharedArray<Thingy>>) {
+            self.set_m_type_parameters(list);
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.m_parent()
+        }
+
+        pub override fn set_parent(&self, p: Option<Thingy>) {
+            self.set_m_parent(p);
+        }
+
+        pub override fn asdoc(&self) -> Option<Rc<AsDoc>> {
+            self.m_asdoc()
+        }
+
+        pub override fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {
+            self.set_m_asdoc(asdoc);
+        }
+
+        pub override fn metadata(&self) -> SharedArray<Rc<Metadata>> {
+            self.m_metadata()
+        }
+
+        pub override fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(false)
+        }
+
+        pub override fn includes_null(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(!host.non_null_primitive_types()?.contains(&self.clone().into()))
+        }
+
+        override fn to_string_1(&self) -> String {
+            let name_1 = self.fully_qualified_name();
+            let mut p = String::new();
+            if let Some(type_parameters) = self.type_parameters() {
+                p = ".<".to_owned() + &type_parameters.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", ") + ">";
+            }
+            name_1 + &p
         }
     }
 }
@@ -444,3 +579,14 @@ impl ToString for QName {
 }
 
 impl DiagnosticArgument for QName {}
+
+bitflags! {
+    #[derive(Copy, Clone, PartialEq, Eq)]
+    struct ClassTypeFlags: u16 {
+        const IS_FINAL = 0b00000001;
+        const IS_STATIC = 0b00000010;
+        const IS_ABSTRACT = 0b00000100;
+        const IS_DYNAMIC = 0b00001000;
+        const IS_OPTION_SET = 0b00010000;
+    }
+}

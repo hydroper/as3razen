@@ -22,14 +22,47 @@
     * [x] Any type
     * [x] Void type
     * [ ] Class type
-      * [ ] `is_option_set()`
-      * [ ] `set_is_option_set()`
+      * [x] Override `name()`
+      * [x] Override `parent()`
+      * [x] Override `set_parent()`
+      * [x] Override `private_ns()`
+      * [x] Override `set_private_ns()`
+      * [x] Override `protected_ns()`
+      * [x] Override `set_protected_ns()`
+      * [x] Override `static_protected_ns()`
+      * [x] Override `set_static_protected_ns()`
+      * [ ] Flex `[Event]` mapping
+      * [ ] Override `is_abstract()`
+      * [ ] Override `set_is_abstract()`
+      * [ ] Override `is_final()`
+      * [ ] Override `set_is_final()`
+      * [ ] Override `is_dynamic()`
+      * [ ] Override `set_is_dynamic()`
+      * [ ] Override `is_option_set()`
+      * [ ] Override `set_is_option_set()`
+      * [ ] Override `constructor_method()`
+      * [ ] Override `set_constructor_method()`
+      * [ ] Override `implements()`
+      * [ ] Override `extends_class()`
+      * [ ] Override `set_extends_class()`
+      * [x] Override `type_parameters()`
+      * [x] Override `set_type_parameters()`
+      * [ ] Override `properties()`
+      * [ ] Override `prototype()`
+      * [ ] Override `known_subclasses()`
+      * [x] Override `includes_null()`
+      * [x] Override `includes_undefined()`
+      * [x] Override `asdoc()`
+      * [x] Override `set_asdoc()`
+      * [x] Override `metadata()`
+      * [x] Override `to_string_1()`
     * [ ] Enum type
     * [ ] Interface type
     * [ ] Type after substitution
       * [ ] Override fully qualified name
     * [ ] Tuple type
     * [ ] Function type
+    * [ ] Nullable type
     * [ ] Non nullable type
     * [ ] Type parameter type
   * [ ] Scopes

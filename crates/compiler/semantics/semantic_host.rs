@@ -13,10 +13,12 @@ pub struct SemanticHost {
     unresolved_thingy: Thingy,
     pub(crate) top_level_package: Package,
     void_type: Type,
+    boolean_type: RefCell<Option<Thingy>>,
     number_type: RefCell<Option<Thingy>>,
     int_type: RefCell<Option<Thingy>>,
     uint_type: RefCell<Option<Thingy>>,
     float_type: RefCell<Option<Thingy>>,
+    non_null_primitive_types: RefCell<Option<Rc<Vec<Thingy>>>>,
 }
 
 impl SemanticHost {
@@ -40,10 +42,12 @@ impl SemanticHost {
             invalidation_thingy,
             unresolved_thingy,
             void_type,
+            boolean_type: RefCell::new(None),
             number_type: RefCell::new(None),
             int_type: RefCell::new(None),
             uint_type: RefCell::new(None),
             float_type: RefCell::new(None),
+            non_null_primitive_types: RefCell::new(None),
         };
 
         // Initialize top level namespaces
@@ -74,10 +78,40 @@ impl SemanticHost {
         self.void_type.clone()
     }
 
+    global_lookup!(boolean_type, "Boolean");
     global_lookup!(number_type, "Number");
     global_lookup!(int_type, "int");
     global_lookup!(uint_type, "uint");
     global_lookup!(float_type, "float");
+
+    /// Returns the set of primitive types that do not contain `null`,
+    /// such as `Boolean`, `Number`, `int`, `uint`, and `float`.
+    /// `String` is never included in the resulting set, as it
+    /// includes the `null` value.
+    pub fn non_null_primitive_types(&self) -> Result<Rc<Vec<Thingy>>, DeferError> {
+        if let Some(r) = self.non_null_primitive_types.borrow().as_ref() {
+            return Ok(r.clone());
+        }
+        let boolean_type = self.boolean_type();
+        let number_type = self.number_type();
+        let int_type = self.int_type();
+        let uint_type = self.uint_type();
+        let float_type = self.float_type();
+        boolean_type.defer()?;
+        number_type.defer()?;
+        int_type.defer()?;
+        uint_type.defer()?;
+        float_type.defer()?;
+        let r = Rc::new(vec![
+            boolean_type,
+            number_type,
+            int_type,
+            uint_type,
+            float_type,
+        ]);
+        self.non_null_primitive_types.replace(Some(r.clone()));
+        Ok(r)
+    }
 
     /// Preload environment variables from the main project's `.env` file
     /// using the DotEnv file format.
