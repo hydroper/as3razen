@@ -1,6 +1,6 @@
 # FXRazen
 
-FXRazen is an ActionScript 3 compiler in alpha development phase, for use with the AIR technology developed by Samsung HARMAN.
+FXRazen is an ActionScript 3 compiler in alpha development phase, for use with the Adobe AIR technology.
 
 FXRazen aims to comply with either the Apache Flex or Royale compilers which are implemented in the Java language using the Maven ecosystem. FXRazen would be completely in Rust, using the Cargo (crates.io) ecosystem of dependencies.
 
