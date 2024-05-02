@@ -9,3 +9,8 @@ impl DeferError {
         DeferError {}
     }
 }
+
+/// Error used to indicate an ambiguous reference to a local name.
+#[derive(Clone)]
+#[non_exhaustive]
+pub struct AmbiguousReferenceError(pub String);

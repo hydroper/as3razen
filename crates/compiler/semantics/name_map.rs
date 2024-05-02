@@ -34,6 +34,45 @@ impl NameMap {
         self.0.get(name)
     }
 
+    /// Retrieves a thingy matching a local name in a namespace set.
+    pub fn get_in_ns_set(&self, ns_set: &NamespaceSet, local_name: &str) -> Result<Option<Thingy>, AmbiguousReferenceError> {
+        let mut r: Option<Thingy> = None;
+        for (qname, thingy) in self.borrow().iter() {
+            let ns1 = qname.namespace();
+            let mut found_ns = false;
+            for ns2 in ns_set.ns_set_list().iter() {
+                if ns1 == ns2 {
+                    found_ns = true;
+                    break;
+                }
+            }
+            if !found_ns {
+                continue;
+            }
+            if qname.local_name() == local_name {
+                if r.is_some() {
+                    return Err(AmbiguousReferenceError(local_name.to_owned()));
+                }
+                r = Some(thingy.clone());
+            }
+        }
+        Ok(r)
+    }
+
+    /// Retrieves a thingy matching a local name in any namespace.
+    pub fn get_in_any_ns(&self, local_name: &str) -> Result<Option<Thingy>, AmbiguousReferenceError> {
+        let mut r: Option<Thingy> = None;
+        for (qname, thingy) in self.borrow().iter() {
+            if qname.local_name() == local_name {
+                if r.is_some() {
+                    return Err(AmbiguousReferenceError(local_name.to_owned()));
+                }
+                r = Some(thingy.clone());
+            }
+        }
+        Ok(r)
+    }
+
     pub fn set(&mut self, name: QName, thing: Thingy) {
         self.0.set(name, thing);
     }
@@ -51,20 +90,5 @@ impl NameMap {
     /// Clones this `NameMap` by content, and not by reference.
     pub fn clone_content(&self) -> Self {
         Self(self.0.clone_content())
-    }
-
-    /// Retrieves a thingy matching a local name in a namespace set.
-    pub fn get_in_ns_set(&self, ns_set: &NamespaceSet, local_name: &str) -> Option<Thingy> {
-        //
-    }
-
-    /// Retrieves a thingy matching a local name in any namespace.
-    pub fn get_in_any_ns(&self, local_name: &str) -> Option<Thingy> {
-        for (qname, thingy) in self.borrow().iter() {
-            if qname.local_name() == local_name {
-                return Some(thingy.clone());
-            }
-        }
-        None
     }
 }

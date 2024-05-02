@@ -22,6 +22,18 @@ smodel! {
             "".into()
         }
 
+        pub fn ns_set_list(&self) -> SharedArray<Namespace> {
+            panic!()
+        }
+
+        pub fn defer_if_unresolved(&self) -> Result<(), DeferError> {
+            if self.is::<UnresolvedThingy>() {
+                Err(DeferError::new())
+            } else {
+                Ok(())
+            }
+        }
+
         fn to_string_1(&self) -> String {
             "".into()
         }
@@ -93,6 +105,19 @@ smodel! {
 
         override fn to_string_1(&self) -> String {
             self.m_uri()
+        }
+    }
+
+    pub struct NamespaceSet: Thingy {
+        let ref m_list: SharedArray<Namespace> = SharedArray::new();
+
+        pub fn NamespaceSet(list: SharedArray<Namespace>) {
+            super();
+            self.set_m_list(list);
+        }
+
+        pub override fn ns_set_list(&self) -> SharedArray<Namespace> {
+            self.m_list()
         }
     }
 

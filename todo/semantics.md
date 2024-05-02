@@ -3,10 +3,10 @@
 * [x] QName
 * [x] NumberVariant
 * [ ] Semantic host
-* [ ] NameMap
+* [x] NameMap
 * [ ] Things
   * [x] Namespaces
-  * [ ] NamespaceSet
+  * [x] NamespaceSet
   * [ ] PackageSet
     * [ ] Description: Package sets may be used in a future version for recursive package imports and recursive package aliases.
   * [ ] Packages

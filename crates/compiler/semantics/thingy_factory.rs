@@ -45,4 +45,9 @@ impl<'a> ThingyFactory<'a> {
         ns_mappings.insert(namespace.clone(), qn_mappings);
         qn
     }
+
+    pub fn create_namespace_set(&self, list: SharedArray<Namespace>) -> NamespaceSet {
+        // Do not intern namespace sets for now.
+        NamespaceSet::new(&self.0.arena, list)
+    }
 }
