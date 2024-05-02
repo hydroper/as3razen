@@ -7,6 +7,7 @@ pub use number_variant::*;
 mod semantic_host;
 pub use semantic_host::*;
 
+#[allow(unused_variables)]
 mod thingy;
 pub use thingy::*;
 

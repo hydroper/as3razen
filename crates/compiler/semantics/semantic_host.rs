@@ -9,6 +9,9 @@ pub struct SemanticHost {
     pub(crate) explicit_namespaces: RefCell<HashMap<String, Namespace>>,
     pub(crate) user_namespaces: RefCell<HashMap<String, Namespace>>,
     pub(crate) qnames: RefCell<HashMap<Namespace, HashMap<String, QName>>>,
+    invalidation_thingy: Thingy,
+    unresolved_thingy: Thingy,
+    pub(crate) top_level_package: Package,
     void_type: Type,
 }
 
@@ -19,20 +22,44 @@ impl SemanticHost {
         let user_namespaces = RefCell::new(HashMap::new());
         let qnames = RefCell::new(HashMap::new());
         let void_type: Type = VoidType::new(&arena).into();
-        Self {
+        let invalidation_thingy: Thingy = InvalidationThingy::new(&arena).into();
+        let unresolved_thingy: Thingy = UnresolvedThingy::new(&arena).into();
+        let top_level_package = Package::new(&arena, "".into());
+        let host = Self {
             arena,
             project_path: options.project_path.clone(),
             env_cache: RefCell::new(None),
             explicit_namespaces,
             user_namespaces,
             qnames,
+            top_level_package: top_level_package.clone(),
+            invalidation_thingy,
+            unresolved_thingy,
             void_type,
-        }
+        };
+
+        // Initialize top level namespaces
+        top_level_package.set_public_ns(Some(host.factory().create_public_namespace(Some(top_level_package.clone().into()))));
+        top_level_package.set_internal_ns(Some(host.factory().create_internal_namespace(Some(top_level_package.clone().into()))));
+
+        host
     }
 
     #[inline(always)]
     pub fn factory(&self) -> ThingyFactory {
         ThingyFactory(self)
+    }
+
+    pub fn top_level_package(&self) -> Package {
+        self.top_level_package.clone()
+    }
+
+    pub fn invalidation_thingy(&self) -> Thingy {
+        self.invalidation_thingy.clone()
+    }
+
+    pub fn unresolved_thingy(&self) -> Thingy {
+        self.unresolved_thingy.clone()
     }
 
     pub fn void_type(&self) -> Type {

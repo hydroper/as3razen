@@ -16,7 +16,7 @@ smodel! {
             None
         }
 
-        pub fn set_asdoc(&self, _asdoc: Option<Rc<AsDoc>>) {}
+        pub fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {}
 
         pub fn uri(&self) -> String {
             "".into()
@@ -26,12 +26,73 @@ smodel! {
             panic!()
         }
 
+        pub fn local_name(&self) -> String {
+            "".into()
+        }
+
+        pub fn parent(&self) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn set_parent(&self, p: Option<Thingy>) {
+            panic!();
+        }
+
+        pub fn public_ns(&self) -> Option<Namespace> {
+            panic!();
+        }
+
+        pub fn set_public_ns(&self, ns: Option<Namespace>) {
+            panic!();
+        }
+
+        pub fn internal_ns(&self) -> Option<Namespace> {
+            panic!();
+        }
+
+        pub fn set_internal_ns(&self, ns: Option<Namespace>) {
+            panic!();
+        }
+
+        pub fn properties(&self, host: &SemanticHost) -> NameMap {
+            panic!();
+        }
+
+        pub fn subpackages(&self) -> SharedMap<String, Package> {
+            panic!();
+        }
+
         pub fn defer_if_unresolved(&self) -> Result<(), DeferError> {
             if self.is::<UnresolvedThingy>() {
                 Err(DeferError::new())
             } else {
                 Ok(())
             }
+        }
+
+        pub fn name(&self) -> QName {
+            panic!();
+        }
+
+        pub fn fully_qualified_name(&self) -> String {
+            self.fully_qualified_name_list().join(".")
+        }
+    
+        pub fn fully_qualified_name_list(&self) -> Vec<String> {
+            let mut r: Vec<String> = vec![];
+            let mut p = Some(self.clone());
+            while let Some(p1) = p {
+                let name = if p1.is::<Package>() {
+                    p1.local_name()
+                } else {
+                    p1.name().to_string()
+                };
+                if !name.is_empty() {
+                    r.insert(0, name);
+                }
+                p = p1.parent();
+            }
+            r
         }
 
         fn to_string_1(&self) -> String {
@@ -59,14 +120,20 @@ smodel! {
 
     pub struct SystemNamespace: Namespace {
         let m_kind: SystemNamespaceKind = SystemNamespaceKind::Public;
+        let ref m_parent: Option<Thingy> = None;
 
-        pub fn SystemNamespace(kind: SystemNamespaceKind) {
+        pub fn SystemNamespace(kind: SystemNamespaceKind, parent: Option<Thingy>) {
             super();
             self.set_m_kind(kind);
+            self.set_m_parent(parent);
         }
 
         pub override fn system_ns_kind(&self) -> Option<SystemNamespaceKind> {
             Some(self.m_kind())
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.m_parent()
         }
 
         override fn to_string_1(&self) -> String {
@@ -118,6 +185,69 @@ smodel! {
 
         pub override fn ns_set_list(&self) -> SharedArray<Namespace> {
             self.m_list()
+        }
+    }
+
+    /// A package consists of a local name, two namespaces, `public` and `internal`,
+    /// and a mapping of subpackages.
+    pub struct Package: Thingy {
+        let ref m_name: String = "".into();
+        let ref m_parent: Option<Thingy> = None;
+        let ref m_public_ns: Option<Namespace> = None;
+        let ref m_internal_ns: Option<Namespace> = None;
+        let ref m_properties: NameMap = NameMap::new();
+        let ref m_subpackages: SharedMap<String, Package> = SharedMap::new();
+        let ref m_asdoc: Option<Rc<AsDoc>> = None;
+
+        pub fn Package(name: String) {
+            super();
+            self.set_m_name(name);
+        }
+
+        /// The local name of the package. For the top-level package
+        /// this is the empty string.
+        pub override fn local_name(&self) -> String {
+            self.m_name()
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.m_parent()
+        }
+
+        pub override fn set_parent(&self, p: Option<Thingy>) {
+            self.set_m_parent(p);
+        }
+
+        pub override fn public_ns(&self) -> Option<Namespace> {
+            self.m_public_ns()
+        }
+
+        pub override fn set_public_ns(&self, ns: Option<Namespace>) {
+            self.set_m_public_ns(ns);
+        }
+
+        pub override fn internal_ns(&self) -> Option<Namespace> {
+            self.m_internal_ns()
+        }
+
+        pub override fn set_internal_ns(&self, ns: Option<Namespace>) {
+            self.set_m_internal_ns(ns);
+        }
+
+        pub override fn properties(&self, host: &SemanticHost) -> NameMap {
+            self.m_properties()
+        }
+
+        pub override fn subpackages(&self) -> SharedMap<String, Package> {
+            self.m_subpackages()
+        }
+
+        pub override fn asdoc(&self) -> Option<Rc<AsDoc>> {
+            self.m_asdoc()
+        }
+
+        pub override fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {
+            self.set_m_asdoc(asdoc);
         }
     }
 

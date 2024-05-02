@@ -16,11 +16,9 @@
 * [ ] Things
   * [x] Namespaces
   * [x] NamespaceSet
+  * [x] Packages
   * [ ] PackageSet
-    * [ ] Description: Package sets may be used in a future version for recursive package imports and recursive package aliases.
-  * [ ] Packages
-    * [ ] Public namespace
-    * [ ] Internal namespace
+    * [ ] Description: Package sets may be used in a future version for recursive package aliases, and possibly `q.**` XML namespaces in Flex rather than just `q.*`.
   * [ ] Alias
   * [ ] Types
     * [ ] Any type
@@ -29,6 +27,7 @@
     * [ ] Enum type
     * [ ] Interface type
     * [ ] Type after substitution
+      * [ ] Override fully qualified name
     * [ ] Tuple type
     * [ ] Function type
     * [ ] Non nullable type
