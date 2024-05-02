@@ -1,5 +1,3 @@
-use crate::ns::*;
-
 #[derive(Clone)]
 pub struct CompilerOptions {
     pub strict: bool,
@@ -24,5 +22,6 @@ impl Default for CompilerOptions {
 
 impl Default for CompilerWarningOptions {
     fn default() -> Self {
+        Self {}
     }
 }

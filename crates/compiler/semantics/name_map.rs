@@ -81,7 +81,7 @@ impl NameMap {
         self.0.borrow()
     }
 
-    pub fn borrow_mut(&self) -> std::cell::RefMut<HashMap<QName, Thingy>> {
+    pub fn borrow_mut(&mut self) -> std::cell::RefMut<HashMap<QName, Thingy>> {
         self.0.borrow_mut()
     }
 
