@@ -20,4 +20,4 @@ bitflags = { version = "2.4.1", features = ["serde"] }
 bytes = "1"
 file_paths = "1.0.0"
 maplit = "1.0.2"
-smodel = "1.0.8"
+smodel = "1.0.9"

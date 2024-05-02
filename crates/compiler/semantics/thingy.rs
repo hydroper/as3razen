@@ -39,16 +39,16 @@ smodel! {
         }
     }
 
-    pub struct NamespaceThingy: Thingy {
-        pub fn NamespaceThingy() {
+    pub struct Namespace: Thingy {
+        pub fn Namespace() {
             super();
         }
     }
 
-    pub struct SystemNamespaceThingy: NamespaceThingy {
+    pub struct SystemNamespace: Namespace {
         let m_kind: SystemNamespaceKind = SystemNamespaceKind::Public;
 
-        pub fn SystemNamespaceThingy(kind: SystemNamespaceKind) {
+        pub fn SystemNamespace(kind: SystemNamespaceKind) {
             super();
             self.set_m_kind(kind);
         }
@@ -62,11 +62,11 @@ smodel! {
         }
     }
 
-    pub struct UserNamespaceThingy: NamespaceThingy {
+    pub struct UserNamespace: Namespace {
         let ref m_asdoc: Option<Rc<AsDoc>> = None;
         let ref m_uri: String = "".into();
 
-        pub fn UserNamespaceThingy(uri: String) {
+        pub fn UserNamespace(uri: String) {
             super();
             self.set_m_uri(uri);
         }
@@ -88,11 +88,11 @@ smodel! {
         }
     }
 
-    pub struct ExplicitNamespaceThingy: NamespaceThingy {
+    pub struct ExplicitNamespace: Namespace {
         let ref m_asdoc: Option<Rc<AsDoc>> = None;
         let ref m_uri: String = "".into();
 
-        pub fn ExplicitNamespaceThingy(uri: String) {
+        pub fn ExplicitNamespace(uri: String) {
             super();
             self.set_m_uri(uri);
         }
@@ -183,7 +183,7 @@ impl ToString for QName {
     fn to_string(&self) -> String {
         let q = self.namespace();
         let ln = self.local_name();
-        if q.is::<SystemNamespaceThingy>() {
+        if q.is::<SystemNamespace>() {
             return ln;
         }
         format!("{}::{ln}", q.uri())

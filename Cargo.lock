@@ -311,9 +311,9 @@ dependencies = [
 
 [[package]]
 name = "smodel"
-version = "1.0.8"
+version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "889ea043e5af08fb94ec3a9d060f6c7a5649d79a10a6dc9b8796cba1505eeae4"
+checksum = "e844ef776deb011e6f4a5adcb10c7f387cd3b587720c44db8590d726c3df3b90"
 dependencies = [
  "by_address",
  "smodel-proc",
@@ -321,9 +321,9 @@ dependencies = [
 
 [[package]]
 name = "smodel-proc"
-version = "1.0.8"
+version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7e2aa71e39926235ab37a6536e5b0f33b0f9c5889de4f80a0e9dbb68e9c81f7"
+checksum = "120c689c2876c9d77c58071d8fe6b05945071ab01cd624898be32adbfce8124d"
 dependencies = [
  "by_address",
  "proc-macro2",
