@@ -107,9 +107,12 @@ dependencies = [
  "bitflags",
  "by_address",
  "bytes",
+ "conv",
  "dotenvy",
  "file_paths",
  "maplit",
+ "num-derive",
+ "num-traits",
  "smodel",
 ]
 

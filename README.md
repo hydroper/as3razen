@@ -28,7 +28,7 @@ The following links may be useful:
 
 I was for a short time working in a dialect codenamed Jet, which I've abandoned. It contains code that may be mimmicked in semantic cases, such as type substitution, and a few logical parts.
 
-[Jet compiler](https://github.com/hydroper-jet/private-compiler/tree/master/src/compiler)
+[Jet compiler](https://github.com/hydroper-jet/privcompiler/tree/master/src/compiler)
 
 ## License
 

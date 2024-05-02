@@ -1,7 +1,8 @@
 # Semantic model
 
-* [ ] Semantic host
 * [x] QName
+* [x] NumberVariant
+* [ ] Semantic host
 * [ ] NameMap
 * [ ] Things
   * [x] Namespaces
@@ -70,7 +71,6 @@
     * [ ] LambdaObject
       * [ ] Description: Represents the direct value of a `function` expression, holding back its activation.
 * [ ] Thingy factory
-* [ ] Abstract range number
 * [ ] Interface implementation
 * [ ] Method overriding
 * [ ] Property resolution
