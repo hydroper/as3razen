@@ -76,7 +76,7 @@ impl BitOr for NumberVariant {
 }
 
 impl NumberVariant {
-    pub fn zero(type_thing: &Type, host: &SemanticHost) -> Self {
+    pub fn zero(type_thing: &Thingy, host: &SemanticHost) -> Self {
         if type_thing == &host.number_type() {
             Self::Number(0.0)
         } else if type_thing == &host.int_type() {
@@ -94,7 +94,7 @@ impl NumberVariant {
         }
     }
 
-    pub fn one(type_thing: &Type, host: &SemanticHost) -> Self {
+    pub fn one(type_thing: &Thingy, host: &SemanticHost) -> Self {
         if type_thing == &host.number_type() {
             Self::Number(1.0)
         } else if type_thing == &host.int_type() {
@@ -112,7 +112,7 @@ impl NumberVariant {
         }
     }
 
-    pub fn minimum_value(type_thing: &Type, host: &SemanticHost) -> Self {
+    pub fn minimum_value(type_thing: &Thingy, host: &SemanticHost) -> Self {
         if type_thing == &host.number_type() {
             Self::Number(f64::NEG_INFINITY)
         } else if type_thing == &host.int_type() {
@@ -130,7 +130,7 @@ impl NumberVariant {
         }
     }
 
-    pub fn maximum_value(type_thing: &Type, host: &SemanticHost) -> Self {
+    pub fn maximum_value(type_thing: &Thingy, host: &SemanticHost) -> Self {
         if type_thing == &host.number_type() {
             Self::Number(f64::INFINITY)
         } else if type_thing == &host.int_type() {
@@ -246,7 +246,7 @@ impl NumberVariant {
         }
     }
 
-    pub fn convert_type(&self, target_type: &Type, host: &SemanticHost) -> Self {
+    pub fn convert_type(&self, target_type: &Thingy, host: &SemanticHost) -> Self {
         let number_type = host.number_type();
         let float_type = host.float_type();
         let int_type = host.int_type();

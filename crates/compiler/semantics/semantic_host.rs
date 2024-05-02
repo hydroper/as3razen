@@ -13,6 +13,10 @@ pub struct SemanticHost {
     unresolved_thingy: Thingy,
     pub(crate) top_level_package: Package,
     void_type: Type,
+    number_type: RefCell<Option<Thingy>>,
+    int_type: RefCell<Option<Thingy>>,
+    uint_type: RefCell<Option<Thingy>>,
+    float_type: RefCell<Option<Thingy>>,
 }
 
 impl SemanticHost {
@@ -36,6 +40,10 @@ impl SemanticHost {
             invalidation_thingy,
             unresolved_thingy,
             void_type,
+            number_type: RefCell::new(None),
+            int_type: RefCell::new(None),
+            uint_type: RefCell::new(None),
+            float_type: RefCell::new(None),
         };
 
         // Initialize top level namespaces
@@ -65,6 +73,11 @@ impl SemanticHost {
     pub fn void_type(&self) -> Type {
         self.void_type.clone()
     }
+
+    global_lookup!(number_type, "Number");
+    global_lookup!(int_type, "int");
+    global_lookup!(uint_type, "uint");
+    global_lookup!(float_type, "float");
 
     /// Preload environment variables from the main project's `.env` file
     /// using the DotEnv file format.
@@ -101,4 +114,21 @@ impl Default for SemanticHostOptions {
             project_path: None,
         }
     }
+}
+
+macro global_lookup {
+    ($field:ident, $as3name:expr) => {
+        /// Possibly unresolved.
+        pub fn $field(&self) -> Thingy {
+            if let Some(r) = self.$field.borrow().as_ref() {
+                return r.clone();
+            }
+            if let Some(r) = self.top_level_package.properties(self).get(&self.factory().create_qname(&self.top_level_package.public_ns().unwrap(), $as3name.to_owned())) {
+                self.$field.replace(Some(r.clone()));
+                r
+            } else {
+                self.unresolved_thingy()
+            }
+        }
+    },
 }
