@@ -4,6 +4,15 @@
 * [x] NumberVariant
 * [ ] Semantic host
 * [x] NameMap
+* [ ] Warning: Entities, including classes, aliases, variable slots and so on, all must have an optional "location" field pointing to where they were defined in the source code.
+  * [ ] Alias
+  * [ ] Class
+  * [ ] Enum
+  * [ ] Interface
+  * [ ] Type parameter type
+  * [ ] Variable slot
+  * [ ] Virtual slot
+  * [ ] Method slot
 * [ ] Things
   * [x] Namespaces
   * [x] NamespaceSet
