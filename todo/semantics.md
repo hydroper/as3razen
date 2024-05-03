@@ -7,9 +7,9 @@
 * [ ] Warning: Entities, including classes, aliases, variable slots and so on, all must have an optional "location" field pointing to where they were defined in the source code.
   * [x] Alias
   * [x] Class
-  * [ ] Enum
-  * [ ] Interface
-  * [ ] Type parameter type
+  * [x] Enum
+  * [x] Interface
+  * [x] Type parameter type
   * [ ] Variable slot
   * [ ] Virtual slot
   * [ ] Method slot
@@ -27,9 +27,9 @@
     * [x] Type after substitution
     * [x] Tuple type
     * [x] Function type
-    * [ ] Nullable type
-    * [ ] Non nullable type
-    * [ ] Type parameter type
+    * [x] Nullable type
+    * [x] Non nullable type
+    * [x] Type parameter type
   * [ ] Scopes
     * [ ] Field: Parent
     * [ ] Field: Open namespace set

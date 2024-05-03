@@ -224,4 +224,38 @@ impl<'a> ThingyFactory<'a> {
 
         ft.into()
     }
+
+    /// Interns a nullable type.
+    pub fn create_nullable_type(&self, base: &Thingy) -> Thingy {
+        if base == &self.0.any_type() {
+            return base.clone();
+        }
+        let mut m = self.0.nullable_types.borrow_mut();
+        let nt = m.get(base);
+        if let Some(nt) = nt {
+            return nt.clone();
+        }
+        let nt = NullableType::new(&self.0.arena, base.clone());
+        m.insert(base.clone(), nt.clone().into());
+        nt.into()
+    }
+
+    /// Interns a non nullable type.
+    pub fn create_non_nullable_type(&self, base: &Thingy) -> Thingy {
+        if base == &self.0.any_type() {
+            return base.clone();
+        }
+        let mut m = self.0.non_nullable_types.borrow_mut();
+        let nt = m.get(base);
+        if let Some(nt) = nt {
+            return nt.clone();
+        }
+        let nt = NonNullableType::new(&self.0.arena, base.clone());
+        m.insert(base.clone(), nt.clone().into());
+        nt.into()
+    }
+
+    pub fn create_type_parameter(&self, name: &QName) -> Thingy {
+        TypeParameterType::new(&self.0.arena, name.clone()).into()
+    }
 }

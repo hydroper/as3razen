@@ -12,7 +12,8 @@ pub struct SemanticHost {
     invalidation_thingy: Thingy,
     unresolved_thingy: Thingy,
     pub(crate) top_level_package: Thingy,
-    void_type: Type,
+    any_type: Thingy,
+    void_type: Thingy,
     object_type: RefCell<Option<Thingy>>,
     boolean_type: RefCell<Option<Thingy>>,
     number_type: RefCell<Option<Thingy>>,
@@ -37,7 +38,8 @@ impl SemanticHost {
         let explicit_namespaces = RefCell::new(HashMap::new());
         let user_namespaces = RefCell::new(HashMap::new());
         let qnames = RefCell::new(HashMap::new());
-        let void_type: Type = VoidType::new(&arena).into();
+        let any_type: Thingy = AnyType::new(&arena).into();
+        let void_type: Thingy = VoidType::new(&arena).into();
         let invalidation_thingy: Thingy = InvalidationThingy::new(&arena).into();
         let unresolved_thingy: Thingy = UnresolvedThingy::new(&arena).into();
         let top_level_package = Package::new(&arena, "".into());
@@ -51,6 +53,7 @@ impl SemanticHost {
             top_level_package: top_level_package.clone().into(),
             invalidation_thingy,
             unresolved_thingy,
+            any_type,
             void_type,
             object_type: RefCell::new(None),
             boolean_type: RefCell::new(None),
@@ -94,7 +97,11 @@ impl SemanticHost {
         self.unresolved_thingy.clone()
     }
 
-    pub fn void_type(&self) -> Type {
+    pub fn any_type(&self) -> Thingy {
+        self.any_type.clone()
+    }
+
+    pub fn void_type(&self) -> Thingy {
         self.void_type.clone()
     }
 

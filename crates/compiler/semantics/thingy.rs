@@ -246,6 +246,10 @@ smodel! {
             panic!();
         }
 
+        pub fn base(&self) -> Thingy {
+            panic!();
+        }
+
         fn to_string_1(&self) -> String {
             "".into()
         }
@@ -1157,6 +1161,102 @@ smodel! {
             format!("function({}) : {}", p.join(", "), self.result_type().to_string())
         }
     }
+
+    /// The nullable type `T?`. It is equivalent to either
+    /// `T` or `*` (for all primitive types but String).
+    pub struct NullableType: Type {
+        let ref m_base: Option<Thingy> = None;
+
+        pub(crate) fn NullableType(base: Thingy) {
+            super();
+            self.set_m_base(Some(base));
+        }
+
+        /// The type that is made nullable.
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn includes_undefined(&self) -> Result<bool, DeferError> {
+            Ok(false)
+        }
+
+        pub override fn includes_null(&self) -> Result<bool, DeferError> {
+            Ok(true)
+        }
+
+        override fn to_string_1(&self) -> String {
+            if let Ok(ft) = self.base().to::<FunctionType>() {
+                format!("?{}", ft.to_string())
+            } else {
+                format!("{}?", self.base().to_string())
+            }
+        }
+    }
+
+    pub struct NonNullableType: Type {
+        let ref m_base: Option<Thingy> = None;
+
+        pub(crate) fn NonNullableType(base: Thingy) {
+            super();
+            self.set_m_base(Some(base));
+        }
+
+        /// The type that is made non-nullable.
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn includes_undefined(&self) -> Result<bool, DeferError> {
+            Ok(false)
+        }
+
+        pub override fn includes_null(&self) -> Result<bool, DeferError> {
+            Ok(false)
+        }
+
+        override fn to_string_1(&self) -> String {
+            if let Ok(ft) = self.base().to::<FunctionType>() {
+                format!("({})!", ft.to_string())
+            } else {
+                format!("{}!", self.base().to_string())
+            }
+        }
+    }
+
+    pub struct TypeParameterType: Type {
+        let ref m_name: Option<QName> = None;
+        let ref m_location: Option<Location> = None;
+
+        pub(crate) fn TypeParameterType(name: QName) {
+            super();
+            self.set_m_name(Some(name));
+        }
+
+        pub override fn name(&self) -> QName {
+            self.m_name().unwrap()
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.m_location()
+        }
+
+        pub override fn set_location(&self, loc: Option<Location>) {
+            self.set_m_location(loc);
+        }
+
+        pub override fn includes_undefined(&self) -> Result<bool, DeferError> {
+            Ok(false)
+        }
+
+        pub override fn includes_null(&self) -> Result<bool, DeferError> {
+            Ok(false)
+        }
+
+        override fn to_string_1(&self) -> String {
+            self.name().to_string()
+        }
+    }
 }
 
 impl ToString for Thingy {
@@ -1193,6 +1293,11 @@ impl ToString for SystemNamespaceKind {
 /// 
 /// This structure is not intended for E4X, but for representing
 /// ActionScript 3 property names.
+/// 
+/// # Representation
+/// 
+/// `QName` in this codebase is a type managed by reference counting.
+/// Calling `.clone()` in it will clone by reference, not by content.
 #[derive(Clone)]
 pub struct QName(pub(crate) Rc<QName1>);
 
