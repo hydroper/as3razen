@@ -2,7 +2,6 @@
 
 * [x] QName
 * [x] NumberVariant
-* [ ] Semantic host
 * [x] NameMap
 * [ ] Warning: Entities, including classes, aliases, variable slots and so on, all must have an optional "location" field pointing to where they were defined in the source code.
   * [x] Alias
@@ -74,4 +73,5 @@
 * [ ] Method overriding
 * [ ] Property resolution
 * [ ] Type conversion
-* [ ] Type substitution
+* [x] Type substitution
+* [ ] Semantic host
