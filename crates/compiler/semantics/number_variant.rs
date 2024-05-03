@@ -8,8 +8,8 @@ use std::ops::{BitXor, BitOr};
 /// `Number`, `float`, `uint`, or `int`.
 #[derive(Clone, PartialEq)]
 pub enum NumberVariant {
-    Float(f32),
     Number(f64),
+    Float(f32),
     // BigInt(BigInt),
     Int(i32),
     Uint(u32),
@@ -343,5 +343,21 @@ impl NumberVariant {
             Self::Float(f) => f == &f32::INFINITY,
             _ => false,
         }
+    }
+
+    pub fn as_number(&self) -> Option<f64> {
+        if let NumberVariant::Number(v) = self { Some(*v) } else { None }
+    }
+
+    pub fn as_float(&self) -> Option<f32> {
+        if let NumberVariant::Float(v) = self { Some(*v) } else { None }
+    }
+
+    pub fn as_int(&self) -> Option<i32> {
+        if let NumberVariant::Int(v) = self { Some(*v) } else { None }
+    }
+
+    pub fn as_uint(&self) -> Option<u32> {
+        if let NumberVariant::Uint(v) = self { Some(*v) } else { None }
     }
 }

@@ -19,7 +19,11 @@ pub struct SemanticHost {
     int_type: RefCell<Option<Thingy>>,
     uint_type: RefCell<Option<Thingy>>,
     float_type: RefCell<Option<Thingy>>,
+    string_type: RefCell<Option<Thingy>>,
+    array_type: RefCell<Option<Thingy>>,
+    namespace_type: RefCell<Option<Thingy>>,
     non_null_primitive_types: RefCell<Option<Rc<Vec<Thingy>>>>,
+    pub(crate) types_after_sub: RefCell<HashMap<Thingy, Vec<Thingy>>>,
 }
 
 impl SemanticHost {
@@ -49,7 +53,11 @@ impl SemanticHost {
             int_type: RefCell::new(None),
             uint_type: RefCell::new(None),
             float_type: RefCell::new(None),
+            string_type: RefCell::new(None),
+            array_type: RefCell::new(None),
+            namespace_type: RefCell::new(None),
             non_null_primitive_types: RefCell::new(None),
+            types_after_sub: RefCell::new(HashMap::new()),
         };
 
         // Initialize top level namespaces
@@ -86,6 +94,9 @@ impl SemanticHost {
     global_lookup!(int_type, "int");
     global_lookup!(uint_type, "uint");
     global_lookup!(float_type, "float");
+    global_lookup!(string_type, "String");
+    global_lookup!(array_type, "Array");
+    global_lookup!(namespace_type, "Namespace");
 
     /// Returns the set of primitive types that do not contain `null`,
     /// such as `Boolean`, `Number`, `int`, `uint`, and `float`.

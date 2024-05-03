@@ -132,7 +132,7 @@ smodel! {
         pub fn set_is_option_set(&self, value: bool) {
         }
 
-        pub fn constructor_method(&self) -> Option<Thingy> {
+        pub fn constructor_method(&self, host: &SemanticHost) -> Option<Thingy> {
             panic!();
         }
 
@@ -142,7 +142,7 @@ smodel! {
             panic!();
         }
 
-        pub fn implements(&self) -> SharedArray<Thingy> {
+        pub fn implements(&self, host: &SemanticHost) -> SharedArray<Thingy> {
             panic!();
         }
 
@@ -222,7 +222,19 @@ smodel! {
             panic!();
         }
 
-        pub fn extends_interfaces(&self) -> SharedArray<Thingy> {
+        pub fn extends_interfaces(&self, host: &SemanticHost) -> SharedArray<Thingy> {
+            panic!();
+        }
+
+        pub fn origin(&self) -> Thingy {
+            panic!();
+        }
+
+        pub fn substitute_types(&self) -> SharedArray<Thingy> {
+            panic!();
+        }
+
+        pub fn element_types(&self) -> SharedArray<Thingy> {
             panic!();
         }
 
@@ -530,7 +542,7 @@ smodel! {
 
         #[inheritdoc]
         pub override fn flex_events(&self) -> SharedMap<String, Thingy> {
-            self.m_flex_events().clone()
+            self.m_flex_events()
         }
 
         pub override fn private_ns(&self) -> Option<Thingy> {
@@ -610,7 +622,7 @@ smodel! {
             self.m_known_subclasses()
         }
 
-        pub override fn implements(&self) -> SharedArray<Thingy> {
+        pub override fn implements(&self, host: &SemanticHost) -> SharedArray<Thingy> {
             self.m_implements()
         }
 
@@ -630,7 +642,7 @@ smodel! {
             self.m_prototype()
         }
 
-        pub override fn constructor_method(&self) -> Option<Thingy> {
+        pub override fn constructor_method(&self, host: &SemanticHost) -> Option<Thingy> {
             self.m_constructor_method()
         }
 
@@ -783,7 +795,6 @@ smodel! {
         let ref m_extends_interfaces: SharedArray<Thingy> = SharedArray::new();
         let ref m_known_implementors: SharedArray<Thingy> = SharedArray::new();
         let ref m_parent: Option<Thingy> = None;
-        let ref m_properties: NameMap = NameMap::new();
         let ref m_prototype: NameMap = NameMap::new();
         let ref m_asdoc: Option<Rc<AsDoc>> = None;
         let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
@@ -818,12 +829,8 @@ smodel! {
             self.m_known_implementors()
         }
 
-        pub override fn extends_interfaces(&self) -> SharedArray<Thingy> {
+        pub override fn extends_interfaces(&self, host: &SemanticHost) -> SharedArray<Thingy> {
             self.m_extends_interfaces()
-        }
-
-        pub override fn properties(&self, host: &SemanticHost) -> NameMap {
-            self.m_properties()
         }
 
         pub override fn prototype(&self, host: &SemanticHost) -> NameMap {
@@ -865,6 +872,214 @@ smodel! {
                 p = ".<".to_owned() + &type_parameters.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", ") + ">";
             }
             name_1 + &p
+        }
+    }
+
+    /// Type after substitution, whose origin is either
+    /// a class or an interface. Other types, after substitution,
+    /// such as structural types, are represented by their
+    /// same type with substitution in compound parts.
+    pub struct TypeAfterSubstitution: Type {
+        let ref m_origin: Option<Thingy> = None;
+        let ref m_substitute_types: SharedArray<Thingy> = SharedArray::new();
+        let ref m_extends_class: Option<Thingy> = None;
+        let ref m_implements: Option<SharedArray<Thingy>> = None;
+        let ref m_extends_interfaces: Option<SharedArray<Thingy>> = None;
+        let ref m_properties: Option<NameMap> = None;
+        let ref m_prototype: Option<NameMap> = None;
+        let ref m_constructor_method: Option<Thingy> = None;
+
+        pub fn TypeAfterSubstitution(origin: Thingy, substitute_types: SharedArray<Thingy>) {
+            super();
+            self.set_m_origin(Some(origin));
+            self.set_m_substitute_types(substitute_types);
+        }
+
+        pub override fn origin(&self) -> Thingy {
+            self.m_origin().unwrap()
+        }
+
+        pub override fn substitute_types(&self) -> SharedArray<Thingy> {
+            self.m_substitute_types()
+        }
+        
+        pub override fn name(&self) -> QName {
+            self.origin().name()
+        }
+
+        pub override fn flex_events(&self) -> SharedMap<String, Thingy> {
+            self.origin().flex_events()
+        }
+
+        pub override fn is_abstract(&self) -> bool {
+            self.origin().is_abstract()
+        }
+
+        pub override fn is_final(&self) -> bool {
+            self.origin().is_final()
+        }
+
+        pub override fn is_dynamic(&self) -> bool {
+            self.origin().is_dynamic()
+        }
+
+        pub override fn is_option_set(&self) -> bool {
+            self.origin().is_option_set()
+        }
+
+        pub override fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
+            if let Some(r) = self.m_extends_class() {
+                return Some(r.clone());
+            }
+            let origin = self.origin();
+            let r = origin.extends_class(host);
+            if r.is_none() {
+                return None;
+            }
+            let r = r.unwrap();
+            if r.is::<UnresolvedThingy>() {
+                return Some(r.clone());
+            }
+            let r = TypeSubstitution(host).exec(&r, &origin.type_parameters().unwrap(), &self.m_substitute_types());
+            self.set_m_extends_class(Some(r.clone()));
+            Some(r)
+        }
+
+        pub override fn implements(&self, host: &SemanticHost) -> SharedArray<Thingy> {
+            if let Some(r) = self.m_implements() {
+                return r;
+            }
+            let origin = self.origin();
+            let r: SharedArray<Thingy> = origin.implements(host).iter().map(|t| TypeSubstitution(host).exec(&t, &origin.type_parameters().unwrap(), &self.m_substitute_types())).collect();
+            self.set_m_implements(Some(r.clone()));
+            r
+        }
+
+        pub override fn extends_interfaces(&self, host: &SemanticHost) -> SharedArray<Thingy> {
+            if let Some(r) = self.m_extends_interfaces() {
+                return r;
+            }
+            let origin = self.origin();
+            let r: SharedArray<Thingy> = origin.extends_interfaces(host).iter().map(|t| TypeSubstitution(host).exec(&t, &origin.type_parameters().unwrap(), &self.m_substitute_types())).collect();
+            self.set_m_extends_interfaces(Some(r.clone()));
+            r
+        }
+
+        pub override fn prototype(&self, host: &SemanticHost) -> NameMap {
+            if let Some(r) = self.m_prototype() {
+                return r;
+            }
+            let origin = self.origin();
+            let mut r = NameMap::new();
+            for (name, thingy) in origin.prototype(host).borrow().iter() {
+                let thingy = TypeSubstitution(host).exec(&thingy, &origin.type_parameters().unwrap(), &self.m_substitute_types());
+                r.set(name.clone(), thingy)
+            }
+            self.set_m_prototype(Some(r.clone()));
+            r
+        }
+
+        pub override fn properties(&self, host: &SemanticHost) -> NameMap {
+            if let Some(r) = self.m_properties() {
+                return r;
+            }
+            let origin = self.origin();
+            let mut r = NameMap::new();
+            for (name, thingy) in origin.properties(host).borrow().iter() {
+                let thingy = TypeSubstitution(host).exec(&thingy, &origin.type_parameters().unwrap(), &self.m_substitute_types());
+                r.set(name.clone(), thingy)
+            }
+            self.set_m_properties(Some(r.clone()));
+            r
+        }
+
+        pub override fn constructor_method(&self, host: &SemanticHost) -> Option<Thingy> {
+            if let Some(r) = self.m_constructor_method() {
+                return Some(r.clone());
+            }
+            let origin = self.origin();
+            let r = origin.constructor_method(host);
+            if r.is_none() {
+                return None;
+            }
+            let r = r.unwrap();
+            let r = TypeSubstitution(host).exec(&r, &origin.type_parameters().unwrap(), &self.m_substitute_types());
+            self.set_m_constructor_method(Some(r.clone()));
+            Some(r)
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.origin().parent()
+        }
+
+        pub override fn asdoc(&self) -> Option<Rc<AsDoc>> {
+            self.origin().asdoc()
+        }
+
+        pub override fn metadata(&self) -> SharedArray<Rc<Metadata>> {
+            self.origin.metadata()
+        }
+
+        pub override fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(false)
+        }
+
+        pub override fn includes_null(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(true)
+        }
+
+        override fn to_string_1(&self) -> String {
+            let name_1 = self.fully_qualified_name();
+            let a = self.m_substitute_types();
+            let p = ".<".to_owned() + &a.iter().map(|a| a.to_string()).collect::<Vec<String>>().join(", ") + ">";
+            name_1 + &p
+        }
+    }
+
+    /// Tuple type. The tuple type is equivalent to
+    /// `Array` with type safety for its element types.
+    pub struct TupleType: Type {
+        let ref m_elements: SharedArray<Thingy> = SharedArray::new();
+
+        pub fn TupleType(elements: SharedArray<Thingy>) {
+            super();
+            self.set_m_elements(elements);
+        }
+        
+        pub override fn element_types(&self) -> SharedArray<Thingy> {
+            self.m_elements()
+        }
+
+        pub override fn is_abstract(&self) -> bool {
+            false
+        }
+
+        pub override fn is_final(&self) -> bool {
+            true
+        }
+
+        pub override fn is_dynamic(&self) -> bool {
+            true
+        }
+
+        pub override fn is_option_set(&self) -> bool {
+            false
+        }
+
+        pub override fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
+            Some(host.array_type())
+        }
+
+        pub override fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(false)
+        }
+
+        pub override fn includes_null(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(true)
+        }
+
+        override fn to_string_1(&self) -> String {
+            format!("[{}]", self.element_types().iter().map(|e| e.to_string()).collect::<Vec<String>>().join(", "))
         }
     }
 }

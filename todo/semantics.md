@@ -24,9 +24,8 @@
     * [x] Class type
     * [x] Enum type
     * [x] Interface type
-    * [ ] Type after substitution
-      * [ ] Override fully qualified name
-    * [ ] Tuple type
+    * [x] Type after substitution
+    * [x] Tuple type
     * [ ] Function type
     * [ ] Nullable type
     * [ ] Non nullable type

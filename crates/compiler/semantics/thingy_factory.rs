@@ -126,4 +126,39 @@ impl<'a> ThingyFactory<'a> {
         let r = InterfaceType::new(&self.0.arena, name);
         r.into()
     }
+
+    /// Interns type after substitution.
+    pub fn create_type_after_substitution(&self, origin: &Thingy, substitute_types: &SharedArray<Thingy>) -> Thingy {
+        // Verify parameter count
+        let parameters = origin.type_parameters().unwrap();
+        let parameter_count = parameters.length();
+        assert_eq!(substitute_types.length(), parameter_count);
+
+        let mut tas_list = self.0.types_after_sub.borrow_mut();
+
+        let mut list = tas_list.get(&origin);
+        let empty_list = vec![];
+        if list.is_none() {
+            list = Some(&empty_list);
+            tas_list.insert(origin.clone(), vec![]);
+        }
+        'tas: for tas in list.unwrap() {
+            let mut substitute_types_1 = substitute_types.iter();
+            let substitute_types_2 = tas.substitute_types();
+            let mut substitute_types_2 = substitute_types_2.iter();
+            while let Some(substitute_type_1) = substitute_types_1.next() {
+                let substitute_type_2 = substitute_types_2.next().unwrap();
+                if substitute_type_1 != substitute_type_2 {
+                    continue 'tas;
+                }
+            }
+            return tas.clone();
+        }
+
+        let tas = TypeAfterSubstitution::new(&self.0.arena, origin.clone(), substitute_types.clone());
+        let list = tas_list.get_mut(&origin).unwrap();
+        list.push(tas.clone().into());
+
+        tas.into()
+    }
 }
