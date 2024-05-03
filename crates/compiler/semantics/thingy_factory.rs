@@ -108,17 +108,35 @@ impl<'a> ThingyFactory<'a> {
         Alias::new(&self.0.arena, name, alias_of).into()
     }
 
-    pub fn create_class_type(&self, name: QName) -> Thingy {
+    /// # Parameters
+    /// 
+    /// - `ns_for_prototype`: The namespace used for the `prototype` property. Either
+    ///   `public` or `internal`.
+    pub fn create_class_type(&self, name: QName, ns_for_prototype: &Thingy) -> Thingy {
         let r = ClassType::new(&self.0.arena, name);
         r.set_private_ns(Some(self.create_private_ns(Some(r.clone().into()))));
         r.set_protected_ns(Some(self.create_protected_ns(Some(r.clone().into()))));
         r.set_static_protected_ns(Some(self.create_static_protected_ns(Some(r.clone().into()))));
+
+        // "static const prototype: *;"
+        let prototype_name = self.create_qname(&ns_for_prototype, "prototype".into());
+        let prototype_slot = self.create_variable_slot(&prototype_name, true, &self.0.any_type());
+        prototype_slot.set_is_external(true);
+        r.properties(self.0).set(prototype_name.clone(), prototype_slot);
+
         r.into()
     }
 
-    pub fn create_enum_type(&self, name: QName) -> Thingy {
+    pub fn create_enum_type(&self, name: QName, ns_for_prototype: &Thingy) -> Thingy {
         let r = EnumType::new(&self.0.arena, name);
         r.set_private_ns(Some(self.create_private_ns(Some(r.clone().into()))));
+
+        // "static const prototype: *;"
+        let prototype_name = self.create_qname(&ns_for_prototype, "prototype".into());
+        let prototype_slot = self.create_variable_slot(&prototype_name, true, &self.0.any_type());
+        prototype_slot.set_is_external(true);
+        r.properties(self.0).set(prototype_name.clone(), prototype_slot);
+
         r.into()
     }
 
@@ -258,7 +276,11 @@ impl<'a> ThingyFactory<'a> {
         nt.into()
     }
 
-    pub fn create_type_parameter(&self, name: &QName) -> Thingy {
+    pub fn create_type_parameter_type(&self, name: &QName) -> Thingy {
         TypeParameterType::new(&self.0.arena, name.clone()).into()
+    }
+
+    pub fn create_variable_slot(&self, name: &QName, read_only: bool, static_type: &Thingy) -> Thingy {
+        OriginalVariableSlot::new(&self.0.arena, name, read_only, static_type).into()
     }
 }

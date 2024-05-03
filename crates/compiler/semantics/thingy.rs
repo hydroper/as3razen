@@ -99,9 +99,44 @@ smodel! {
             panic!();
         }
 
+        /// Returns whether a type is a class, whether
+        /// original or after substitution.
+        pub fn is_class_type_possibly_after_sub(&self) -> bool {
+            false
+        }
+
+        /// Returns whether a type is an interface, whether
+        /// original or after substitution.
+        pub fn is_interface_type_possibly_after_sub(&self) -> bool {
+            false
+        }
+
         /// Event mapping from `[Event(name="eventName", type="T")]` meta-data.
         pub fn flex_events(&self) -> SharedMap<String, Thingy> {
             panic!();
+        }
+
+        pub fn bindable_event(&self) -> Option<String> {
+            panic!();
+        }
+
+        pub fn set_bindable_event(&self, name: Option<String>) {
+            panic!();
+        }
+
+        pub fn static_type(&self, host: &SemanticHost) -> Thingy {
+            panic!();
+        }
+
+        pub fn set_static_type(&self, value: Thingy) {
+            panic!();
+        }
+
+        pub fn is_external(&self) -> bool {
+            false
+        }
+
+        pub fn set_is_external(&self, value: bool) {
         }
 
         pub fn is_abstract(&self) -> bool {
@@ -253,6 +288,30 @@ smodel! {
         /// Performs type substitution.
         pub fn type_substitution(&self, host: &SemanticHost, type_params: &SharedArray<Thingy>, substitute_types: &SharedArray<Thingy>) -> Thingy {
             TypeSubstitution(host).exec(self, type_params, substitute_types)
+        }
+
+        pub fn read_only(&self) -> bool {
+            true
+        }
+
+        pub fn set_read_only(&self, value: bool) {
+            panic!();
+        }
+
+        pub fn write_only(&self) -> bool {
+            false
+        }
+
+        pub fn set_write_only(&self, value: bool) {
+            panic!();
+        }
+
+        pub fn var_constant(&self) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn set_var_constant(&self, k: Option<Thingy>) {
+            panic!();
         }
 
         fn to_string_1(&self) -> String {
@@ -419,6 +478,7 @@ smodel! {
     pub struct Alias: Thingy {
         let ref m_name: Option<QName> = None;
         let ref m_alias_of: Option<Thingy> = None;
+        let m_is_external: bool = false;
         let ref m_parent: Option<Thingy> = None;
         let ref m_asdoc: Option<Rc<AsDoc>> = None;
         let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
@@ -436,6 +496,14 @@ smodel! {
 
         pub override fn alias_of(&self) -> Thingy {
             self.m_alias_of().unwrap()
+        }
+
+        pub override fn is_external(&self) -> bool {
+            self.m_is_external()
+        }
+
+        pub override fn set_is_external(&self, value: bool) {
+            self.set_m_is_external(value);
         }
 
         pub override fn location(&self) -> Option<Location> {
@@ -545,6 +613,10 @@ smodel! {
             self.set_m_name(Some(name));
         }
 
+        pub override fn is_class_type_possibly_after_sub(&self) -> bool {
+            true
+        }
+
         pub override fn name(&self) -> QName {
             self.m_name().unwrap()
         }
@@ -635,6 +707,16 @@ smodel! {
             self.set_m_flags(v);
         }
 
+        pub override fn is_external(&self) -> bool {
+            self.m_flags().contains(ClassTypeFlags::IS_EXTERNAL)
+        }
+
+        pub override fn set_is_external(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(ClassTypeFlags::IS_EXTERNAL, value);
+            self.set_m_flags(v);
+        }
+
         pub override fn known_subclasses(&self) -> SharedArray<Thingy> {
             self.m_known_subclasses()
         }
@@ -708,6 +790,7 @@ smodel! {
     pub struct EnumType: Type {
         let ref m_name: Option<QName> = None;
         let ref m_parent: Option<Thingy> = None;
+        let m_is_external: bool = false;
         let ref m_private_ns: Option<Thingy> = None;
         let ref m_properties: NameMap = NameMap::new();
         let ref m_prototype: NameMap = NameMap::new();
@@ -761,6 +844,14 @@ smodel! {
             false
         }
 
+        pub override fn is_external(&self) -> bool {
+            self.m_is_external()
+        }
+
+        pub override fn set_is_external(&self, value: bool) {
+            self.set_m_is_external(value);
+        }
+
         pub override fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
             Some(host.object_type())
         }
@@ -809,6 +900,7 @@ smodel! {
     pub struct InterfaceType: Type {
         let ref m_name: Option<QName> = None;
         let ref m_type_params: Option<SharedArray<Thingy>> = None;
+        let m_is_external: bool = false;
         let ref m_extends_interfaces: SharedArray<Thingy> = SharedArray::new();
         let ref m_known_implementors: SharedArray<Thingy> = SharedArray::new();
         let ref m_parent: Option<Thingy> = None;
@@ -822,6 +914,10 @@ smodel! {
             self.set_m_name(Some(name));
         }
 
+        pub override fn is_interface_type_possibly_after_sub(&self) -> bool {
+            true
+        }
+
         pub override fn name(&self) -> QName {
             self.m_name().unwrap()
         }
@@ -832,6 +928,14 @@ smodel! {
 
         pub override fn set_location(&self, loc: Option<Location>) {
             self.set_m_location(loc);
+        }
+
+        pub override fn is_external(&self) -> bool {
+            self.m_is_external()
+        }
+
+        pub override fn set_is_external(&self, value: bool) {
+            self.set_m_is_external(value);
         }
 
         pub override fn type_params(&self) -> Option<SharedArray<Thingy>> {
@@ -910,6 +1014,14 @@ smodel! {
             super();
             self.set_m_origin(Some(origin));
             self.set_m_substitute_types(substitute_types);
+        }
+
+        pub override fn is_class_type_possibly_after_sub(&self) -> bool {
+            self.origin().is_class_type_possibly_after_sub()
+        }
+
+        pub override fn is_interface_type_possibly_after_sub(&self) -> bool {
+            self.origin().is_interface_type_possibly_after_sub()
         }
 
         pub override fn origin(&self) -> Thingy {
@@ -1262,6 +1374,119 @@ smodel! {
             self.name().to_string()
         }
     }
+
+    /// Either an *original* variable slot, or a variable slot after substitution.
+    pub struct VariableSlot: Thingy {
+        fn VariableSlot() {
+            super();
+        }
+    }
+
+    pub struct OriginalVariableSlot: VariableSlot {
+        let ref m_name: Option<QName> = None;
+        let ref m_location: Option<Location> = None;
+        let ref m_asdoc: Option<Rc<AsDoc>> = None;
+        let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
+        let ref m_constant: Option<Thingy> = None;
+        let ref m_static_type: Option<Thingy> = None;
+        let ref m_parent: Option<Thingy> = None;
+        let m_flags: VariableSlotFlags = VariableSlotFlags::empty();
+        let ref m_bindable_event: Option<String> = None;
+
+        pub fn OriginalVariableSlot(name: &QName, read_only: bool, static_type: &Thingy) {
+            super();
+            self.set_m_name(Some(name.clone()));
+            self.set_read_only(read_only);
+            self.set_m_static_type(Some(static_type.clone()));
+        }
+
+        pub override fn name(&self) -> QName {
+            self.m_name().unwrap()
+        }
+
+        /// The constant initially assigned to that variable slot.
+        pub override fn var_constant(&self) -> Option<Thingy> {
+            self.m_constant()
+        }
+
+        /// The constant initially assigned to that variable slot.
+        pub override fn set_var_constant(&self, k: Option<Thingy>) {
+            self.set_m_constant(k);
+        }
+
+        pub override fn is_external(&self) -> bool {
+            self.m_flags().contains(VariableSlotFlags::IS_EXTERNAL)
+        }
+
+        pub override fn set_is_external(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(VariableSlotFlags::IS_EXTERNAL, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn read_only(&self) -> bool {
+            self.m_flags().contains(VariableSlotFlags::READ_ONLY)
+        }
+
+        pub override fn set_read_only(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(VariableSlotFlags::READ_ONLY, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn write_only(&self) -> bool {
+            false
+        }
+
+        pub override fn static_type(&self, host: &SemanticHost) -> Thingy {
+            self.m_static_type().unwrap()
+        }
+
+        pub override fn set_static_type(&self, value: Thingy) {
+            self.set_m_static_type(Some(value));
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.m_location()
+        }
+
+        pub override fn set_location(&self, loc: Option<Location>) {
+            self.set_m_location(loc);
+        }
+
+        /// The event name indicated by a `[Bindable]` meta-data tag.
+        pub override fn bindable_event(&self) -> Option<String> {
+            self.m_bindable_event()
+        }
+
+        pub override fn set_bindable_event(&self, name: Option<String>) {
+            self.set_m_bindable_event(name);
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.m_parent()
+        }
+
+        pub override fn set_parent(&self, p: Option<Thingy>) {
+            self.set_m_parent(p);
+        }
+
+        pub override fn asdoc(&self) -> Option<Rc<AsDoc>> {
+            self.m_asdoc()
+        }
+
+        pub override fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {
+            self.set_m_asdoc(asdoc);
+        }
+
+        pub override fn metadata(&self) -> SharedArray<Rc<Metadata>> {
+            self.m_metadata()
+        }
+
+        override fn to_string_1(&self) -> String {
+            self.fully_qualified_name()
+        }
+    }
 }
 
 impl ToString for Thingy {
@@ -1356,6 +1581,15 @@ bitflags! {
         const IS_ABSTRACT = 0b00000100;
         const IS_DYNAMIC = 0b00001000;
         const IS_OPTION_SET = 0b00010000;
+        const IS_EXTERNAL = 0b00100000;
+    }
+}
+
+bitflags! {
+    #[derive(Copy, Clone, PartialEq, Eq)]
+    struct VariableSlotFlags: u16 {
+        const IS_EXTERNAL = 0b00000001;
+        const READ_ONLY = 0b00000010;
     }
 }
 

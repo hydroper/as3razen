@@ -2,7 +2,7 @@
 
 ## External mode
 
-In external mode, the verifier should not contribute any bytecode and just semantic model. It is an alternative to including external SWCs, where all functions must be marked native for external purposes.
+In external mode, the verifier should not contribute any bytecode and just semantic model, marking everything as "external". It is an alternative to including external SWCs, where all functions must be marked native for external purposes.
 
 This will be common for the built-ins. For example, instead of airglobal.swc, it is desirable to have external sources with ASDoc comments.
 

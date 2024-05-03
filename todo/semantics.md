@@ -18,14 +18,14 @@
   * [x] Packages
   * [x] Alias
   * [x] Types
-  * [ ] Variable slot
-  * [ ] Variable slot after substitution
+  * [x] OriginalVariableSlot
+  * [ ] VariableSlotAfterSubstitution extends VariableSlot
     * [ ] Description: Represents a variable slot after an indirect type substitution.
-  * [ ] Virtual slot
-  * [ ] Virtual slot after substitution
+  * [ ] OriginalVirtualSlot extends VirtualSlot
+  * [ ] VirtualSlotAfterSubstitution extends VirtualSlot
     * [ ] Description: Represents a virtual slot after an indirect type substitution.
-  * [ ] Method slot
-  * [ ] Method slot after substitution
+  * [ ] OriginalMethodSlot extends MethodSlot
+  * [ ] MethodSlotAfterSubstitution extends MethodSlot
     * [ ] Description: Represents a method slot after an indirect type substitution.
   * [ ] Scopes
     * [ ] Field: Parent

@@ -47,11 +47,11 @@ impl<'a> TypeSubstitution<'a> {
             }
             return thing.clone();
         } else if thing.is::<VariableSlot>() {
-            self.0.factory().create_variable_property_after_substitution(thing, type_params, substitute_types)
+            self.0.factory().create_variable_slot_after_substitution(thing, type_params, substitute_types)
         } else if thing.is::<VirtualSlot>() {
-            self.0.factory().create_virtual_property_after_substitution(thing, type_params, substitute_types)
+            self.0.factory().create_virtual_slot_after_substitution(thing, type_params, substitute_types)
         } else if thing.is::<MethodSlot>() {
-            self.0.factory().create_method_after_substitution(thing, type_params, substitute_types)
+            self.0.factory().create_method_slot_after_substitution(thing, type_params, substitute_types)
         } else {
             panic!()
         }
