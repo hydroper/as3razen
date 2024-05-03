@@ -26,7 +26,7 @@
     * [x] Interface type
     * [x] Type after substitution
     * [x] Tuple type
-    * [ ] Function type
+    * [x] Function type
     * [ ] Nullable type
     * [ ] Non nullable type
     * [ ] Type parameter type

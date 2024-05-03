@@ -22,8 +22,13 @@ pub struct SemanticHost {
     string_type: RefCell<Option<Thingy>>,
     array_type: RefCell<Option<Thingy>>,
     namespace_type: RefCell<Option<Thingy>>,
+    function_type: RefCell<Option<Thingy>>,
     non_null_primitive_types: RefCell<Option<Rc<Vec<Thingy>>>>,
     pub(crate) types_after_sub: RefCell<HashMap<Thingy, Vec<Thingy>>>,
+    pub(crate) function_types: RefCell<HashMap<usize, Vec<Thingy>>>,
+    pub(crate) tuple_types: RefCell<HashMap<usize, Vec<Thingy>>>,
+    pub(crate) nullable_types: RefCell<HashMap<Thingy, Thingy>>,
+    pub(crate) non_nullable_types: RefCell<HashMap<Thingy, Thingy>>,
 }
 
 impl SemanticHost {
@@ -56,8 +61,13 @@ impl SemanticHost {
             string_type: RefCell::new(None),
             array_type: RefCell::new(None),
             namespace_type: RefCell::new(None),
+            function_type: RefCell::new(None),
             non_null_primitive_types: RefCell::new(None),
             types_after_sub: RefCell::new(HashMap::new()),
+            function_types: RefCell::new(HashMap::new()),
+            tuple_types: RefCell::new(HashMap::new()),
+            nullable_types: RefCell::new(HashMap::new()),
+            non_nullable_types: RefCell::new(HashMap::new()),
         };
 
         // Initialize top level namespaces
@@ -97,6 +107,7 @@ impl SemanticHost {
     global_lookup!(string_type, "String");
     global_lookup!(array_type, "Array");
     global_lookup!(namespace_type, "Namespace");
+    global_lookup!(function_type, "Function");
 
     /// Returns the set of primitive types that do not contain `null`,
     /// such as `Boolean`, `Number`, `int`, `uint`, and `float`.

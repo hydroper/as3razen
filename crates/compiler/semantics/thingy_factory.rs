@@ -130,9 +130,9 @@ impl<'a> ThingyFactory<'a> {
     /// Interns type after substitution.
     pub fn create_type_after_substitution(&self, origin: &Thingy, substitute_types: &SharedArray<Thingy>) -> Thingy {
         // Verify parameter count
-        let parameters = origin.type_parameters().unwrap();
-        let parameter_count = parameters.length();
-        assert_eq!(substitute_types.length(), parameter_count);
+        let params = origin.type_params().unwrap();
+        let param_count = params.length();
+        assert_eq!(substitute_types.length(), param_count);
 
         let mut tas_list = self.0.types_after_sub.borrow_mut();
 
@@ -160,5 +160,68 @@ impl<'a> ThingyFactory<'a> {
         list.push(tas.clone().into());
 
         tas.into()
+    }
+
+    /// Interns a tuple type.
+    pub fn create_tuple_type(&self, element_types: Vec<Thingy>) -> Thingy {
+        let element_count = element_types.len();
+        let mut tuple_types = self.0.tuple_types.borrow_mut();
+        let mut collection = tuple_types.get_mut(&element_count);
+        let mut empty_collection = vec![];
+        if collection.is_none() {
+            collection = Some(&mut empty_collection);
+            tuple_types.insert(element_count, vec![]);
+        }
+        'tt: for tt in collection.unwrap() {
+            let mut element_types_1 = element_types.iter();
+            let element_types_2 = tt.element_types();
+            let mut element_types_2 = element_types_2.iter();
+            while let Some(e_1) = element_types_1.next() {
+                let e_2 = element_types_2.next().unwrap();
+                if e_1 != &e_2 {
+                    continue 'tt;
+                }
+            }
+            return tt.clone();
+        }
+        let tt = TupleType::new(&self.0.arena, SharedArray::from(element_types));
+
+        let collection = tuple_types.get_mut(&element_count);
+        collection.unwrap().push(tt.clone().into());
+
+        tt.into()
+    }
+
+    /// Interns a function type.
+    pub fn create_function_type(&self, params: Vec<Rc<SemanticFunctionTypeParameter>>, result_type: Thingy) -> Thingy {
+        let param_count = params.len();
+        let mut function_types = self.0.function_types.borrow_mut();
+        let mut collection = function_types.get_mut(&param_count);
+        let mut empty_collection = vec![];
+        if collection.is_none() {
+            collection = Some(&mut empty_collection);
+            function_types.insert(params.len(), vec![]);
+        }
+        'ft: for ft in collection.unwrap() {
+            if result_type != ft.result_type() {
+                continue 'ft;
+            }
+            let mut params_1 = params.iter();
+            let params_2 = ft.params();
+            let mut params_2 = params_2.iter();
+            while let Some(param_1) = params_1.next() {
+                let param_2 = params_2.next().unwrap();
+                if !(param_1.kind == param_2.kind && && param_1.static_type == &&param_2.static_type) {
+                    continue 'ft;
+                }
+            }
+            return ft.clone();
+        }
+        let ft = FunctionType::new(&self.0.arena, SharedArray::from(params), result_type);
+
+        let collection = function_types.get_mut(&param_count);
+        collection.unwrap().push(ft.clone().into());
+
+        ft.into()
     }
 }

@@ -207,11 +207,11 @@ smodel! {
             r
         }
 
-        pub fn type_parameters(&self) -> Option<SharedArray<Thingy>> {
+        pub fn type_params(&self) -> Option<SharedArray<Thingy>> {
             None
         }
 
-        pub fn set_type_parameters(&self, list: Option<SharedArray<Thingy>>) {
+        pub fn set_type_params(&self, list: Option<SharedArray<Thingy>>) {
         }
 
         pub fn enum_members(&self) -> SharedMap<String, NumberVariant> {
@@ -235,6 +235,14 @@ smodel! {
         }
 
         pub fn element_types(&self) -> SharedArray<Thingy> {
+            panic!();
+        }
+
+        pub fn params(&self) -> SharedArray<Rc<SemanticFunctionTypeParameter>> {
+            panic!();
+        }
+
+        pub fn result_type(&self) -> Thingy {
             panic!();
         }
 
@@ -507,7 +515,7 @@ smodel! {
     pub struct ClassType: Type {
         let ref m_name: Option<QName> = None;
         let m_flags: ClassTypeFlags = ClassTypeFlags::empty();
-        let ref m_type_parameters: Option<SharedArray<Thingy>> = None;
+        let ref m_type_params: Option<SharedArray<Thingy>> = None;
         let ref m_extends_class: Option<Thingy> = None;
         let ref m_implements: SharedArray<Thingy> = SharedArray::new();
         let ref m_known_subclasses: SharedArray<Thingy> = SharedArray::new();
@@ -569,12 +577,12 @@ smodel! {
             self.set_m_static_protected_ns(ns);
         }
 
-        pub override fn type_parameters(&self) -> Option<SharedArray<Thingy>> {
-            self.m_type_parameters()
+        pub override fn type_params(&self) -> Option<SharedArray<Thingy>> {
+            self.m_type_params()
         }
 
-        pub override fn set_type_parameters(&self, list: Option<SharedArray<Thingy>>) {
-            self.set_m_type_parameters(list);
+        pub override fn set_type_params(&self, list: Option<SharedArray<Thingy>>) {
+            self.set_m_type_params(list);
         }
 
         pub override fn is_abstract(&self) -> bool {
@@ -681,8 +689,8 @@ smodel! {
         override fn to_string_1(&self) -> String {
             let name_1 = self.fully_qualified_name();
             let mut p = String::new();
-            if let Some(type_parameters) = self.type_parameters() {
-                p = ".<".to_owned() + &type_parameters.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", ") + ">";
+            if let Some(type_params) = self.type_params() {
+                p = ".<".to_owned() + &type_params.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", ") + ">";
             }
             name_1 + &p
         }
@@ -791,7 +799,7 @@ smodel! {
 
     pub struct InterfaceType: Type {
         let ref m_name: Option<QName> = None;
-        let ref m_type_parameters: Option<SharedArray<Thingy>> = None;
+        let ref m_type_params: Option<SharedArray<Thingy>> = None;
         let ref m_extends_interfaces: SharedArray<Thingy> = SharedArray::new();
         let ref m_known_implementors: SharedArray<Thingy> = SharedArray::new();
         let ref m_parent: Option<Thingy> = None;
@@ -817,12 +825,12 @@ smodel! {
             self.set_m_location(loc);
         }
 
-        pub override fn type_parameters(&self) -> Option<SharedArray<Thingy>> {
-            self.m_type_parameters()
+        pub override fn type_params(&self) -> Option<SharedArray<Thingy>> {
+            self.m_type_params()
         }
 
-        pub override fn set_type_parameters(&self, list: Option<SharedArray<Thingy>>) {
-            self.set_m_type_parameters(list);
+        pub override fn set_type_params(&self, list: Option<SharedArray<Thingy>>) {
+            self.set_m_type_params(list);
         }
 
         pub override fn known_implementors(&self) -> SharedArray<Thingy> {
@@ -868,8 +876,8 @@ smodel! {
         override fn to_string_1(&self) -> String {
             let name_1 = self.fully_qualified_name();
             let mut p = String::new();
-            if let Some(type_parameters) = self.type_parameters() {
-                p = ".<".to_owned() + &type_parameters.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", ") + ">";
+            if let Some(type_params) = self.type_params() {
+                p = ".<".to_owned() + &type_params.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", ") + ">";
             }
             name_1 + &p
         }
@@ -889,7 +897,7 @@ smodel! {
         let ref m_prototype: Option<NameMap> = None;
         let ref m_constructor_method: Option<Thingy> = None;
 
-        pub fn TypeAfterSubstitution(origin: Thingy, substitute_types: SharedArray<Thingy>) {
+        pub(crate) fn TypeAfterSubstitution(origin: Thingy, substitute_types: SharedArray<Thingy>) {
             super();
             self.set_m_origin(Some(origin));
             self.set_m_substitute_types(substitute_types);
@@ -940,7 +948,7 @@ smodel! {
             if r.is::<UnresolvedThingy>() {
                 return Some(r.clone());
             }
-            let r = TypeSubstitution(host).exec(&r, &origin.type_parameters().unwrap(), &self.m_substitute_types());
+            let r = TypeSubstitution(host).exec(&r, &origin.type_params().unwrap(), &self.m_substitute_types());
             self.set_m_extends_class(Some(r.clone()));
             Some(r)
         }
@@ -950,7 +958,7 @@ smodel! {
                 return r;
             }
             let origin = self.origin();
-            let r: SharedArray<Thingy> = origin.implements(host).iter().map(|t| TypeSubstitution(host).exec(&t, &origin.type_parameters().unwrap(), &self.m_substitute_types())).collect();
+            let r: SharedArray<Thingy> = origin.implements(host).iter().map(|t| TypeSubstitution(host).exec(&t, &origin.type_params().unwrap(), &self.m_substitute_types())).collect();
             self.set_m_implements(Some(r.clone()));
             r
         }
@@ -960,7 +968,7 @@ smodel! {
                 return r;
             }
             let origin = self.origin();
-            let r: SharedArray<Thingy> = origin.extends_interfaces(host).iter().map(|t| TypeSubstitution(host).exec(&t, &origin.type_parameters().unwrap(), &self.m_substitute_types())).collect();
+            let r: SharedArray<Thingy> = origin.extends_interfaces(host).iter().map(|t| TypeSubstitution(host).exec(&t, &origin.type_params().unwrap(), &self.m_substitute_types())).collect();
             self.set_m_extends_interfaces(Some(r.clone()));
             r
         }
@@ -972,7 +980,7 @@ smodel! {
             let origin = self.origin();
             let mut r = NameMap::new();
             for (name, thingy) in origin.prototype(host).borrow().iter() {
-                let thingy = TypeSubstitution(host).exec(&thingy, &origin.type_parameters().unwrap(), &self.m_substitute_types());
+                let thingy = TypeSubstitution(host).exec(&thingy, &origin.type_params().unwrap(), &self.m_substitute_types());
                 r.set(name.clone(), thingy)
             }
             self.set_m_prototype(Some(r.clone()));
@@ -986,7 +994,7 @@ smodel! {
             let origin = self.origin();
             let mut r = NameMap::new();
             for (name, thingy) in origin.properties(host).borrow().iter() {
-                let thingy = TypeSubstitution(host).exec(&thingy, &origin.type_parameters().unwrap(), &self.m_substitute_types());
+                let thingy = TypeSubstitution(host).exec(&thingy, &origin.type_params().unwrap(), &self.m_substitute_types());
                 r.set(name.clone(), thingy)
             }
             self.set_m_properties(Some(r.clone()));
@@ -1003,7 +1011,7 @@ smodel! {
                 return None;
             }
             let r = r.unwrap();
-            let r = TypeSubstitution(host).exec(&r, &origin.type_parameters().unwrap(), &self.m_substitute_types());
+            let r = TypeSubstitution(host).exec(&r, &origin.type_params().unwrap(), &self.m_substitute_types());
             self.set_m_constructor_method(Some(r.clone()));
             Some(r)
         }
@@ -1041,7 +1049,7 @@ smodel! {
     pub struct TupleType: Type {
         let ref m_elements: SharedArray<Thingy> = SharedArray::new();
 
-        pub fn TupleType(elements: SharedArray<Thingy>) {
+        pub(crate) fn TupleType(elements: SharedArray<Thingy>) {
             super();
             self.set_m_elements(elements);
         }
@@ -1080,6 +1088,73 @@ smodel! {
 
         override fn to_string_1(&self) -> String {
             format!("[{}]", self.element_types().iter().map(|e| e.to_string()).collect::<Vec<String>>().join(", "))
+        }
+    }
+
+    /// Structural function type. This type is equivalent to `Function`
+    /// with type safety.
+    pub struct FunctionType: Type {
+        let ref m_params: SharedArray<Rc<SemanticFunctionTypeParameter>> = SharedArray::new();
+        let ref m_result_type: Option<Thingy> = None;
+
+        pub(crate) fn FunctionType(params: SharedArray<Rc<SemanticFunctionTypeParameter>>, result_type: Thingy) {
+            super();
+            self.set_m_params(params);
+            self.set_m_result_type(Some(result_type));
+        }
+        
+        pub override fn params(&self) -> SharedArray<Rc<SemanticFunctionTypeParameter>> {
+            self.m_params()
+        }
+
+        pub override fn result_type(&self) -> Thingy {
+            self.m_result_type().unwrap()
+        }
+
+        pub override fn is_abstract(&self) -> bool {
+            false
+        }
+
+        pub override fn is_final(&self) -> bool {
+            true
+        }
+
+        pub override fn is_dynamic(&self) -> bool {
+            false
+        }
+
+        pub override fn is_option_set(&self) -> bool {
+            false
+        }
+
+        pub override fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
+            Some(host.function_type())
+        }
+
+        pub override fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(false)
+        }
+
+        pub override fn includes_null(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(true)
+        }
+
+        override fn to_string_1(&self) -> String {
+            let mut p = Vec::<String>::new();
+            for p1 in self.params().iter() {
+                match p1.kind {
+                    ParameterKind::Required => {
+                        p.push(p1.static_type.to_string());
+                    },
+                    ParameterKind::Optional => {
+                        p.push(p1.static_type.to_string() + &"=".to_owned());
+                    },
+                    ParameterKind::Rest => {
+                        p.push("...".to_owned() + &p1.static_type.to_string());
+                    },
+                }
+            }
+            format!("function({}) : {}", p.join(", "), self.result_type().to_string())
         }
     }
 }
@@ -1172,4 +1247,13 @@ bitflags! {
         const IS_DYNAMIC = 0b00001000;
         const IS_OPTION_SET = 0b00010000;
     }
+}
+
+/// Parameter belonging to a function type in the semantic model.
+pub struct SemanticFunctionTypeParameter {
+    pub kind: ParameterKind,
+    /// Static type of the parameter. It is never `UnresolvedThingy`
+    /// as function types are only created after all compound types
+    /// are resolved.
+    pub static_type: Thingy,
 }
