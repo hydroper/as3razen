@@ -6,12 +6,12 @@ pub struct SemanticHost {
     project_path: Option<String>,
     env_cache: RefCell<Option<Rc<HashMap<String, String>>>>,
 
-    pub(crate) explicit_namespaces: RefCell<HashMap<String, Namespace>>,
-    pub(crate) user_namespaces: RefCell<HashMap<String, Namespace>>,
-    pub(crate) qnames: RefCell<HashMap<Namespace, HashMap<String, QName>>>,
+    pub(crate) explicit_namespaces: RefCell<HashMap<String, Thingy>>,
+    pub(crate) user_namespaces: RefCell<HashMap<String, Thingy>>,
+    pub(crate) qnames: RefCell<HashMap<Thingy, HashMap<String, QName>>>,
     invalidation_thingy: Thingy,
     unresolved_thingy: Thingy,
-    pub(crate) top_level_package: Package,
+    pub(crate) top_level_package: Thingy,
     void_type: Type,
     object_type: RefCell<Option<Thingy>>,
     boolean_type: RefCell<Option<Thingy>>,
@@ -39,7 +39,7 @@ impl SemanticHost {
             explicit_namespaces,
             user_namespaces,
             qnames,
-            top_level_package: top_level_package.clone(),
+            top_level_package: top_level_package.clone().into(),
             invalidation_thingy,
             unresolved_thingy,
             void_type,
@@ -53,8 +53,8 @@ impl SemanticHost {
         };
 
         // Initialize top level namespaces
-        top_level_package.set_public_ns(Some(host.factory().create_public_namespace(Some(top_level_package.clone().into()))));
-        top_level_package.set_internal_ns(Some(host.factory().create_internal_namespace(Some(top_level_package.clone().into()))));
+        top_level_package.set_public_ns(Some(host.factory().create_public_ns(Some(top_level_package.clone().into()))));
+        top_level_package.set_internal_ns(Some(host.factory().create_internal_ns(Some(top_level_package.clone().into()))));
 
         host
     }
@@ -64,7 +64,7 @@ impl SemanticHost {
         ThingyFactory(self)
     }
 
-    pub fn top_level_package(&self) -> Package {
+    pub fn top_level_package(&self) -> Thingy {
         self.top_level_package.clone()
     }
 
@@ -95,22 +95,12 @@ impl SemanticHost {
         if let Some(r) = self.non_null_primitive_types.borrow().as_ref() {
             return Ok(r.clone());
         }
-        let boolean_type = self.boolean_type();
-        let number_type = self.number_type();
-        let int_type = self.int_type();
-        let uint_type = self.uint_type();
-        let float_type = self.float_type();
-        boolean_type.defer()?;
-        number_type.defer()?;
-        int_type.defer()?;
-        uint_type.defer()?;
-        float_type.defer()?;
         let r = Rc::new(vec![
-            boolean_type,
-            number_type,
-            int_type,
-            uint_type,
-            float_type,
+            self.boolean_type().defer()?,
+            self.number_type().defer()?,
+            self.int_type().defer()?,
+            self.uint_type().defer()?,
+            self.float_type().defer()?,
         ]);
         self.non_null_primitive_types.replace(Some(r.clone()));
         Ok(r)
@@ -160,7 +150,7 @@ macro global_lookup {
             if let Some(r) = self.$field.borrow().as_ref() {
                 return r.clone();
             }
-            if let Some(r) = self.top_level_package.properties(self).get(&self.factory().create_qname(&self.top_level_package.public_ns().unwrap(), $as3name.to_owned())) {
+            if let Some(r) = self.top_level_package.properties(self).get(&self.factory().create_qname(&self.top_level_package.public_ns().unwrap().into(), $as3name.to_owned())) {
                 self.$field.replace(Some(r.clone()));
                 r
             } else {

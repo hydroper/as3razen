@@ -9,11 +9,11 @@ smodel! {
     /// one of several ActionScript 3 variants,
     /// such as classes, variable slots, and reference values.
     pub struct Thingy {
-        pub fn defer(&self) -> Result<(), DeferError> {
+        pub fn defer(&self) -> Result<Thingy, DeferError> {
             if self.is::<UnresolvedThingy>() {
                 Err(DeferError::new())
             } else {
-                Ok(())
+                Ok(self.clone())
             }
         }
 
@@ -43,7 +43,7 @@ smodel! {
             "".into()
         }
 
-        pub fn ns_set_list(&self) -> SharedArray<Namespace> {
+        pub fn ns_set_list(&self) -> SharedArray<Thingy> {
             panic!()
         }
 
@@ -59,43 +59,43 @@ smodel! {
             panic!();
         }
 
-        pub fn public_ns(&self) -> Option<Namespace> {
+        pub fn public_ns(&self) -> Option<Thingy> {
             panic!();
         }
 
-        pub fn set_public_ns(&self, ns: Option<Namespace>) {
+        pub fn set_public_ns(&self, ns: Option<Thingy>) {
             panic!();
         }
 
-        pub fn private_ns(&self) -> Option<Namespace> {
+        pub fn private_ns(&self) -> Option<Thingy> {
             panic!();
         }
 
-        pub fn set_private_ns(&self, ns: Option<Namespace>) {
+        pub fn set_private_ns(&self, ns: Option<Thingy>) {
             panic!();
         }
 
-        pub fn protected_ns(&self) -> Option<Namespace> {
+        pub fn protected_ns(&self) -> Option<Thingy> {
             panic!();
         }
 
-        pub fn set_protected_ns(&self, ns: Option<Namespace>) {
+        pub fn set_protected_ns(&self, ns: Option<Thingy>) {
             panic!();
         }
 
-        pub fn static_protected_ns(&self) -> Option<Namespace> {
+        pub fn static_protected_ns(&self) -> Option<Thingy> {
             panic!();
         }
 
-        pub fn set_static_protected_ns(&self, ns: Option<Namespace>) {
+        pub fn set_static_protected_ns(&self, ns: Option<Thingy>) {
             panic!();
         }
 
-        pub fn internal_ns(&self) -> Option<Namespace> {
+        pub fn internal_ns(&self) -> Option<Thingy> {
             panic!();
         }
 
-        pub fn set_internal_ns(&self, ns: Option<Namespace>) {
+        pub fn set_internal_ns(&self, ns: Option<Thingy>) {
             panic!();
         }
 
@@ -162,7 +162,7 @@ smodel! {
             panic!();
         }
 
-        pub fn subpackages(&self) -> SharedMap<String, Package> {
+        pub fn subpackages(&self) -> SharedMap<String, Thingy> {
             panic!();
         }
 
@@ -308,14 +308,14 @@ smodel! {
     }
 
     pub struct NamespaceSet: Thingy {
-        let ref m_list: SharedArray<Namespace> = SharedArray::new();
+        let ref m_list: SharedArray<Thingy> = SharedArray::new();
 
-        pub(crate) fn NamespaceSet(list: SharedArray<Namespace>) {
+        pub(crate) fn NamespaceSet(list: SharedArray<Thingy>) {
             super();
             self.set_m_list(list);
         }
 
-        pub override fn ns_set_list(&self) -> SharedArray<Namespace> {
+        pub override fn ns_set_list(&self) -> SharedArray<Thingy> {
             self.m_list()
         }
     }
@@ -325,10 +325,10 @@ smodel! {
     pub struct Package: Thingy {
         let ref m_name: String = "".into();
         let ref m_parent: Option<Thingy> = None;
-        let ref m_public_ns: Option<Namespace> = None;
-        let ref m_internal_ns: Option<Namespace> = None;
+        let ref m_public_ns: Option<Thingy> = None;
+        let ref m_internal_ns: Option<Thingy> = None;
         let ref m_properties: NameMap = NameMap::new();
-        let ref m_subpackages: SharedMap<String, Package> = SharedMap::new();
+        let ref m_subpackages: SharedMap<String, Thingy> = SharedMap::new();
         let ref m_asdoc: Option<Rc<AsDoc>> = None;
 
         pub(crate) fn Package(name: String) {
@@ -350,19 +350,19 @@ smodel! {
             self.set_m_parent(p);
         }
 
-        pub override fn public_ns(&self) -> Option<Namespace> {
+        pub override fn public_ns(&self) -> Option<Thingy> {
             self.m_public_ns()
         }
 
-        pub override fn set_public_ns(&self, ns: Option<Namespace>) {
+        pub override fn set_public_ns(&self, ns: Option<Thingy>) {
             self.set_m_public_ns(ns);
         }
 
-        pub override fn internal_ns(&self) -> Option<Namespace> {
+        pub override fn internal_ns(&self) -> Option<Thingy> {
             self.m_internal_ns()
         }
 
-        pub override fn set_internal_ns(&self, ns: Option<Namespace>) {
+        pub override fn set_internal_ns(&self, ns: Option<Thingy>) {
             self.set_m_internal_ns(ns);
         }
 
@@ -370,7 +370,7 @@ smodel! {
             self.m_properties()
         }
 
-        pub override fn subpackages(&self) -> SharedMap<String, Package> {
+        pub override fn subpackages(&self) -> SharedMap<String, Thingy> {
             self.m_subpackages()
         }
 
@@ -501,9 +501,9 @@ smodel! {
         let ref m_known_subclasses: SharedArray<Thingy> = SharedArray::new();
         let ref m_constructor_method: Option<Thingy> = None;
         let ref m_parent: Option<Thingy> = None;
-        let ref m_private_ns: Option<Namespace> = None;
-        let ref m_protected_ns: Option<Namespace> = None;
-        let ref m_static_protected_ns: Option<Namespace> = None;
+        let ref m_private_ns: Option<Thingy> = None;
+        let ref m_protected_ns: Option<Thingy> = None;
+        let ref m_static_protected_ns: Option<Thingy> = None;
         let ref m_properties: NameMap = NameMap::new();
         let ref m_prototype: NameMap = NameMap::new();
         let ref m_flex_events: SharedMap<String, Thingy> = SharedMap::new();
@@ -533,27 +533,27 @@ smodel! {
             self.m_flex_events().clone()
         }
 
-        pub override fn private_ns(&self) -> Option<Namespace> {
+        pub override fn private_ns(&self) -> Option<Thingy> {
             self.m_private_ns()
         }
 
-        pub override fn set_private_ns(&self, ns: Option<Namespace>) {
+        pub override fn set_private_ns(&self, ns: Option<Thingy>) {
             self.set_m_private_ns(ns);
         }
 
-        pub override fn protected_ns(&self) -> Option<Namespace> {
+        pub override fn protected_ns(&self) -> Option<Thingy> {
             self.m_protected_ns()
         }
 
-        pub override fn set_protected_ns(&self, ns: Option<Namespace>) {
+        pub override fn set_protected_ns(&self, ns: Option<Thingy>) {
             self.set_m_protected_ns(ns);
         }
 
-        pub override fn static_protected_ns(&self) -> Option<Namespace> {
+        pub override fn static_protected_ns(&self) -> Option<Thingy> {
             self.m_static_protected_ns()
         }
 
-        pub override fn set_static_protected_ns(&self, ns: Option<Namespace>) {
+        pub override fn set_static_protected_ns(&self, ns: Option<Thingy>) {
             self.set_m_static_protected_ns(ns);
         }
 
@@ -679,7 +679,7 @@ smodel! {
     pub struct EnumType: Type {
         let ref m_name: Option<QName> = None;
         let ref m_parent: Option<Thingy> = None;
-        let ref m_private_ns: Option<Namespace> = None;
+        let ref m_private_ns: Option<Thingy> = None;
         let ref m_properties: NameMap = NameMap::new();
         let ref m_prototype: NameMap = NameMap::new();
         let ref m_members: SharedMap<String, NumberVariant> = SharedMap::new();
@@ -708,11 +708,11 @@ smodel! {
             self.set_m_location(loc);
         }
 
-        pub override fn private_ns(&self) -> Option<Namespace> {
+        pub override fn private_ns(&self) -> Option<Thingy> {
             self.m_private_ns()
         }
 
-        pub override fn set_private_ns(&self, ns: Option<Namespace>) {
+        pub override fn set_private_ns(&self, ns: Option<Thingy>) {
             self.set_m_private_ns(ns);
         }
 
@@ -907,7 +907,7 @@ impl ToString for SystemNamespaceKind {
 pub struct QName(pub(crate) Rc<QName1>);
 
 impl QName {
-    pub fn namespace(&self) -> Namespace {
+    pub fn namespace(&self) -> Thingy {
         self.0.m_namespace.clone()
     }
 
@@ -931,7 +931,7 @@ impl PartialEq for QName {
 impl Eq for QName {}
 
 pub(crate) struct QName1 {
-    pub(crate) m_namespace: Namespace,
+    pub(crate) m_namespace: Thingy,
     pub(crate) m_local_name: String,
 }
 
