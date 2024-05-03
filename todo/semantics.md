@@ -22,33 +22,7 @@
     * [x] Any type
     * [x] Void type
     * [x] Class type
-    * [ ] Enum type
-      * [ ] Override `name()`
-      * [ ] Override `location()`
-      * [ ] Override `set_location()`
-      * [ ] Override `parent()`
-      * [ ] Override `set_parent()`
-      * [ ] Override `private_ns()`
-      * [ ] Override `set_private_ns()`
-      * [ ] Override `enum_members()`
-      * [ ] Override `is_abstract()`
-        * Return false
-      * [ ] Override `is_dynamic()`
-        * Return false
-      * [ ] Override `is_final()`
-        * Return true
-      * [ ] Override `is_option_set()`
-        * Return false
-      * [ ] Override `extends_class()`
-        * Return `Object`
-      * [ ] Override `properties()`
-      * [ ] Override `prototype()`
-      * [ ] Override `includes_null()`
-      * [ ] Override `includes_undefined()`
-      * [ ] Override `asdoc()`
-      * [ ] Override `set_asdoc()`
-      * [ ] Override `metadata()`
-      * [ ] Override `to_string_1()`
+    * [x] Enum type
     * [ ] Interface type
     * [ ] Type after substitution
       * [ ] Override fully qualified name

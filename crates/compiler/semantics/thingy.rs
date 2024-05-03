@@ -214,26 +214,30 @@ smodel! {
         pub fn set_type_parameters(&self, list: Option<SharedArray<Thingy>>) {
         }
 
+        pub fn enum_members(&self) -> SharedMap<String, NumberVariant> {
+            panic!();
+        }
+
         fn to_string_1(&self) -> String {
             "".into()
         }
     }
 
     pub struct UnresolvedThingy: Thingy {
-        pub fn UnresolvedThingy() {
+        pub(crate) fn UnresolvedThingy() {
             super();
         }
     }
 
     /// Thingy used to indicate that an entity is invalidated.
     pub struct InvalidationThingy: Thingy {
-        pub fn InvalidationThingy() {
+        pub(crate) fn InvalidationThingy() {
             super();
         }
     }
 
     pub struct Namespace: Thingy {
-        pub fn Namespace() {
+        pub(crate) fn Namespace() {
             super();
         }
     }
@@ -242,7 +246,7 @@ smodel! {
         let m_kind: SystemNamespaceKind = SystemNamespaceKind::Public;
         let ref m_parent: Option<Thingy> = None;
 
-        pub fn SystemNamespace(kind: SystemNamespaceKind, parent: Option<Thingy>) {
+        pub(crate) fn SystemNamespace(kind: SystemNamespaceKind, parent: Option<Thingy>) {
             super();
             self.set_m_kind(kind);
             self.set_m_parent(parent);
@@ -264,7 +268,7 @@ smodel! {
     pub struct UserNamespace: Namespace {
         let ref m_uri: String = "".into();
 
-        pub fn UserNamespace(uri: String) {
+        pub(crate) fn UserNamespace(uri: String) {
             super();
             self.set_m_uri(uri);
         }
@@ -281,7 +285,7 @@ smodel! {
     pub struct ExplicitNamespace: Namespace {
         let ref m_uri: String = "".into();
 
-        pub fn ExplicitNamespace(uri: String) {
+        pub(crate) fn ExplicitNamespace(uri: String) {
             super();
             self.set_m_uri(uri);
         }
@@ -298,7 +302,7 @@ smodel! {
     pub struct NamespaceSet: Thingy {
         let ref m_list: SharedArray<Namespace> = SharedArray::new();
 
-        pub fn NamespaceSet(list: SharedArray<Namespace>) {
+        pub(crate) fn NamespaceSet(list: SharedArray<Namespace>) {
             super();
             self.set_m_list(list);
         }
@@ -319,7 +323,7 @@ smodel! {
         let ref m_subpackages: SharedMap<String, Package> = SharedMap::new();
         let ref m_asdoc: Option<Rc<AsDoc>> = None;
 
-        pub fn Package(name: String) {
+        pub(crate) fn Package(name: String) {
             super();
             self.set_m_name(name);
         }
@@ -383,7 +387,7 @@ smodel! {
         let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
         let ref m_location: Option<Location> = None;
 
-        pub fn Alias(name: QName, alias_of: Thingy) {
+        pub(crate) fn Alias(name: QName, alias_of: Thingy) {
             super();
             self.set_m_name(Some(name));
             self.set_m_alias_of(Some(alias_of));
@@ -445,7 +449,7 @@ smodel! {
     }
 
     pub struct AnyType : Type {
-        pub fn AnyType() {
+        pub(crate) fn AnyType() {
             super();
         }
 
@@ -463,7 +467,7 @@ smodel! {
     }
 
     pub struct VoidType : Type {
-        pub fn VoidType() {
+        pub(crate) fn VoidType() {
             super();
         }
 
@@ -499,7 +503,7 @@ smodel! {
         let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
         let ref m_location: Option<Location> = None;
 
-        pub fn ClassType(name: QName) {
+        pub(crate) fn ClassType(name: QName) {
             super();
             self.set_m_name(Some(name));
         }
@@ -661,6 +665,107 @@ smodel! {
                 p = ".<".to_owned() + &type_parameters.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", ") + ">";
             }
             name_1 + &p
+        }
+    }
+    
+    pub struct EnumType: Type {
+        let ref m_name: Option<QName> = None;
+        let ref m_parent: Option<Thingy> = None;
+        let ref m_private_ns: Option<Namespace> = None;
+        let ref m_properties: NameMap = NameMap::new();
+        let ref m_prototype: NameMap = NameMap::new();
+        let ref m_members: SharedMap<String, NumberVariant> = SharedMap::new();
+        let ref m_asdoc: Option<Rc<AsDoc>> = None;
+        let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
+        let ref m_location: Option<Location> = None;
+
+        pub(crate) fn EnumType(name: QName) {
+            super();
+            self.set_m_name(Some(name));
+        }
+
+        pub override fn name(&self) -> QName {
+            self.m_name().unwrap()
+        }
+
+        pub override fn enum_members(&self) -> SharedMap<String, NumberVariant> {
+            self.m_members()
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.m_location()
+        }
+
+        pub override fn set_location(&self, loc: Option<Location>) {
+            self.set_m_location(loc);
+        }
+
+        pub override fn private_ns(&self) -> Option<Namespace> {
+            self.m_private_ns()
+        }
+
+        pub override fn set_private_ns(&self, ns: Option<Namespace>) {
+            self.set_m_private_ns(ns);
+        }
+
+        pub override fn is_abstract(&self) -> bool {
+            false
+        }
+
+        pub override fn is_final(&self) -> bool {
+            true
+        }
+
+        pub override fn is_dynamic(&self) -> bool {
+            false
+        }
+
+        pub override fn is_option_set(&self) -> bool {
+            false
+        }
+
+        pub override fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
+            Some(host.object_type())
+        }
+
+        pub override fn properties(&self, host: &SemanticHost) -> NameMap {
+            self.m_properties()
+        }
+
+        pub override fn prototype(&self, host: &SemanticHost) -> NameMap {
+            self.m_prototype()
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.m_parent()
+        }
+
+        pub override fn set_parent(&self, p: Option<Thingy>) {
+            self.set_m_parent(p);
+        }
+
+        pub override fn asdoc(&self) -> Option<Rc<AsDoc>> {
+            self.m_asdoc()
+        }
+
+        pub override fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {
+            self.set_m_asdoc(asdoc);
+        }
+
+        pub override fn metadata(&self) -> SharedArray<Rc<Metadata>> {
+            self.m_metadata()
+        }
+
+        pub override fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(false)
+        }
+
+        pub override fn includes_null(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(true)
+        }
+
+        override fn to_string_1(&self) -> String {
+            self.fully_qualified_name()
         }
     }
 }
