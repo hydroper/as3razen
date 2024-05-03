@@ -227,7 +227,7 @@ smodel! {
             panic!();
         }
 
-        pub fn of_virtual_slot(&self) -> Option<Thingy> {
+        pub fn of_virtual_slot(&self, host: &SemanticHost) -> Option<Thingy> {
             panic!();
         }
 
@@ -1266,6 +1266,10 @@ smodel! {
             Ok(true)
         }
 
+        pub override fn location(&self) -> Option<Location> {
+            None
+        }
+
         override fn to_string_1(&self) -> String {
             let name_1 = self.fully_qualified_name();
             let a = self.m_substitute_types();
@@ -1658,7 +1662,7 @@ smodel! {
         }
 
         pub override fn location(&self) -> Option<Location> {
-            self.origin().location()
+            None
         }
 
         /// The event name indicated by a `[Bindable]` meta-data tag.
@@ -1826,6 +1830,10 @@ smodel! {
             self.set_m_origin(Some(origin.clone()));
             self.set_m_indirect_type_params(indirect_type_params.clone());
             self.set_m_indirect_substitute_types(indirect_substitute_types.clone());
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            None
         }
 
         pub override fn origin(&self) -> Thingy {
@@ -2066,23 +2074,166 @@ smodel! {
             self.set_m_activation(activation);
         }
 
-        pub fn of_virtual_slot(&self) -> Option<Thingy> {
+        pub override fn of_virtual_slot(&self, host: &SemanticHost) -> Option<Thingy> {
             self.m_of_virtual_slot()
         }
 
-        pub fn set_of_virtual_slot(&self, virtual_slot: Option<Thingy>) {
+        pub override fn set_of_virtual_slot(&self, virtual_slot: Option<Thingy>) {
             self.set_m_of_virtual_slot(virtual_slot);
         }
 
-        pub fn overriden_by(&self, host: &SemanticHost) -> SharedArray<Thingy> {
+        pub override fn overriden_by(&self, host: &SemanticHost) -> SharedArray<Thingy> {
             self.m_overriden_by()
         }
 
-        pub fn overrides_method(&self, host: &SemanticHost) -> Option<Thingy> {
+        pub override fn overrides_method(&self, host: &SemanticHost) -> Option<Thingy> {
             self.m_overrides_method()
         }
 
-        pub fn set_overrides_method(&self, method: Option<Thingy>) {
+        pub override fn set_overrides_method(&self, method: Option<Thingy>) {
+            self.set_m_overrides_method(method);
+        }
+
+        override fn to_string_1(&self) -> String {
+            self.fully_qualified_name()
+        }
+    }
+
+    pub struct MethodSlotAfterSubstitution: MethodSlot {
+        let ref m_origin: Option<Thingy> = None;
+        let ref m_indirect_type_params: SharedArray<Thingy> = SharedArray::new();
+        let ref m_indirect_substitute_types: SharedArray<Thingy> = SharedArray::new();
+        let ref m_signature: Option<Thingy> = None;
+        let ref m_of_virtual_slot: Option<Thingy> = None;
+        let ref m_overriden_by: Option<SharedArray<Thingy>> = None;
+        let ref m_overrides_method: Option<Thingy> = None;
+        let m_is_overriding: bool = false;
+
+        pub fn MethodSlotAfterSubstitution(origin: &Thingy, indirect_type_params: &SharedArray<Thingy>, indirect_substitute_types: &SharedArray<Thingy>) {
+            super();
+            self.set_m_origin(Some(origin.clone()));
+            self.set_m_indirect_type_params(indirect_type_params.clone());
+            self.set_m_indirect_substitute_types(indirect_substitute_types.clone());
+        }
+
+        pub override fn origin(&self) -> Thingy {
+            self.m_origin().unwrap()
+        }
+
+        pub override fn indirect_type_params(&self) -> SharedArray<Thingy> {
+            self.m_indirect_type_params()
+        }
+
+        pub override fn indirect_substitute_types(&self) -> SharedArray<Thingy> {
+            self.m_indirect_substitute_types()
+        }
+
+        pub override fn name(&self) -> QName {
+            self.origin().name()
+        }
+
+        pub override fn is_external(&self) -> bool {
+            self.origin().is_external()
+        }
+
+        pub override fn is_final(&self) -> bool {
+            self.origin().is_final()
+        }
+
+        pub override fn is_static(&self) -> bool {
+            self.origin().is_static()
+        }
+
+        pub override fn is_abstract(&self) -> bool {
+            self.origin().is_abstract()
+        }
+
+        pub override fn is_overriding(&self) -> bool {
+            self.m_is_overriding()
+        }
+
+        pub override fn set_is_overriding(&self, value: bool) {
+            self.set_m_is_overriding(value);
+        }
+
+        pub override fn is_async(&self) -> bool {
+            self.origin().is_async()
+        }
+
+        pub override fn is_generator(&self) -> bool {
+            self.origin().is_generator()
+        }
+
+        pub override fn is_constructor(&self) -> bool {
+            self.origin().is_constructor()
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            None
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.origin().parent()
+        }
+    
+        pub override fn asdoc(&self) -> Option<Rc<AsDoc>> {
+            self.origin().asdoc()
+        }
+    
+        pub override fn metadata(&self) -> SharedArray<Rc<Metadata>> {
+            self.origin().metadata()
+        }
+
+        pub override fn signature(&self, host: &SemanticHost) -> Thingy {
+            if let Some(r) = self.m_signature() {
+                return r;
+            }
+            let r = self.origin().signature(host);
+            if r.is::<UnresolvedThingy>() {
+                return r.clone();
+            }
+            let r = TypeSubstitution(host).exec(&r, &self.m_indirect_type_params(), &self.m_indirect_substitute_types());
+            self.set_m_signature(Some(r.clone()));
+            r
+        }
+
+        pub override fn of_virtual_slot(&self, host: &SemanticHost) -> Option<Thingy> {
+            if let Some(r) = self.m_of_virtual_slot() {
+                return Some(r);
+            }
+            let r = self.origin().of_virtual_slot(host);
+            if r.is_none() {
+                return None;
+            }
+            let r = TypeSubstitution(host).exec(&r.unwrap(), &self.m_indirect_type_params(), &self.m_indirect_substitute_types());
+            self.set_m_of_virtual_slot(Some(r.clone()));
+            Some(r)
+        }
+
+        pub override fn overriden_by(&self, host: &SemanticHost) -> SharedArray<Thingy> {
+            if let Some(r) = self.m_overriden_by() {
+                return r;
+            }
+            let r = self.origin().overriden_by(host);
+            let r: SharedArray<Thingy> = r.iter().map(|r| TypeSubstitution(host).exec(&r, &self.m_indirect_type_params(), &self.indirect_substitute_types())).collect();
+            self.set_m_overriden_by(Some(r.clone()));
+            r
+        }
+
+        pub override fn overrides_method(&self, host: &SemanticHost) -> Option<Thingy> {
+            if let Some(r) = self.m_overrides_method() {
+                return Some(r);
+            }
+            let r = self.origin().overrides_method(host);
+            if r.is_none() {
+                return None;
+            }
+            let r = TypeSubstitution(host).exec(&r.unwrap(), &self.m_indirect_type_params(), &self.m_indirect_substitute_types());
+            self.set_m_overrides_method(Some(r.clone()));
+            Some(r)
+        }
+
+        pub override fn set_overrides_method(&self, method: Option<Thingy>) {
             self.set_m_overrides_method(method);
         }
 

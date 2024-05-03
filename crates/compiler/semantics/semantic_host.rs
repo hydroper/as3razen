@@ -34,6 +34,7 @@ pub struct SemanticHost {
     // Slots after indirect type substitution (variable, method, and virtual slots).
     pub(crate) vasub: RefCell<HashMap<Thingy, HashMap<SharedArray<Thingy>, Vec<Thingy>>>>,
     pub(crate) visub: RefCell<HashMap<Thingy, HashMap<SharedArray<Thingy>, Vec<Thingy>>>>,
+    pub(crate) mssub: RefCell<HashMap<Thingy, HashMap<SharedArray<Thingy>, Vec<Thingy>>>>,
 }
 
 impl SemanticHost {
@@ -79,6 +80,7 @@ impl SemanticHost {
             non_nullable_types: RefCell::new(HashMap::new()),
             vasub: RefCell::new(HashMap::new()),
             visub: RefCell::new(HashMap::new()),
+            mssub: RefCell::new(HashMap::new()),
         };
 
         // Initialize top level namespaces

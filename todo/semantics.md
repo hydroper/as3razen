@@ -11,7 +11,7 @@
   * [x] Type parameter type
   * [x] Variable slot
   * [x] Virtual slot
-  * [ ] Method slot
+  * [x] Method slot
 * [ ] Things
   * [x] Namespaces
   * [x] NamespaceSet
@@ -23,8 +23,7 @@
   * [x] OriginalVirtualSlot extends VirtualSlot
   * [x] VirtualSlotAfterSubstitution extends VirtualSlot
   * [x] OriginalMethodSlot extends MethodSlot
-  * [ ] MethodSlotAfterSubstitution extends MethodSlot
-    * [ ] Description: Represents a method slot after an indirect type substitution.
+  * [x] MethodSlotAfterSubstitution extends MethodSlot
   * [ ] Scopes
     * [ ] Field: Parent
     * [ ] Field: Open namespace set
