@@ -9,8 +9,8 @@
   * [x] Enum
   * [x] Interface
   * [x] Type parameter type
-  * [ ] Variable slot
-  * [ ] Virtual slot
+  * [x] Variable slot
+  * [x] Virtual slot
   * [ ] Method slot
 * [ ] Things
   * [x] Namespaces
@@ -20,13 +20,8 @@
   * [x] Types
   * [x] OriginalVariableSlot
   * [x] VariableSlotAfterSubstitution extends VariableSlot
-  * [ ] OriginalVirtualSlot extends VirtualSlot
-    * [ ] Override `bindable_event()`
-    * [ ] Override `set_bindable_event()`
-  * [ ] VirtualSlotAfterSubstitution extends VirtualSlot
-    * [ ] Description: Represents a virtual slot after an indirect type substitution.
-    * [ ] Override `bindable_event()`
-    * [ ] Override `set_bindable_event()`
+  * [x] OriginalVirtualSlot extends VirtualSlot
+  * [x] VirtualSlotAfterSubstitution extends VirtualSlot
   * [ ] OriginalMethodSlot extends MethodSlot
   * [ ] MethodSlotAfterSubstitution extends MethodSlot
     * [ ] Description: Represents a method slot after an indirect type substitution.

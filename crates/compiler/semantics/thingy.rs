@@ -124,6 +124,22 @@ smodel! {
             panic!();
         }
 
+        pub fn getter(&self, host: &SemanticHost) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn set_getter(&self, m: Option<Thingy>) {
+            panic!();
+        }
+
+        pub fn setter(&self, host: &SemanticHost) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn set_setter(&self, m: Option<Thingy>) {
+            panic!();
+        }
+
         pub fn static_type(&self, host: &SemanticHost) -> Thingy {
             panic!();
         }
@@ -298,7 +314,7 @@ smodel! {
             TypeSubstitution(host).exec(self, type_params, substitute_types)
         }
 
-        pub fn read_only(&self) -> bool {
+        pub fn read_only(&self, host: &SemanticHost) -> bool {
             true
         }
 
@@ -306,7 +322,7 @@ smodel! {
             panic!();
         }
 
-        pub fn write_only(&self) -> bool {
+        pub fn write_only(&self, host: &SemanticHost) -> bool {
             false
         }
 
@@ -1432,7 +1448,7 @@ smodel! {
             self.set_m_flags(v);
         }
 
-        pub override fn read_only(&self) -> bool {
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
             self.m_flags().contains(VariableSlotFlags::READ_ONLY)
         }
 
@@ -1442,7 +1458,7 @@ smodel! {
             self.set_m_flags(v);
         }
 
-        pub override fn write_only(&self) -> bool {
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
             false
         }
 
@@ -1535,11 +1551,11 @@ smodel! {
             self.origin().is_external()
         }
 
-        pub override fn read_only(&self) -> bool {
-            self.origin().read_only()
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            self.origin().read_only(host)
         }
 
-        pub override fn write_only(&self) -> bool {
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
             false
         }
 
@@ -1586,6 +1602,228 @@ smodel! {
     pub struct VirtualSlot: Thingy {
         fn VirtualSlot() {
             super();
+        }
+    }
+
+    pub struct OriginalVirtualSlot: VirtualSlot {
+        let ref m_name: Option<QName> = None;
+        let ref m_location: Option<Location> = None;
+        let ref m_asdoc: Option<Rc<AsDoc>> = None;
+        let ref m_getter: Option<Thingy> = None;
+        let ref m_setter: Option<Thingy> = None;
+        let ref m_static_type: Option<Thingy> = None;
+        let ref m_parent: Option<Thingy> = None;
+        let m_flags: VirtualSlotFlags = VirtualSlotFlags::empty();
+        let ref m_bindable_event: Option<String> = None;
+
+        pub(crate) fn OriginalVirtualSlot(name: &QName) {
+            super();
+            self.set_m_name(Some(name.clone()));
+        }
+
+        pub override fn name(&self) -> QName {
+            self.m_name().unwrap()
+        }
+
+        pub override fn getter(&self, host: &SemanticHost) -> Option<Thingy> {
+            self.m_getter()
+        }
+
+        pub override fn set_getter(&self, m: Option<Thingy>) {
+            self.set_m_getter(m);
+        }
+
+        pub override fn setter(&self, host: &SemanticHost) -> Option<Thingy> {
+            self.m_setter()
+        }
+
+        pub override fn set_setter(&self, m: Option<Thingy>) {
+            self.set_m_setter(m);
+        }
+
+        pub override fn is_external(&self) -> bool {
+            self.m_flags().contains(VirtualSlotFlags::IS_EXTERNAL)
+        }
+
+        pub override fn set_is_external(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(VirtualSlotFlags::IS_EXTERNAL, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            self.setter(host).is_none()
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            self.getter(host).is_none()
+        }
+
+        pub override fn static_type(&self, host: &SemanticHost) -> Thingy {
+            if let Some(r) = self.m_static_type() {
+                return r.clone();
+            }
+
+            let mut deduced_type: Option<Thingy> = None;
+
+            // Deduce type from getter
+            if let Some(getter) = self.m_getter() {
+                let signature: Thingy = getter.signature(host);
+                if !signature.is::<UnresolvedThingy>() {
+                    deduced_type = Some(signature.result_type());
+                }
+            }
+
+            // Deduce type from setter
+            if let Some(setter) = self.m_setter() {
+                let signature: Thingy = setter.signature(host);
+                if !signature.is::<UnresolvedThingy>() {
+                    deduced_type = Some(signature.params().get(0).unwrap().static_type.clone());
+                }
+            }
+
+            if deduced_type.is_none() {
+                return host.unresolved_thingy();
+            }
+
+            self.set_m_static_type(deduced_type.clone());
+            deduced_type.unwrap()
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.m_location()
+        }
+
+        pub override fn set_location(&self, loc: Option<Location>) {
+            self.set_m_location(loc);
+        }
+
+        /// The event name indicated by a `[Bindable]` meta-data tag.
+        pub override fn bindable_event(&self) -> Option<String> {
+            self.m_bindable_event()
+        }
+
+        pub override fn set_bindable_event(&self, name: Option<String>) {
+            self.set_m_bindable_event(name);
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.m_parent()
+        }
+
+        pub override fn set_parent(&self, p: Option<Thingy>) {
+            self.set_m_parent(p);
+        }
+
+        pub override fn asdoc(&self) -> Option<Rc<AsDoc>> {
+            self.m_asdoc()
+        }
+
+        pub override fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {
+            self.set_m_asdoc(asdoc);
+        }
+
+        override fn to_string_1(&self) -> String {
+            self.fully_qualified_name()
+        }
+    }
+
+    pub struct VirtualSlotAfterSubstitution: VirtualSlot {
+        let ref m_origin: Option<Thingy> = None;
+        let ref m_indirect_type_params: SharedArray<Thingy> = SharedArray::new();
+        let ref m_indirect_substitute_types: SharedArray<Thingy> = SharedArray::new();
+        let ref m_getter: Option<Thingy> = None;
+        let ref m_setter: Option<Thingy> = None;
+        let ref m_static_type: Option<Thingy> = None;
+
+        pub(crate) fn VirtualSlotAfterSubstitution(origin: &Thingy, indirect_type_params: &SharedArray<Thingy>, indirect_substitute_types: &SharedArray<Thingy>) {
+            super();
+            self.set_m_origin(Some(origin.clone()));
+            self.set_m_indirect_type_params(indirect_type_params.clone());
+            self.set_m_indirect_substitute_types(indirect_substitute_types.clone());
+        }
+
+        pub override fn origin(&self) -> Thingy {
+            self.m_origin().unwrap()
+        }
+
+        pub override fn indirect_type_params(&self) -> SharedArray<Thingy> {
+            self.m_indirect_type_params()
+        }
+
+        pub override fn indirect_substitute_types(&self) -> SharedArray<Thingy> {
+            self.m_indirect_substitute_types()
+        }
+
+        pub override fn name(&self) -> QName {
+            self.origin().name()
+        }
+
+        pub override fn getter(&self, host: &SemanticHost) -> Option<Thingy> {
+            if let Some(r) = self.m_getter() {
+                return Some(r);
+            }
+            let r = self.origin().getter(host);
+            if r.is_none() {
+                return r;
+            }
+            let r = TypeSubstitution(host).exec(&r.unwrap(), &self.indirect_type_params(), &self.indirect_substitute_types());
+            self.set_m_getter(Some(r.clone()));
+            Some(r)
+        }
+
+        pub override fn setter(&self, host: &SemanticHost) -> Option<Thingy> {
+            if let Some(r) = self.m_setter() {
+                return Some(r);
+            }
+            let r = self.origin().setter(host);
+            if r.is_none() {
+                return r;
+            }
+            let r = TypeSubstitution(host).exec(&r.unwrap(), &self.indirect_type_params(), &self.indirect_substitute_types());
+            self.set_m_setter(Some(r.clone()));
+            Some(r)
+        }
+
+        pub override fn is_external(&self) -> bool {
+            self.origin().is_external()
+        }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            self.origin().read_only(host)
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            self.origin().write_only(host)
+        }
+
+        pub override fn static_type(&self, host: &SemanticHost) -> Thingy {
+            if let Some(r) = self.m_static_type() {
+                return r;
+            }
+            let r = self.origin().static_type(host);
+            if r.is::<UnresolvedThingy>() {
+                return r;
+            }
+            let r = TypeSubstitution(host).exec(&r, &self.indirect_type_params(), &self.indirect_substitute_types());
+            self.set_m_static_type(Some(r.clone()));
+            r
+        }
+
+        pub override fn bindable_event(&self) -> Option<String> {
+            self.origin().bindable_event()
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.origin().parent()
+        }
+
+        pub override fn asdoc(&self) -> Option<Rc<AsDoc>> {
+            self.origin().asdoc()
+        }
+
+        override fn to_string_1(&self) -> String {
+            self.fully_qualified_name()
         }
     }
 }
@@ -1691,6 +1929,13 @@ bitflags! {
     struct VariableSlotFlags: u16 {
         const IS_EXTERNAL = 0b00000001;
         const READ_ONLY = 0b00000010;
+    }
+}
+
+bitflags! {
+    #[derive(Copy, Clone, PartialEq, Eq)]
+    struct VirtualSlotFlags: u16 {
+        const IS_EXTERNAL = 0b00000001;
     }
 }
 

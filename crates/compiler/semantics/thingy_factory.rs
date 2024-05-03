@@ -329,4 +329,54 @@ impl<'a> ThingyFactory<'a> {
 
         vasub.into()
     }
+
+    pub fn create_virtual_slot(&self, name: &QName) -> Thingy {
+        OriginalVirtualSlot::new(&self.0.arena, name).into()
+    }
+
+    /// Interns a virtual slot after indirect substitution.
+    pub fn create_virtual_slot_after_substitution(&self, origin: &Thingy, indirect_type_params: &SharedArray<Thingy>, indirect_substitute_types: &SharedArray<Thingy>) -> Thingy {
+        // Verify parameter count
+        assert_eq!(indirect_type_params.length(), indirect_substitute_types.length());
+
+        let mut visub_list = self.0.visub.borrow_mut();
+
+        let mut base_list = visub_list.get_mut(origin);
+        let mut empty_base_list = HashMap::<SharedArray<Thingy>, Vec<Thingy>>::new();
+        if base_list.is_none() {
+            base_list = Some(&mut empty_base_list);
+            visub_list.insert(origin.clone(), HashMap::new());
+        }
+        let base_list = base_list.unwrap();
+
+        let mut list = base_list.get(indirect_type_params);
+        let empty_list = vec![];
+        if list.is_none() {
+            list = Some(&empty_list);
+            base_list.insert(indirect_type_params.clone(), vec![]);
+        }
+        'visub: for visub in list.unwrap() {
+            let mut substitute_types_1 = indirect_substitute_types.iter();
+            let substitute_types_2 = visub.indirect_substitute_types();
+            let mut substitute_types_2 = substitute_types_2.iter();
+            while let Some(substitute_type_1) = substitute_types_1.next() {
+                let substitute_type_2 = substitute_types_2.next().unwrap();
+                if substitute_type_1 != substitute_type_2 {
+                    continue 'visub;
+                }
+            }
+            return visub.clone();
+        }
+
+        let visub = VirtualSlotAfterSubstitution::new(
+            &self.0.arena,
+            &origin,
+            &indirect_type_params,
+            &indirect_substitute_types.clone());
+
+        let list = visub_list.get_mut(origin).unwrap().get_mut(&indirect_type_params).unwrap();
+        list.push(visub.clone().into());
+
+        visub.into()
+    }
 }
