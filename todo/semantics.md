@@ -23,7 +23,7 @@
     * [x] Void type
     * [x] Class type
     * [x] Enum type
-    * [ ] Interface type
+    * [x] Interface type
     * [ ] Type after substitution
       * [ ] Override fully qualified name
     * [ ] Tuple type

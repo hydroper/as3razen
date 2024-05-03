@@ -218,6 +218,14 @@ smodel! {
             panic!();
         }
 
+        pub fn known_implementors(&self) -> SharedArray<Thingy> {
+            panic!();
+        }
+
+        pub fn extends_interfaces(&self) -> SharedArray<Thingy> {
+            panic!();
+        }
+
         fn to_string_1(&self) -> String {
             "".into()
         }
@@ -766,6 +774,97 @@ smodel! {
 
         override fn to_string_1(&self) -> String {
             self.fully_qualified_name()
+        }
+    }
+
+    pub struct InterfaceType: Type {
+        let ref m_name: Option<QName> = None;
+        let ref m_type_parameters: Option<SharedArray<Thingy>> = None;
+        let ref m_extends_interfaces: SharedArray<Thingy> = SharedArray::new();
+        let ref m_known_implementors: SharedArray<Thingy> = SharedArray::new();
+        let ref m_parent: Option<Thingy> = None;
+        let ref m_properties: NameMap = NameMap::new();
+        let ref m_prototype: NameMap = NameMap::new();
+        let ref m_asdoc: Option<Rc<AsDoc>> = None;
+        let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
+        let ref m_location: Option<Location> = None;
+
+        pub(crate) fn InterfaceType(name: QName) {
+            super();
+            self.set_m_name(Some(name));
+        }
+
+        pub override fn name(&self) -> QName {
+            self.m_name().unwrap()
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.m_location()
+        }
+
+        pub override fn set_location(&self, loc: Option<Location>) {
+            self.set_m_location(loc);
+        }
+
+        pub override fn type_parameters(&self) -> Option<SharedArray<Thingy>> {
+            self.m_type_parameters()
+        }
+
+        pub override fn set_type_parameters(&self, list: Option<SharedArray<Thingy>>) {
+            self.set_m_type_parameters(list);
+        }
+
+        pub override fn known_implementors(&self) -> SharedArray<Thingy> {
+            self.m_known_implementors()
+        }
+
+        pub override fn extends_interfaces(&self) -> SharedArray<Thingy> {
+            self.m_extends_interfaces()
+        }
+
+        pub override fn properties(&self, host: &SemanticHost) -> NameMap {
+            self.m_properties()
+        }
+
+        pub override fn prototype(&self, host: &SemanticHost) -> NameMap {
+            self.m_prototype()
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.m_parent()
+        }
+
+        pub override fn set_parent(&self, p: Option<Thingy>) {
+            self.set_m_parent(p);
+        }
+
+        pub override fn asdoc(&self) -> Option<Rc<AsDoc>> {
+            self.m_asdoc()
+        }
+
+        pub override fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {
+            self.set_m_asdoc(asdoc);
+        }
+
+        pub override fn metadata(&self) -> SharedArray<Rc<Metadata>> {
+            self.m_metadata()
+        }
+
+        pub override fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(false)
+        }
+
+        pub override fn includes_null(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(true)
+        }
+
+        override fn to_string_1(&self) -> String {
+            let name_1 = self.fully_qualified_name();
+            let mut p = String::new();
+            if let Some(type_parameters) = self.type_parameters() {
+                p = ".<".to_owned() + &type_parameters.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", ") + ">";
+            }
+            name_1 + &p
         }
     }
 }

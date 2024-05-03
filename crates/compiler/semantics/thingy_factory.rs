@@ -115,4 +115,15 @@ impl<'a> ThingyFactory<'a> {
         r.set_static_protected_ns(Some(self.create_static_protected_namespace(Some(r.clone().into()))));
         r.into()
     }
+
+    pub fn create_enum_type(&self, name: QName) -> Thingy {
+        let r = EnumType::new(&self.0.arena, name);
+        r.set_private_ns(Some(self.create_private_namespace(Some(r.clone().into()))));
+        r.into()
+    }
+
+    pub fn create_interface_type(&self, name: QName) -> Thingy {
+        let r = InterfaceType::new(&self.0.arena, name);
+        r.into()
+    }
 }
