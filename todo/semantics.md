@@ -18,18 +18,16 @@
   * [x] NamespaceSet
   * [x] Packages
   * [x] Alias
-  * [ ] Types
-    * [x] Any type
-    * [x] Void type
-    * [x] Class type
-    * [x] Enum type
-    * [x] Interface type
-    * [x] Type after substitution
-    * [x] Tuple type
-    * [x] Function type
-    * [x] Nullable type
-    * [x] Non nullable type
-    * [x] Type parameter type
+  * [x] Types
+  * [ ] Variable slot
+  * [ ] Variable slot after substitution
+    * [ ] Description: Represents a variable slot after an indirect type substitution.
+  * [ ] Virtual slot
+  * [ ] Virtual slot after substitution
+    * [ ] Description: Represents a virtual slot after an indirect type substitution.
+  * [ ] Method slot
+  * [ ] Method slot after substitution
+    * [ ] Description: Represents a method slot after an indirect type substitution.
   * [ ] Scopes
     * [ ] Field: Parent
     * [ ] Field: Open namespace set
@@ -46,15 +44,6 @@
     * [ ] EnumScope
     * [ ] InterfaceScope
     * [ ] PackageScope
-  * [ ] Variable slot
-  * [ ] Variable slot after substitution
-    * [ ] Description: Represents a variable slot after an indirect type substitution.
-  * [ ] Virtual slot
-  * [ ] Virtual slot after substitution
-    * [ ] Description: Represents a virtual slot after an indirect type substitution.
-  * [ ] Method slot
-  * [ ] Method slot after substitution
-    * [ ] Description: Represents a method slot after an indirect type substitution.
   * [ ] Values
     * [ ] Constants
       * [ ] UndefinedConstant

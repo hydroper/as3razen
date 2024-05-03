@@ -250,6 +250,11 @@ smodel! {
             panic!();
         }
 
+        /// Performs type substitution.
+        pub fn type_substitution(&self, host: &SemanticHost, type_params: &SharedArray<Thingy>, substitute_types: &SharedArray<Thingy>) -> Thingy {
+            TypeSubstitution(host).exec(self, type_params, substitute_types)
+        }
+
         fn to_string_1(&self) -> String {
             "".into()
         }
@@ -1029,7 +1034,7 @@ smodel! {
         }
 
         pub override fn metadata(&self) -> SharedArray<Rc<Metadata>> {
-            self.origin.metadata()
+            self.origin().metadata()
         }
 
         pub override fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
@@ -1361,4 +1366,14 @@ pub struct SemanticFunctionTypeParameter {
     /// as function types are only created after all compound types
     /// are resolved.
     pub static_type: Thingy,
+}
+
+impl SemanticFunctionTypeParameter {
+    /// Performs type substitution.
+    pub fn type_substitution(&self, host: &SemanticHost, type_params: &SharedArray<Thingy>, substitute_types: &SharedArray<Thingy>) -> Self {
+        Self {
+            kind: self.kind,
+            static_type: TypeSubstitution(host).exec(&self.static_type, type_params, substitute_types),
+        }
+    }
 }
