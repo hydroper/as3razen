@@ -19,11 +19,14 @@
   * [x] Alias
   * [x] Types
   * [x] OriginalVariableSlot
-  * [ ] VariableSlotAfterSubstitution extends VariableSlot
-    * [ ] Description: Represents a variable slot after an indirect type substitution.
+  * [x] VariableSlotAfterSubstitution extends VariableSlot
   * [ ] OriginalVirtualSlot extends VirtualSlot
+    * [ ] Override `bindable_event()`
+    * [ ] Override `set_bindable_event()`
   * [ ] VirtualSlotAfterSubstitution extends VirtualSlot
     * [ ] Description: Represents a virtual slot after an indirect type substitution.
+    * [ ] Override `bindable_event()`
+    * [ ] Override `set_bindable_event()`
   * [ ] OriginalMethodSlot extends MethodSlot
   * [ ] MethodSlotAfterSubstitution extends MethodSlot
     * [ ] Description: Represents a method slot after an indirect type substitution.

@@ -283,4 +283,50 @@ impl<'a> ThingyFactory<'a> {
     pub fn create_variable_slot(&self, name: &QName, read_only: bool, static_type: &Thingy) -> Thingy {
         OriginalVariableSlot::new(&self.0.arena, name, read_only, static_type).into()
     }
+
+    /// Interns a variable slot after indirect substitution.
+    pub fn create_variable_slot_after_substitution(&self, origin: &Thingy, indirect_type_params: &SharedArray<Thingy>, indirect_substitute_types: &SharedArray<Thingy>) -> Thingy {
+        // Verify parameter count
+        assert_eq!(indirect_type_params.length(), indirect_substitute_types.length());
+
+        let mut vasub_list = self.0.vasub.borrow_mut();
+
+        let mut base_list = vasub_list.get_mut(origin);
+        let mut empty_base_list = HashMap::<SharedArray<Thingy>, Vec<Thingy>>::new();
+        if base_list.is_none() {
+            base_list = Some(&mut empty_base_list);
+            vasub_list.insert(origin.clone(), HashMap::new());
+        }
+        let base_list = base_list.unwrap();
+
+        let mut list = base_list.get(indirect_type_params);
+        let empty_list = vec![];
+        if list.is_none() {
+            list = Some(&empty_list);
+            base_list.insert(indirect_type_params.clone(), vec![]);
+        }
+        'vasub: for vasub in list.unwrap() {
+            let mut substitute_types_1 = indirect_substitute_types.iter();
+            let substitute_types_2 = vasub.indirect_substitute_types();
+            let mut substitute_types_2 = substitute_types_2.iter();
+            while let Some(substitute_type_1) = substitute_types_1.next() {
+                let substitute_type_2 = substitute_types_2.next().unwrap();
+                if substitute_type_1 != substitute_type_2 {
+                    continue 'vasub;
+                }
+            }
+            return vasub.clone();
+        }
+
+        let vasub = VariableSlotAfterSubstitution::new(
+            &self.0.arena,
+            &origin,
+            &indirect_type_params,
+            &indirect_substitute_types.clone());
+
+        let list = vasub_list.get_mut(origin).unwrap().get_mut(&indirect_type_params).unwrap();
+        list.push(vasub.clone().into());
+
+        vasub.into()
+    }
 }

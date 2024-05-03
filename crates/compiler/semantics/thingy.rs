@@ -269,6 +269,14 @@ smodel! {
             panic!();
         }
 
+        pub fn indirect_type_params(&self) -> SharedArray<Thingy> {
+            panic!();
+        }
+
+        pub fn indirect_substitute_types(&self) -> SharedArray<Thingy> {
+            panic!();
+        }
+
         pub fn element_types(&self) -> SharedArray<Thingy> {
             panic!();
         }
@@ -1393,7 +1401,7 @@ smodel! {
         let m_flags: VariableSlotFlags = VariableSlotFlags::empty();
         let ref m_bindable_event: Option<String> = None;
 
-        pub fn OriginalVariableSlot(name: &QName, read_only: bool, static_type: &Thingy) {
+        pub(crate) fn OriginalVariableSlot(name: &QName, read_only: bool, static_type: &Thingy) {
             super();
             self.set_m_name(Some(name.clone()));
             self.set_read_only(read_only);
@@ -1485,6 +1493,99 @@ smodel! {
 
         override fn to_string_1(&self) -> String {
             self.fully_qualified_name()
+        }
+    }
+
+    /// Variable slot after indirect substitution.
+    pub struct VariableSlotAfterSubstitution: VariableSlot {
+        let ref m_origin: Option<Thingy> = None;
+        let ref m_indirect_type_params: SharedArray<Thingy> = SharedArray::new();
+        let ref m_indirect_substitute_types: SharedArray<Thingy> = SharedArray::new();
+        let ref m_static_type: Option<Thingy> = None;
+
+        pub(crate) fn VariableSlotAfterSubstitution(origin: &Thingy, indirect_type_params: &SharedArray<Thingy>, indirect_substitute_types: &SharedArray<Thingy>) {
+            super();
+            self.set_m_origin(Some(origin.clone()));
+            self.set_m_indirect_type_params(indirect_type_params.clone());
+            self.set_m_indirect_substitute_types(indirect_substitute_types.clone());
+        }
+
+        pub override fn origin(&self) -> Thingy {
+            self.m_origin().unwrap()
+        }
+
+        pub override fn indirect_type_params(&self) -> SharedArray<Thingy> {
+            self.m_indirect_type_params()
+        }
+
+        pub override fn indirect_substitute_types(&self) -> SharedArray<Thingy> {
+            self.m_indirect_substitute_types()
+        }
+
+        pub override fn name(&self) -> QName {
+            self.origin().name()
+        }
+
+        /// The constant initially assigned to that variable slot.
+        pub override fn var_constant(&self) -> Option<Thingy> {
+            None
+        }
+
+        pub override fn is_external(&self) -> bool {
+            self.origin().is_external()
+        }
+
+        pub override fn read_only(&self) -> bool {
+            self.origin().read_only()
+        }
+
+        pub override fn write_only(&self) -> bool {
+            false
+        }
+
+        pub override fn static_type(&self, host: &SemanticHost) -> Thingy {
+            if let Some(r) = self.m_static_type() {
+                return r.clone();
+            }
+            let r = self.origin().static_type(host);
+            if r.is::<UnresolvedThingy>() {
+                return r.clone();
+            }
+            let r = TypeSubstitution(host).exec(&r, &self.m_indirect_type_params(), &self.m_indirect_substitute_types());
+            self.set_m_static_type(Some(r.clone()));
+            r
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.origin().location()
+        }
+
+        /// The event name indicated by a `[Bindable]` meta-data tag.
+        pub override fn bindable_event(&self) -> Option<String> {
+            self.origin().bindable_event()
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.origin().parent()
+        }
+
+        pub override fn asdoc(&self) -> Option<Rc<AsDoc>> {
+            self.origin().asdoc()
+        }
+
+        pub override fn metadata(&self) -> SharedArray<Rc<Metadata>> {
+            self.origin().metadata()
+        }
+
+        override fn to_string_1(&self) -> String {
+            self.fully_qualified_name()
+        }
+    }
+
+    /// Either an *original* virtual slot, or a virtual slot after substitution.
+    pub struct VirtualSlot: Thingy {
+        fn VirtualSlot() {
+            super();
         }
     }
 }

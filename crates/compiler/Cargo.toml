@@ -15,7 +15,7 @@ name = "fxrazen"
 path = "lib.rs"
 
 [dependencies]
-as3_parser = "1.0"
+as3_parser = "1"
 bitflags = { version = "2.4.1", features = ["serde"] }
 by_address = "1.2.1"
 bytes = "1"

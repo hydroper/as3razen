@@ -24,12 +24,15 @@ pub struct SemanticHost {
     array_type: RefCell<Option<Thingy>>,
     namespace_type: RefCell<Option<Thingy>>,
     function_type: RefCell<Option<Thingy>>,
+
     non_null_primitive_types: RefCell<Option<Rc<Vec<Thingy>>>>,
     pub(crate) types_after_sub: RefCell<HashMap<Thingy, Vec<Thingy>>>,
     pub(crate) function_types: RefCell<HashMap<usize, Vec<Thingy>>>,
     pub(crate) tuple_types: RefCell<HashMap<usize, Vec<Thingy>>>,
     pub(crate) nullable_types: RefCell<HashMap<Thingy, Thingy>>,
     pub(crate) non_nullable_types: RefCell<HashMap<Thingy, Thingy>>,
+    /// Variable slots after indirect type substitution.
+    pub(crate) vasub: RefCell<HashMap<Thingy, HashMap<SharedArray<Thingy>, Vec<Thingy>>>>,
 }
 
 impl SemanticHost {
@@ -53,6 +56,7 @@ impl SemanticHost {
             top_level_package: top_level_package.clone().into(),
             invalidation_thingy,
             unresolved_thingy,
+
             any_type,
             void_type,
             object_type: RefCell::new(None),
@@ -65,12 +69,14 @@ impl SemanticHost {
             array_type: RefCell::new(None),
             namespace_type: RefCell::new(None),
             function_type: RefCell::new(None),
+
             non_null_primitive_types: RefCell::new(None),
             types_after_sub: RefCell::new(HashMap::new()),
             function_types: RefCell::new(HashMap::new()),
             tuple_types: RefCell::new(HashMap::new()),
             nullable_types: RefCell::new(HashMap::new()),
             non_nullable_types: RefCell::new(HashMap::new()),
+            vasub: RefCell::new(HashMap::new()),
         };
 
         // Initialize top level namespaces
