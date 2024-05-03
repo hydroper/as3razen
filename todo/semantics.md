@@ -3,15 +3,6 @@
 * [x] QName
 * [x] NumberVariant
 * [x] NameMap
-* [ ] Warning: Entities, including classes, aliases, variable slots and so on, all must have an optional "location" field pointing to where they were defined in the source code.
-  * [x] Alias
-  * [x] Class
-  * [x] Enum
-  * [x] Interface
-  * [x] Type parameter type
-  * [x] Variable slot
-  * [x] Virtual slot
-  * [x] Method slot
 * [ ] Things
   * [x] Namespaces
   * [x] NamespaceSet
