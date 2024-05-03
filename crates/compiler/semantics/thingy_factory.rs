@@ -379,4 +379,8 @@ impl<'a> ThingyFactory<'a> {
 
         visub.into()
     }
+
+    pub fn create_method_slot(&self, name: &QName, signature: &Thingy) -> Thingy {
+        OriginalMethodSlot::new(&self.0.arena, name, signature).into()
+    }
 }

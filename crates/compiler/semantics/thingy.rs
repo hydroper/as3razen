@@ -219,11 +219,11 @@ smodel! {
             panic!();
         }
 
-        pub fn activation(&self) -> Thingy {
+        pub fn activation(&self) -> Option<Thingy> {
             panic!();
         }
 
-        pub fn set_activation(&self, activation: &Thingy) {
+        pub fn set_activation(&self, activation: Option<Thingy>) {
             panic!();
         }
 
@@ -1936,6 +1936,154 @@ smodel! {
             super();
             self.set_m_name(Some(name.clone()));
             self.set_m_signature(Some(signature.clone()));
+        }
+
+        pub override fn name(&self) -> QName {
+            self.m_name().unwrap()
+        }
+
+        pub override fn is_external(&self) -> bool {
+            self.m_flags().contains(MethodSlotFlags::IS_EXTERNAL)
+        }
+    
+        pub override fn set_is_external(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(MethodSlotFlags::IS_EXTERNAL, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn is_final(&self) -> bool {
+            self.m_flags().contains(MethodSlotFlags::IS_FINAL)
+        }
+    
+        pub override fn set_is_final(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(MethodSlotFlags::IS_FINAL, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn is_static(&self) -> bool {
+            self.m_flags().contains(MethodSlotFlags::IS_STATIC)
+        }
+    
+        pub override fn set_is_static(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(MethodSlotFlags::IS_STATIC, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn is_abstract(&self) -> bool {
+            self.m_flags().contains(MethodSlotFlags::IS_ABSTRACT)
+        }
+    
+        pub override fn set_is_abstract(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(MethodSlotFlags::IS_ABSTRACT, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn is_overriding(&self) -> bool {
+            self.m_flags().contains(MethodSlotFlags::IS_OVERRIDING)
+        }
+    
+        pub override fn set_is_overriding(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(MethodSlotFlags::IS_OVERRIDING, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn is_async(&self) -> bool {
+            self.m_flags().contains(MethodSlotFlags::IS_ASYNC)
+        }
+    
+        pub override fn set_is_async(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(MethodSlotFlags::IS_ASYNC, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn is_generator(&self) -> bool {
+            self.m_flags().contains(MethodSlotFlags::IS_GENERATOR)
+        }
+    
+        pub override fn set_is_generator(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(MethodSlotFlags::IS_GENERATOR, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn is_constructor(&self) -> bool {
+            self.m_flags().contains(MethodSlotFlags::IS_CONSTRUCTOR)
+        }
+    
+        pub override fn set_is_constructor(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(MethodSlotFlags::IS_CONSTRUCTOR, value);
+            self.set_m_flags(v);
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.m_location()
+        }
+    
+        pub override fn set_location(&self, loc: Option<Location>) {
+            self.set_m_location(loc);
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.m_parent()
+        }
+    
+        pub override fn set_parent(&self, p: Option<Thingy>) {
+            self.set_m_parent(p);
+        }
+    
+        pub override fn asdoc(&self) -> Option<Rc<AsDoc>> {
+            self.m_asdoc()
+        }
+    
+        pub override fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {
+            self.set_m_asdoc(asdoc);
+        }
+    
+        pub override fn metadata(&self) -> SharedArray<Rc<Metadata>> {
+            self.m_metadata()
+        }
+
+        pub override fn signature(&self, host: &SemanticHost) -> Thingy {
+            self.m_signature().unwrap()
+        }
+
+        pub override fn set_signature(&self, signature: &Thingy) {
+            self.set_m_signature(Some(signature.clone()));
+        }
+
+        pub override fn activation(&self) -> Option<Thingy> {
+            self.m_signature()
+        }
+
+        pub override fn set_activation(&self, activation: Option<Thingy>) {
+            self.set_m_activation(activation);
+        }
+
+        pub fn of_virtual_slot(&self) -> Option<Thingy> {
+            self.m_of_virtual_slot()
+        }
+
+        pub fn set_of_virtual_slot(&self, virtual_slot: Option<Thingy>) {
+            self.set_m_of_virtual_slot(virtual_slot);
+        }
+
+        pub fn overriden_by(&self, host: &SemanticHost) -> SharedArray<Thingy> {
+            self.m_overriden_by()
+        }
+
+        pub fn overrides_method(&self, host: &SemanticHost) -> Option<Thingy> {
+            self.m_overrides_method()
+        }
+
+        pub fn set_overrides_method(&self, method: Option<Thingy>) {
+            self.set_m_overrides_method(method);
         }
 
         override fn to_string_1(&self) -> String {
