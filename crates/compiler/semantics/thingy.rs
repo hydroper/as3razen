@@ -183,6 +183,77 @@ smodel! {
         pub fn set_is_option_set(&self, value: bool) {
         }
 
+        pub fn is_static(&self) -> bool {
+            false
+        }
+
+        pub fn set_is_static(&self, value: bool) {
+        }
+
+        pub fn is_overriding(&self) -> bool {
+            false
+        }
+
+        pub fn set_is_overriding(&self, value: bool) {
+        }
+
+        pub fn is_async(&self) -> bool {
+            false
+        }
+
+        pub fn set_is_async(&self, value: bool) {
+        }
+
+        pub fn is_generator(&self) -> bool {
+            false
+        }
+
+        pub fn set_is_generator(&self, value: bool) {
+        }
+
+        pub fn signature(&self, host: &SemanticHost) -> Thingy {
+            panic!();
+        }
+
+        pub fn set_signature(&self, signature: &Thingy) {
+            panic!();
+        }
+
+        pub fn activation(&self) -> Thingy {
+            panic!();
+        }
+
+        pub fn set_activation(&self, activation: &Thingy) {
+            panic!();
+        }
+
+        pub fn of_virtual_slot(&self) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn set_of_virtual_slot(&self, virtual_slot: Option<Thingy>) {
+            panic!();
+        }
+
+        pub fn overriden_by(&self, host: &SemanticHost) -> SharedArray<Thingy> {
+            panic!();
+        }
+
+        pub fn overrides_method(&self, host: &SemanticHost) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn set_overrides_method(&self, method: Option<Thingy>) {
+            panic!();
+        }
+
+        pub fn is_constructor(&self) -> bool {
+            false
+        }
+
+        pub fn set_is_constructor(&self, value: bool) {
+        }
+
         pub fn constructor_method(&self, host: &SemanticHost) -> Option<Thingy> {
             panic!();
         }
@@ -710,6 +781,16 @@ smodel! {
             self.set_m_flags(v);
         }
 
+        pub override fn is_static(&self) -> bool {
+            self.m_flags().contains(ClassTypeFlags::IS_STATIC)
+        }
+
+        pub override fn set_is_static(&self, value: bool) {
+            let mut v = self.m_flags();
+            v.set(ClassTypeFlags::IS_STATIC, value);
+            self.set_m_flags(v);
+        }
+
         pub override fn is_dynamic(&self) -> bool {
             self.m_flags().contains(ClassTypeFlags::IS_DYNAMIC)
         }
@@ -1066,6 +1147,10 @@ smodel! {
 
         pub override fn is_abstract(&self) -> bool {
             self.origin().is_abstract()
+        }
+
+        pub override fn is_static(&self) -> bool {
+            self.origin().is_static()
         }
 
         pub override fn is_final(&self) -> bool {
@@ -1826,6 +1911,37 @@ smodel! {
             self.fully_qualified_name()
         }
     }
+
+    /// Either an *original* method slot, or a method slot after substitution.
+    pub struct MethodSlot: Thingy {
+        fn MethodSlot() {
+            super();
+        }
+    }
+
+    pub struct OriginalMethodSlot: MethodSlot {
+        let ref m_name: Option<QName> = None;
+        let ref m_location: Option<Location> = None;
+        let ref m_asdoc: Option<Rc<AsDoc>> = None;
+        let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
+        let ref m_activation: Option<Thingy> = None;
+        let ref m_signature: Option<Thingy> = None;
+        let ref m_parent: Option<Thingy> = None;
+        let ref m_of_virtual_slot: Option<Thingy> = None;
+        let ref m_overriden_by: SharedArray<Thingy> = SharedArray::new();
+        let ref m_overrides_method: Option<Thingy> = None;
+        let m_flags: MethodSlotFlags = MethodSlotFlags::empty();
+
+        pub fn OriginalMethodSlot(name: &QName, signature: &Thingy) {
+            super();
+            self.set_m_name(Some(name.clone()));
+            self.set_m_signature(Some(signature.clone()));
+        }
+
+        override fn to_string_1(&self) -> String {
+            self.fully_qualified_name()
+        }
+    }
 }
 
 impl ToString for Thingy {
@@ -1915,27 +2031,41 @@ impl DiagnosticArgument for QName {}
 bitflags! {
     #[derive(Copy, Clone, PartialEq, Eq)]
     struct ClassTypeFlags: u16 {
-        const IS_FINAL = 0b00000001;
-        const IS_STATIC = 0b00000010;
-        const IS_ABSTRACT = 0b00000100;
-        const IS_DYNAMIC = 0b00001000;
+        const IS_FINAL      = 0b00000001;
+        const IS_STATIC     = 0b00000010;
+        const IS_ABSTRACT   = 0b00000100;
+        const IS_DYNAMIC    = 0b00001000;
         const IS_OPTION_SET = 0b00010000;
-        const IS_EXTERNAL = 0b00100000;
+        const IS_EXTERNAL   = 0b00100000;
     }
 }
 
 bitflags! {
     #[derive(Copy, Clone, PartialEq, Eq)]
     struct VariableSlotFlags: u16 {
-        const IS_EXTERNAL = 0b00000001;
-        const READ_ONLY = 0b00000010;
+        const IS_EXTERNAL   = 0b00000001;
+        const READ_ONLY     = 0b00000010;
     }
 }
 
 bitflags! {
     #[derive(Copy, Clone, PartialEq, Eq)]
     struct VirtualSlotFlags: u16 {
-        const IS_EXTERNAL = 0b00000001;
+        const IS_EXTERNAL   = 0b00000001;
+    }
+}
+
+bitflags! {
+    #[derive(Copy, Clone, PartialEq, Eq)]
+    struct MethodSlotFlags: u16 {
+        const IS_FINAL          = 0b000000001;
+        const IS_STATIC         = 0b000000010;
+        const IS_ABSTRACT       = 0b000000100;
+        const IS_EXTERNAL       = 0b000001000;
+        const IS_OVERRIDING     = 0b000010000;
+        const IS_ASYNC          = 0b000100000;
+        const IS_GENERATOR      = 0b001000000;
+        const IS_CONSTRUCTOR    = 0b010000000;
     }
 }
 
