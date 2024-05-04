@@ -6,6 +6,8 @@ pub struct SemanticHost {
     project_path: Option<String>,
     env_cache: RefCell<Option<Rc<HashMap<String, String>>>>,
 
+    unused_things: Rc<RefCell<Vec<Thingy>>>,
+
     pub(crate) explicit_namespaces: RefCell<HashMap<String, Thingy>>,
     pub(crate) user_namespaces: RefCell<HashMap<String, Thingy>>,
     pub(crate) qnames: RefCell<HashMap<Thingy, HashMap<String, QName>>>,
@@ -59,6 +61,8 @@ impl SemanticHost {
             top_level_package: top_level_package.clone().into(),
             invalidation_thingy,
             unresolved_thingy,
+
+            unused_things: Rc::new(RefCell::new(vec![])),
 
             any_type,
             void_type,
@@ -180,6 +184,26 @@ impl SemanticHost {
         let r = Rc::new(r);
         self.env_cache.replace(Some(r.clone()));
         r
+    }
+
+    pub(crate) fn unused_things(&self) -> std::cell::Ref<Vec<Thingy>> {
+        self.unused_things.borrow()
+    }
+
+    pub(crate) fn add_unused_thing(&self, thing: &Thingy) {
+        self.unused_things.borrow_mut().push(thing.clone());
+    }
+
+    pub(crate) fn remove_unused_thing(&self, thing: &Thingy) {
+        let mut i = 0usize;
+        let mut things = self.unused_things.borrow_mut();
+        for t1 in things.iter() {
+            if thing == t1 {
+                things.remove(i);
+                break;
+            }
+            i += 1;
+        }
     }
 }
 

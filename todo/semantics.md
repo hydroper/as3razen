@@ -60,6 +60,6 @@
     * [ ] Package concatenations: lookup for names in the namespace set or any `public` namespace.
   * [ ] Alias-resolvee `PackageWildcardImport` used as a qualifier in a lexical reference does a wildcard lookup in a package
   * [ ] Alias-resolvee `PackageRecursiveImport` used as a qualifier in a lexical reference does a recursive lookup in a package
-  * [ ] Remove import or entity from unused if lookup in it is successful.
+  * [ ] Remove import or non `public` entity from unused if lookup in it is successful.
 * [ ] Type conversion
 * [x] Type substitution
