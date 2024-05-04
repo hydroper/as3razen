@@ -61,6 +61,18 @@ import ns.**;
 
 will contribute multiple `PackageWildcardImport`s to the enclosing scope.
 
+## Package concatenation
+
+The following:
+
+```
+package foo.bar {
+    public += qux.**;
+}
+```
+
+contributes multiple concatenated packages from `qux.**` to the `foo.bar.*` package.
+
 ## Package shadowing
 
 * [ ] Packages shadow variable names through fully qualified name comparisons against `Identifier` followed by zero or more `"." IdentifierName` sequences in each property operation.

@@ -10,7 +10,6 @@ No notes as of yet.
 
 ## Uncategorized
 
-* [ ] Compiler options
 * [ ] Diagnostics
 * [ ] ABC compiler
 * [ ] SWF compiler
