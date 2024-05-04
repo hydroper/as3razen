@@ -60,6 +60,6 @@
 * [ ] Method overriding
 * [ ] Property resolution
   * [ ] Packages
-    * [ ] Package concatenations: lookup for names in any `public` namespace.
+    * [ ] Package concatenations: lookup for names in the namespace set or in any `public` namespace.
 * [ ] Type conversion
 * [x] Type substitution

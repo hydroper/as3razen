@@ -47,6 +47,10 @@ Before analyzing a definitions in a set of programs, traverse the packages and t
 
 ## Import
 
+### Wildcard import
+
+An wildcard import contributes a `PackageWildcardImport` to the enclosing scope. No need to contribute an open namespace, since the lookup in wildcard import happens with the open namespace set and any `public` namespace.
+
 ### Recursive import
 
 The following:
@@ -55,7 +59,7 @@ The following:
 import ns.**;
 ```
 
-will contribute multiple `PackageWildcardImport`s to the enclosing scope and open all `public` namespaces of the respective packages.
+will contribute multiple `PackageWildcardImport`s to the enclosing scope.
 
 ## Package shadowing
 
