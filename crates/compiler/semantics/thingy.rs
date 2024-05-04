@@ -39,6 +39,10 @@ smodel! {
             panic!();
         }
 
+        pub fn object(&self) -> Thingy {
+            panic!();
+        }
+
         pub fn uri(&self) -> String {
             "".into()
         }
@@ -2351,6 +2355,32 @@ smodel! {
         /// List of [`PackagePropertyImport`], [`PackageWildcardImport`], or [`PackageRecursiveImport`].
         pub override fn import_list(&self) -> SharedArray<Thingy> {
             self.m_import_list()
+        }
+    }
+
+    pub struct WithScope: Scope {
+        let ref m_object: Option<Thingy> = None;
+
+        pub(crate) fn WithScope(object: &Thingy) {
+            super();
+            self.set_m_object(Some(object.clone()));
+        }
+
+        pub override fn object(&self) -> Thingy {
+            self.m_object().unwrap()
+        }
+    }
+
+    pub struct FilterScope: Scope {
+        let ref m_base: Option<Thingy> = None;
+
+        pub(crate) fn FilterScope(base: &Thingy) {
+            super();
+            self.set_m_base(Some(base.clone()));
+        }
+
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
         }
     }
 }

@@ -440,4 +440,12 @@ impl<'a> ThingyFactory<'a> {
     pub fn create_scope(&self) -> Thingy {
         Scope::new(&self.0.arena).into()
     }
+
+    pub fn create_with_scope(&self, object: &Thingy) -> Thingy {
+        WithScope::new(&self.0.arena, object).into()
+    }
+
+    pub fn create_filter_scope(&self, base: &Thingy) -> Thingy {
+        FilterScope::new(&self.0.arena, base).into()
+    }
 }

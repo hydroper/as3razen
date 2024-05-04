@@ -16,8 +16,8 @@
   * [x] OriginalMethodSlot extends MethodSlot
   * [x] MethodSlotAfterSubstitution extends MethodSlot
   * [ ] Scopes
-    * [ ] WithScope
-    * [ ] FilterOperatorScope
+    * [x] WithScope
+    * [x] FilterScope
     * [ ] ActivationScope
       * [ ] Control flow graph linking statements (or directives)
     * [ ] ClassScope

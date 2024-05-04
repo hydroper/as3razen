@@ -15,3 +15,5 @@ The `[Bindable]` meta-data may be in one of the forms:
 If the event name is omitted, it defaults to `"propertyChange"`.
 
 A setter may contain the `[Bindable]` meta-data, behaving similiarly as above, indicating that the parent virtual slot contains a specific `Bindable` event name.
+
+To support `[Bindable]`, the bytecode generator generates event dispatch code right after the property's assignment, whether within a destructuring assignment that affects the enclosing class's instance or a direct assignment.
