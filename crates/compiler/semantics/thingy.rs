@@ -43,8 +43,12 @@ smodel! {
             "".into()
         }
 
-        pub fn ns_set_list(&self) -> SharedArray<Thingy> {
-            panic!()
+        pub fn open_ns_set(&self) -> SharedArray<Thingy> {
+            panic!();
+        }
+
+        pub fn import_list(&self) -> SharedArray<Thingy> {
+            panic!();
         }
 
         pub fn local_name(&self) -> String {
@@ -515,19 +519,6 @@ smodel! {
 
         override fn to_string_1(&self) -> String {
             self.m_uri()
-        }
-    }
-
-    pub struct NamespaceSet: Thingy {
-        let ref m_list: SharedArray<Thingy> = SharedArray::new();
-
-        pub(crate) fn NamespaceSet(list: SharedArray<Thingy>) {
-            super();
-            self.set_m_list(list);
-        }
-
-        pub override fn ns_set_list(&self) -> SharedArray<Thingy> {
-            self.m_list()
         }
     }
 
@@ -2328,6 +2319,38 @@ smodel! {
 
         pub override fn set_location(&self, loc: Option<Location>) {
             self.set_m_location(loc);
+        }
+    }
+
+    pub struct Scope: Thingy {
+        let ref m_parent: Option<Thingy> = None;
+        let ref m_properties: NameMap = NameMap::new();
+        let ref m_open_ns_set: SharedArray<Thingy> = SharedArray::new();
+        let ref m_import_list: SharedArray<Thingy> = SharedArray::new();
+
+        pub(crate) fn Scope() {
+            super();
+        }
+
+        pub override fn parent(&self) -> Option<Thingy> {
+            self.m_parent()
+        }
+
+        pub override fn set_parent(&self, p: Option<Thingy>) {
+            self.set_m_parent(p);
+        }
+
+        pub override fn properties(&self, host: &SemanticHost) -> NameMap {
+            self.m_properties()
+        }
+
+        pub override fn open_ns_set(&self) -> SharedArray<Thingy> {
+            self.m_open_ns_set()
+        }
+
+        /// List of [`PackagePropertyImport`], [`PackageWildcardImport`], or [`PackageRecursiveImport`].
+        pub override fn import_list(&self) -> SharedArray<Thingy> {
+            self.m_import_list()
         }
     }
 }

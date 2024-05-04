@@ -16,14 +16,10 @@
   * [x] OriginalMethodSlot extends MethodSlot
   * [x] MethodSlotAfterSubstitution extends MethodSlot
   * [ ] Scopes
-    * [ ] Field: Parent
-    * [ ] Field: Properties
-    * [ ] Field: Open namespace set
-    * [ ] Field: List of imports
-      * [ ] Description: List of `PackagePropertyImport`, `PackageWildcardImport`, or `PackageRecursiveImport`.
     * [ ] WithScope
     * [ ] FilterOperatorScope
     * [ ] ActivationScope
+      * [ ] Control flow graph linking statements (or directives)
     * [ ] ClassScope
     * [ ] EnumScope
     * [ ] InterfaceScope

@@ -66,11 +66,6 @@ impl<'a> ThingyFactory<'a> {
         qn
     }
 
-    pub fn create_ns_set(&self, list: SharedArray<Thingy>) -> Thingy {
-        // Do not intern namespace sets for now.
-        NamespaceSet::new(&self.0.arena, list).into()
-    }
-
     /// Interns a package from a fully qualified name.
     ///
     /// # Example
@@ -440,5 +435,9 @@ impl<'a> ThingyFactory<'a> {
 
     pub fn create_package_recursive_import(&self, package_reference: &Thingy, location: Option<Location>) -> Thingy {
         PackageRecursiveImport::new(&self.0.arena, package_reference, location).into()
+    }
+
+    pub fn create_scope(&self) -> Thingy {
+        Scope::new(&self.0.arena).into()
     }
 }
