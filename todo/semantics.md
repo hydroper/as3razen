@@ -15,18 +15,7 @@
   * [x] VirtualSlotAfterSubstitution extends VirtualSlot
   * [x] OriginalMethodSlot extends MethodSlot
   * [x] MethodSlotAfterSubstitution extends MethodSlot
-  * [ ] Scopes
-    * [x] WithScope
-    * [x] FilterScope
-    * [ ] ActivationScope
-      * [ ] Activation's method
-      * [ ] This
-      * [ ] Property has capture
-      * [ ] Control flow graph linking statements (or directives)
-    * [ ] ClassScope
-    * [ ] EnumScope
-    * [ ] InterfaceScope
-    * [ ] PackageScope
+  * [x] Scopes
   * [ ] Values
     * [ ] Constants
       * [ ] UndefinedConstant

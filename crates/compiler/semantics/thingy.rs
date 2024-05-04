@@ -59,6 +59,38 @@ smodel! {
             "".into()
         }
 
+        pub fn class(&self) -> Thingy {
+            panic!();
+        }
+
+        pub fn interface(&self) -> Thingy {
+            panic!();
+        }
+
+        pub fn package(&self) -> Thingy {
+            panic!();
+        }
+
+        pub fn of_method(&self) -> Thingy {
+            panic!();
+        }
+        
+        pub fn this(&self) -> Option<Thingy> {
+            panic!();
+        }
+        
+        pub fn set_this(&self, this: Option<Thingy>) {
+            panic!();
+        }
+        
+        pub fn property_has_capture(&self, property: &Thingy) -> bool {
+            panic!();
+        }
+        
+        pub fn set_property_has_capture(&self, property: &Thingy, value: bool) {
+            panic!();
+        }
+
         pub fn parent(&self) -> Option<Thingy> {
             panic!();
         }
@@ -317,10 +349,6 @@ smodel! {
         }
 
         pub fn property(&self) -> Thingy {
-            panic!();
-        }
-
-        pub fn imported_package(&self) -> Thingy {
             panic!();
         }
 
@@ -2082,7 +2110,7 @@ smodel! {
         }
 
         pub override fn activation(&self) -> Option<Thingy> {
-            self.m_signature()
+            self.m_activation()
         }
 
         pub override fn set_activation(&self, activation: Option<Thingy>) {
@@ -2281,17 +2309,17 @@ smodel! {
     }
 
     pub struct PackageWildcardImport: Thingy {
-        let ref m_imported_package: Option<Thingy> = None;
+        let ref m_package: Option<Thingy> = None;
         let ref m_location: Option<Location> = None;
 
-        pub(crate) fn PackageWildcardImport(imported_package: &Thingy, location: Option<Location>) {
+        pub(crate) fn PackageWildcardImport(package: &Thingy, location: Option<Location>) {
             super();
-            self.set_m_imported_package(Some(imported_package.clone()));
+            self.set_m_package(Some(package.clone()));
             self.set_m_location(location);
         }
 
-        pub override fn imported_package(&self) -> Thingy {
-            self.m_imported_package().unwrap()
+        pub override fn package(&self) -> Thingy {
+            self.m_package().unwrap()
         }
 
         pub override fn location(&self) -> Option<Location> {
@@ -2304,17 +2332,17 @@ smodel! {
     }
 
     pub struct PackageRecursiveImport: Thingy {
-        let ref m_imported_package: Option<Thingy> = None;
+        let ref m_package: Option<Thingy> = None;
         let ref m_location: Option<Location> = None;
 
-        pub(crate) fn PackageRecursiveImport(imported_package: &Thingy, location: Option<Location>) {
+        pub(crate) fn PackageRecursiveImport(package: &Thingy, location: Option<Location>) {
             super();
-            self.set_m_imported_package(Some(imported_package.clone()));
+            self.set_m_package(Some(package.clone()));
             self.set_m_location(location);
         }
 
-        pub override fn imported_package(&self) -> Thingy {
-            self.m_imported_package().unwrap()
+        pub override fn package(&self) -> Thingy {
+            self.m_package().unwrap()
         }
 
         pub override fn location(&self) -> Option<Location> {
@@ -2381,6 +2409,112 @@ smodel! {
 
         pub override fn base(&self) -> Thingy {
             self.m_base().unwrap()
+        }
+    }
+
+    pub struct Activation: Scope {
+        let ref m_method: Option<Thingy> = None;
+        let ref m_this: Option<Thingy> = None;
+        let ref m_property_has_capture: Option<SharedArray<Thingy>> = None;
+        let ref m_cfg: ControlFlowGraph = ControlFlowGraph::new();
+
+        pub(crate) fn Activation(of_method: &Thingy) {
+            super();
+            self.set_m_method(Some(of_method.clone()));
+        }
+
+        pub override fn of_method(&self) -> Thingy {
+            self.m_method().unwrap()
+        }
+
+        /// An optional `ThisObject` value.
+        pub override fn this(&self) -> Option<Thingy> {
+            self.m_this()
+        }
+
+        /// Sets a `ThisObject` value.
+        pub override fn set_this(&self, this: Option<Thingy>) {
+            self.set_m_this(this);
+        }
+
+        /// Indicates whether an activation's property has been captured
+        /// by a subsequent activation. Properties include, for example, the range from the
+        /// activation to an inner most block scope.
+        pub override fn property_has_capture(&self, property: &Thingy) -> bool {
+            if let Some(set) = self.m_property_has_capture() {
+                set.includes(property)
+            } else {
+                false
+            }
+        }
+
+        pub override fn set_property_has_capture(&self, property: &Thingy, value: bool) {
+            if let Some(mut set) = self.m_property_has_capture() {
+                if value {
+                    if !set.includes(property) {
+                        set.push(property.clone());
+                    }
+                } else {
+                    let i = set.index_of(property);
+                    if let Some(i) = i {
+                        set.remove(i);
+                    }
+                }
+            } else if value {
+                self.set_m_property_has_capture(Some(shared_array![property.clone()]));
+            }
+        }
+    }
+
+    pub struct ClassScope: Scope {
+        let ref m_class: Option<Thingy> = None;
+
+        pub(crate) fn ClassScope(class: &Thingy) {
+            super();
+            self.set_m_class(Some(class.clone()));
+        }
+
+        pub override fn class(&self) -> Thingy {
+            self.m_class().unwrap()
+        }
+    }
+
+    pub struct EnumScope: Scope {
+        let ref m_class: Option<Thingy> = None;
+
+        pub(crate) fn EnumScope(class: &Thingy) {
+            super();
+            self.set_m_class(Some(class.clone()));
+        }
+
+        pub override fn class(&self) -> Thingy {
+            self.m_class().unwrap()
+        }
+    }
+
+    pub struct InterfaceScope: Scope {
+        let ref m_itrfc: Option<Thingy> = None;
+
+        pub(crate) fn InterfaceScope(itrfc: &Thingy) {
+            super();
+            self.set_m_itrfc(Some(itrfc.clone()));
+        }
+
+        pub override fn interface(&self) -> Thingy {
+            self.m_itrfc().unwrap()
+        }
+    }
+
+    pub struct PackageScope: Scope {
+        let ref m_pckg: Option<Thingy> = None;
+
+        pub(crate) fn PackageScope(pckg: &Thingy) {
+            super();
+            self.set_m_pckg(Some(pckg.clone()));
+        }
+
+        pub override fn package(&self) -> Thingy {
+            self.m_pckg().unwrap()
         }
     }
 }
@@ -2527,4 +2661,76 @@ impl SemanticFunctionTypeParameter {
             static_type: TypeSubstitution(host).exec(&self.static_type, type_params, substitute_types),
         }
     }
+}
+
+#[derive(Clone)]
+pub struct ControlFlowGraph(Rc<ControlFlowGraph1>);
+
+impl ControlFlowGraph {
+    pub fn new() -> Self {
+        Self(Rc::new(ControlFlowGraph1 {
+            blocks: SharedArray::new(),
+            edges: SharedArray::new(),
+        }))
+    }
+
+    pub fn blocks(&self) -> SharedArray<ControlFlowBlock> {
+        self.0.blocks.clone()
+    }
+
+    pub fn edges(&self) -> SharedArray<ControlFlowEdge> {
+        self.0.edges.clone()
+    }
+}
+
+impl std::hash::Hash for ControlFlowGraph {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        Rc::as_ptr(&self.0).hash(state)
+    }
+}
+
+impl PartialEq for ControlFlowGraph {
+    fn eq(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.0, &other.0)
+    }
+}
+
+impl Eq for ControlFlowGraph {}
+
+struct ControlFlowGraph1 {
+    blocks: SharedArray<ControlFlowBlock>,
+    edges: SharedArray<ControlFlowEdge>,
+}
+
+#[derive(Clone)]
+pub struct ControlFlowBlock(Rc<Vec<Rc<Directive>>>);
+
+impl ControlFlowBlock {
+    pub fn new(lines: Vec<Rc<Directive>>) -> Self {
+        Self(Rc::new(lines))
+    }
+
+    pub fn lines(&self) -> Rc<Vec<Rc<Directive>>> {
+        self.0.clone()
+    }
+}
+
+impl std::hash::Hash for ControlFlowBlock {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        Rc::as_ptr(&self.0).hash(state)
+    }
+}
+
+impl PartialEq for ControlFlowBlock {
+    fn eq(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.0, &other.0)
+    }
+}
+
+impl Eq for ControlFlowBlock {}
+
+#[derive(Clone)]
+pub struct ControlFlowEdge {
+    pub from: ControlFlowBlock,
+    pub to: ControlFlowBlock,
 }

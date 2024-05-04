@@ -429,12 +429,12 @@ impl<'a> ThingyFactory<'a> {
         PackagePropertyImport::new(&self.0.arena, property, location).into()
     }
 
-    pub fn create_package_wildcard_import(&self, imported_package: &Thingy, location: Option<Location>) -> Thingy {
-        PackageWildcardImport::new(&self.0.arena, imported_package, location).into()
+    pub fn create_package_wildcard_import(&self, package: &Thingy, location: Option<Location>) -> Thingy {
+        PackageWildcardImport::new(&self.0.arena, package, location).into()
     }
 
-    pub fn create_package_recursive_import(&self, imported_package: &Thingy, location: Option<Location>) -> Thingy {
-        PackageRecursiveImport::new(&self.0.arena, imported_package, location).into()
+    pub fn create_package_recursive_import(&self, package: &Thingy, location: Option<Location>) -> Thingy {
+        PackageRecursiveImport::new(&self.0.arena, package, location).into()
     }
 
     pub fn create_scope(&self) -> Thingy {
@@ -447,5 +447,25 @@ impl<'a> ThingyFactory<'a> {
 
     pub fn create_filter_scope(&self, base: &Thingy) -> Thingy {
         FilterScope::new(&self.0.arena, base).into()
+    }
+
+    pub fn create_activation(&self, of_method: &Thingy) -> Thingy {
+        Activation::new(&self.0.arena, of_method).into()
+    }
+
+    pub fn create_class_scope(&self, class: &Thingy) -> Thingy {
+        ClassScope::new(&self.0.arena, class).into()
+    }
+
+    pub fn create_enum_scope(&self, class: &Thingy) -> Thingy {
+        EnumScope::new(&self.0.arena, class).into()
+    }
+
+    pub fn create_interface_scope(&self, itrfc: &Thingy) -> Thingy {
+        InterfaceScope::new(&self.0.arena, itrfc).into()
+    }
+
+    pub fn create_package_scope(&self, pckg: &Thingy) -> Thingy {
+        PackageScope::new(&self.0.arena, pckg).into()
     }
 }
