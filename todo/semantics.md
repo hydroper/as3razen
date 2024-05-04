@@ -17,13 +17,10 @@
   * [x] MethodSlotAfterSubstitution extends MethodSlot
   * [ ] Scopes
     * [ ] Field: Parent
+    * [ ] Field: Properties
     * [ ] Field: Open namespace set
-    * [ ] Field: Package property imports
-      * [ ] Description: Mapping from package to PackagePropertyImport
-        * [x] A PackagePropertyImport holds a reference to a package's property and the location of an `import ns.x;` directive.
-    * [ ] Field: Package wildcard imports
-      * [ ] Description: List of PackageWildcardImport
-        * [x] A PackageWildcardImport holds a reference to a package and the location of an `import ns.*;` directive.
+    * [ ] Field: List of imports
+      * [ ] Description: List of `PackagePropertyImport`, `PackageWildcardImport`, or `PackageRecursiveImport`.
     * [ ] WithScope
     * [ ] FilterOperatorScope
     * [ ] ActivationScope
@@ -60,6 +57,9 @@
 * [ ] Method overriding
 * [ ] Property resolution
   * [ ] Packages
-    * [ ] Package concatenations: lookup for names in the namespace set or in any `public` namespace.
+    * [ ] Package concatenations: lookup for names in the namespace set or any `public` namespace.
+  * [ ] Alias-resolvee `PackageWildcardImport` used as a qualifier in a lexical reference does a wildcard lookup in a package
+  * [ ] Alias-resolvee `PackageRecursiveImport` used as a qualifier in a lexical reference does a recursive lookup in a package
+  * [ ] Remove import or entity from unused if lookup in it is successful.
 * [ ] Type conversion
 * [x] Type substitution

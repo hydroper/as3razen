@@ -437,4 +437,8 @@ impl<'a> ThingyFactory<'a> {
     pub fn create_package_wildcard_import(&self, package_reference: &Thingy, location: Option<Location>) -> Thingy {
         PackageWildcardImport::new(&self.0.arena, package_reference, location).into()
     }
+
+    pub fn create_package_recursive_import(&self, package_reference: &Thingy, location: Option<Location>) -> Thingy {
+        PackageRecursiveImport::new(&self.0.arena, package_reference, location).into()
+    }
 }

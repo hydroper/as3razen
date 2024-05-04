@@ -47,19 +47,23 @@ Before analyzing a definitions in a set of programs, traverse the packages and t
 
 ## Import
 
+### Name import
+
+A `import x = ns.y;` directive assigns an alias `x` to the enclosing scope.
+
+An `import ns.y;` directive contributes a `PackagePropertyImport` to the enclosing scope, which may be fully qualified (`ns.y`) or lexically referred to (`y`).
+
 ### Wildcard import
 
 An wildcard import contributes a `PackageWildcardImport` to the enclosing scope. No need to contribute an open namespace, since the lookup in wildcard import happens with the open namespace set and any `public` namespace.
 
+An `import foons = foo.*;` assigns an alias to a `PackageWildcardImport` to the enclosing package.
+
 ### Recursive import
 
-The following:
+An `import ns.**;` contributes a `PackageRecursiveImport` to the enclosing scope.
 
-```
-import ns.**;
-```
-
-will contribute multiple `PackageWildcardImport`s to the enclosing scope.
+An `import foons = foo.**;` assigns an alias to a `PackageRecursiveImport` to the enclosing package.
 
 ## Package concatenation
 
