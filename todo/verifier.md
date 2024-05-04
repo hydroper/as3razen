@@ -21,7 +21,11 @@ Do not forget to set source locations of entities such as classes and variables.
 
 ## ASDoc
 
-* [ ] Set ASDoc comments properly.
+* [ ] Set ASDoc comments properly, except for aliases.
+
+## Meta-data
+
+* [ ] Set meta-data proeprly, except for aliases.
 
 ### @copy
 
