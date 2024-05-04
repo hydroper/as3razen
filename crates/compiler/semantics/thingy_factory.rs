@@ -468,4 +468,20 @@ impl<'a> ThingyFactory<'a> {
     pub fn create_package_scope(&self, pckg: &Thingy) -> Thingy {
         PackageScope::new(&self.0.arena, pckg).into()
     }
+
+    pub fn create_value(&self, static_type: &Thingy) -> Thingy {
+        Value::new(&self.0.arena, static_type).into()
+    }
+
+    pub fn create_undefined_constant(&self, static_type: &Thingy) -> Thingy {
+        UndefinedConstant::new(&self.0.arena, static_type).into()
+    }
+
+    pub fn create_null_constant(&self, static_type: &Thingy) -> Thingy {
+        NullConstant::new(&self.0.arena, static_type).into()
+    }
+
+    pub fn create_number_constant(&self, value: NumberVariant, static_type: &Thingy) -> Thingy {
+        NumberConstant::new(&self.0.arena, value, static_type).into()
+    }
 }

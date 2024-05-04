@@ -18,12 +18,11 @@
   * [x] Scopes
   * [ ] Values
     * [ ] Constants
-      * [ ] UndefinedConstant
-      * [ ] NullConstant
-      * [ ] NumberConstant
+      * [x] UndefinedConstant
+      * [x] NullConstant
+      * [x] NumberConstant
       * [ ] StringConstant
       * [ ] BooleanConstant
-      * [ ] EnumConstant
     * [ ] ThisObject
     * [ ] MetaProperty
       * [ ] Description: Represents the `import.meta` property.
@@ -51,3 +50,4 @@
   * [ ] Remove import or non `public` non `protected` entity from unused if lookup in it is successful.
 * [ ] Type conversion
 * [x] Type substitution
+* [ ] Type's default value

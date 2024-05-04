@@ -147,8 +147,24 @@ smodel! {
             false
         }
 
+        pub fn is_private_ns(&self) -> bool {
+            false
+        }
+
+        pub fn is_protected_ns(&self) -> bool {
+            false
+        }
+
         pub fn is_internal_ns(&self) -> bool {
             false
+        }
+
+        pub fn is_static_protected_ns(&self) -> bool {
+            false
+        }
+
+        pub fn number_value(&self) -> NumberVariant {
+            panic!();
         }
 
         /// Returns whether a type is a class, whether
@@ -507,8 +523,20 @@ smodel! {
             self.m_kind() == SystemNamespaceKind::Public
         }
 
+        pub override fn is_private_ns(&self) -> bool {
+            self.m_kind() == SystemNamespaceKind::Private
+        }
+
+        pub override fn is_protected_ns(&self) -> bool {
+            self.m_kind() == SystemNamespaceKind::Protected
+        }
+
         pub override fn is_internal_ns(&self) -> bool {
             self.m_kind() == SystemNamespaceKind::Internal
+        }
+
+        pub override fn is_static_protected_ns(&self) -> bool {
+            self.m_kind() == SystemNamespaceKind::StaticProtected
         }
 
         pub override fn parent(&self) -> Option<Thingy> {
@@ -2517,6 +2545,55 @@ smodel! {
             self.m_pckg().unwrap()
         }
     }
+
+    pub struct Value: Thingy {
+        let ref m_static_type: Option<Thingy> = None;
+
+        pub(crate) fn Value(static_type: &Thingy) {
+            super();
+            self.set_m_static_type(Some(static_type.clone()));
+        }
+
+        pub override fn static_type(&self, host: &SemanticHost) -> Thingy {
+            self.m_static_type().unwrap()
+        }
+
+        pub override fn set_static_type(&self, value: Thingy) {
+            self.set_m_static_type(Some(value));
+        }
+    }
+
+    pub struct Constant: Value {
+        pub(crate) fn Constant(static_type: &Thingy) {
+            super(static_type);
+        }
+    }
+
+    /// Constant with possible types being `*` or `Object`.
+    pub struct UndefinedConstant: Constant {
+        pub(crate) fn UndefinedConstant(static_type: &Thingy) {
+            super(static_type);
+        }
+    }
+
+    pub struct NullConstant: Constant {
+        pub(crate) fn NullConstant(static_type: &Thingy) {
+            super(static_type);
+        }
+    }
+
+    pub struct NumberConstant: Constant {
+        let ref m_value: NumberVariant = NumberVariant::Int(0);
+
+        pub(crate) fn NumberConstant(value: NumberVariant, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_value(value);
+        }
+
+        pub override fn number_value(&self) -> NumberVariant {
+            self.m_value()
+        }
+    }
 }
 
 impl ToString for Thingy {
@@ -2562,6 +2639,11 @@ impl ToString for SystemNamespaceKind {
 pub struct QName(pub(crate) Rc<QName1>);
 
 impl QName {
+    pub fn in_public_or_protected_ns(&self) -> bool {
+        let ns = self.namespace();
+        ns.is_public_ns() || ns.is_protected_ns()
+    }
+
     pub fn namespace(&self) -> Thingy {
         self.0.m_namespace.clone()
     }
