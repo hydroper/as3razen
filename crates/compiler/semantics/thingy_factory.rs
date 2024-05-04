@@ -429,12 +429,12 @@ impl<'a> ThingyFactory<'a> {
         PackagePropertyImport::new(&self.0.arena, property, location).into()
     }
 
-    pub fn create_package_wildcard_import(&self, package_reference: &Thingy, location: Option<Location>) -> Thingy {
-        PackageWildcardImport::new(&self.0.arena, package_reference, location).into()
+    pub fn create_package_wildcard_import(&self, imported_package: &Thingy, location: Option<Location>) -> Thingy {
+        PackageWildcardImport::new(&self.0.arena, imported_package, location).into()
     }
 
-    pub fn create_package_recursive_import(&self, package_reference: &Thingy, location: Option<Location>) -> Thingy {
-        PackageRecursiveImport::new(&self.0.arena, package_reference, location).into()
+    pub fn create_package_recursive_import(&self, imported_package: &Thingy, location: Option<Location>) -> Thingy {
+        PackageRecursiveImport::new(&self.0.arena, imported_package, location).into()
     }
 
     pub fn create_scope(&self) -> Thingy {

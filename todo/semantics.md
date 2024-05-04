@@ -19,6 +19,9 @@
     * [x] WithScope
     * [x] FilterScope
     * [ ] ActivationScope
+      * [ ] Activation's method
+      * [ ] This
+      * [ ] Property has capture
       * [ ] Control flow graph linking statements (or directives)
     * [ ] ClassScope
     * [ ] EnumScope

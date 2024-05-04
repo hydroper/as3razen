@@ -80,3 +80,7 @@ contributes multiple concatenated packages from `qux.**` to the `foo.bar.*` pack
 ## Package shadowing
 
 * [ ] Packages shadow variable names through fully qualified name comparisons against `Identifier` followed by zero or more `"." IdentifierName` sequences in each property operation.
+
+## Activations
+
+* [ ] Detect captured properties by calling `set_property_has_capture()` in the parent activation when resolving a lexical reference and the activation to which it belongs, if any, is different from the current activation.

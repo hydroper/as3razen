@@ -320,7 +320,7 @@ smodel! {
             panic!();
         }
 
-        pub fn package_reference(&self) -> Thingy {
+        pub fn imported_package(&self) -> Thingy {
             panic!();
         }
 
@@ -2281,17 +2281,17 @@ smodel! {
     }
 
     pub struct PackageWildcardImport: Thingy {
-        let ref m_package_reference: Option<Thingy> = None;
+        let ref m_imported_package: Option<Thingy> = None;
         let ref m_location: Option<Location> = None;
 
-        pub(crate) fn PackageWildcardImport(package_reference: &Thingy, location: Option<Location>) {
+        pub(crate) fn PackageWildcardImport(imported_package: &Thingy, location: Option<Location>) {
             super();
-            self.set_m_package_reference(Some(package_reference.clone()));
+            self.set_m_imported_package(Some(imported_package.clone()));
             self.set_m_location(location);
         }
 
-        pub override fn package_reference(&self) -> Thingy {
-            self.m_package_reference().unwrap()
+        pub override fn imported_package(&self) -> Thingy {
+            self.m_imported_package().unwrap()
         }
 
         pub override fn location(&self) -> Option<Location> {
@@ -2304,17 +2304,17 @@ smodel! {
     }
 
     pub struct PackageRecursiveImport: Thingy {
-        let ref m_package_reference: Option<Thingy> = None;
+        let ref m_imported_package: Option<Thingy> = None;
         let ref m_location: Option<Location> = None;
 
-        pub(crate) fn PackageRecursiveImport(package_reference: &Thingy, location: Option<Location>) {
+        pub(crate) fn PackageRecursiveImport(imported_package: &Thingy, location: Option<Location>) {
             super();
-            self.set_m_package_reference(Some(package_reference.clone()));
+            self.set_m_imported_package(Some(imported_package.clone()));
             self.set_m_location(location);
         }
 
-        pub override fn package_reference(&self) -> Thingy {
-            self.m_package_reference().unwrap()
+        pub override fn imported_package(&self) -> Thingy {
+            self.m_imported_package().unwrap()
         }
 
         pub override fn location(&self) -> Option<Location> {
