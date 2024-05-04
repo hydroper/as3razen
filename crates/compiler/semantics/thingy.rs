@@ -575,7 +575,6 @@ smodel! {
         let ref m_alias_of: Option<Thingy> = None;
         let m_is_external: bool = false;
         let ref m_parent: Option<Thingy> = None;
-        let ref m_asdoc: Option<Rc<AsDoc>> = None;
         let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
         let ref m_location: Option<Location> = None;
 
@@ -619,14 +618,6 @@ smodel! {
 
         pub override fn set_parent(&self, p: Option<Thingy>) {
             self.set_m_parent(p);
-        }
-
-        pub override fn asdoc(&self) -> Option<Rc<AsDoc>> {
-            self.m_asdoc()
-        }
-
-        pub override fn set_asdoc(&self, asdoc: Option<Rc<AsDoc>>) {
-            self.set_m_asdoc(asdoc);
         }
 
         pub override fn metadata(&self) -> SharedArray<Rc<Metadata>> {
