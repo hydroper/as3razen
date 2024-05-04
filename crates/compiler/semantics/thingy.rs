@@ -575,7 +575,6 @@ smodel! {
         let ref m_alias_of: Option<Thingy> = None;
         let m_is_external: bool = false;
         let ref m_parent: Option<Thingy> = None;
-        let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
         let ref m_location: Option<Location> = None;
 
         pub(crate) fn Alias(name: QName, alias_of: Thingy) {
@@ -618,10 +617,6 @@ smodel! {
 
         pub override fn set_parent(&self, p: Option<Thingy>) {
             self.set_m_parent(p);
-        }
-
-        pub override fn metadata(&self) -> SharedArray<Rc<Metadata>> {
-            self.m_metadata()
         }
 
         override fn to_string_1(&self) -> String {
