@@ -67,6 +67,34 @@ impl NameMap {
         Ok(r)
     }
 
+    /// Retrieves a thingy matching a local name in any `public` namespace.
+    pub fn get_in_any_public_ns(&self, local_name: &str) -> Result<Option<Thingy>, AmbiguousReferenceError> {
+        let mut r: Option<Thingy> = None;
+        for (qname, thingy) in self.borrow().iter() {
+            if qname.local_name() == local_name && qname.namespace().is_public_ns() {
+                if r.is_some() {
+                    return Err(AmbiguousReferenceError(local_name.to_owned()));
+                }
+                r = Some(thingy.clone());
+            }
+        }
+        Ok(r)
+    }
+
+    /// Retrieves a thingy matching a local name in any `internal` namespace.
+    pub fn get_in_any_internal_ns(&self, local_name: &str) -> Result<Option<Thingy>, AmbiguousReferenceError> {
+        let mut r: Option<Thingy> = None;
+        for (qname, thingy) in self.borrow().iter() {
+            if qname.local_name() == local_name && qname.namespace().is_internal_ns() {
+                if r.is_some() {
+                    return Err(AmbiguousReferenceError(local_name.to_owned()));
+                }
+                r = Some(thingy.clone());
+            }
+        }
+        Ok(r)
+    }
+
     pub fn set(&mut self, name: QName, thing: Thingy) {
         self.0.set(name, thing);
     }

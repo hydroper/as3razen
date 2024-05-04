@@ -59,6 +59,10 @@ smodel! {
             panic!();
         }
 
+        pub fn package_concats(&self) -> SharedArray<Thingy> {
+            panic!();
+        }
+
         pub fn public_ns(&self) -> Option<Thingy> {
             panic!();
         }
@@ -97,6 +101,14 @@ smodel! {
 
         pub fn set_internal_ns(&self, ns: Option<Thingy>) {
             panic!();
+        }
+
+        pub fn is_public_ns(&self) -> bool {
+            false
+        }
+
+        pub fn is_internal_ns(&self) -> bool {
+            false
         }
 
         /// Returns whether a type is a class, whether
@@ -296,6 +308,14 @@ smodel! {
             self.clone()
         }
 
+        pub fn property(&self) -> Thingy {
+            panic!();
+        }
+
+        pub fn package_reference(&self) -> Thingy {
+            panic!();
+        }
+
         pub fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
             panic!();
         }
@@ -447,6 +467,14 @@ smodel! {
             Some(self.m_kind())
         }
 
+        pub override fn is_public_ns(&self) -> bool {
+            self.m_kind() == SystemNamespaceKind::Public
+        }
+
+        pub override fn is_internal_ns(&self) -> bool {
+            self.m_kind() == SystemNamespaceKind::Internal
+        }
+
         pub override fn parent(&self) -> Option<Thingy> {
             self.m_parent()
         }
@@ -512,6 +540,7 @@ smodel! {
         let ref m_internal_ns: Option<Thingy> = None;
         let ref m_properties: NameMap = NameMap::new();
         let ref m_subpackages: SharedMap<String, Thingy> = SharedMap::new();
+        let ref m_package_concats: SharedArray<Thingy> = SharedArray::new();
         let ref m_asdoc: Option<Rc<AsDoc>> = None;
 
         pub(crate) fn Package(name: String) {
@@ -531,6 +560,11 @@ smodel! {
 
         pub override fn set_parent(&self, p: Option<Thingy>) {
             self.set_m_parent(p);
+        }
+
+        /// Concatenated packages.
+        pub override fn package_concats(&self) -> SharedArray<Thingy> {
+            self.m_package_concats()
         }
 
         pub override fn public_ns(&self) -> Option<Thingy> {
@@ -1926,7 +1960,7 @@ smodel! {
         let ref m_overrides_method: Option<Thingy> = None;
         let m_flags: MethodSlotFlags = MethodSlotFlags::empty();
 
-        pub fn OriginalMethodSlot(name: &QName, signature: &Thingy) {
+        pub(crate) fn OriginalMethodSlot(name: &QName, signature: &Thingy) {
             super();
             self.set_m_name(Some(name.clone()));
             self.set_m_signature(Some(signature.clone()));
@@ -2225,6 +2259,52 @@ smodel! {
 
         override fn to_string_1(&self) -> String {
             self.fully_qualified_name()
+        }
+    }
+
+    pub struct PackagePropertyImport: Thingy {
+        let ref m_property: Option<Thingy> = None;
+        let ref m_location: Option<Location> = None;
+
+        pub(crate) fn PackagePropertyImport(property: &Thingy, location: Option<Location>) {
+            super();
+            self.set_m_property(Some(property.clone()));
+            self.set_m_location(location);
+        }
+
+        pub override fn property(&self) -> Thingy {
+            self.m_property().unwrap()
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.m_location()
+        }
+
+        pub override fn set_location(&self, loc: Option<Location>) {
+            self.set_m_location(loc);
+        }
+    }
+
+    pub struct PackageWildcardImport: Thingy {
+        let ref m_package_reference: Option<Thingy> = None;
+        let ref m_location: Option<Location> = None;
+
+        pub(crate) fn PackageWildcardImport(package_reference: &Thingy, location: Option<Location>) {
+            super();
+            self.set_m_package_reference(Some(package_reference.clone()));
+            self.set_m_location(location);
+        }
+
+        pub override fn package_reference(&self) -> Thingy {
+            self.m_package_reference().unwrap()
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.m_location()
+        }
+
+        pub override fn set_location(&self, loc: Option<Location>) {
+            self.set_m_location(loc);
         }
     }
 }

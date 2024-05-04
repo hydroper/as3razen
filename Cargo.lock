@@ -19,9 +19,9 @@ checksum = "f538837af36e6f6a9be0faa67f9a314f8119e4e4b5867c6ab40ed60360142519"
 
 [[package]]
 name = "as3_parser"
-version = "1.0.11"
+version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "312a38cdbbfd2aafe22edc62be2f6ded3fcfef9513efd4d76862b29fc2d15c1f"
+checksum = "d8ea1309519142f39041281d67f66835c5ecb09e0f504b3475093f996c7ed05b"
 dependencies = [
  "bitflags",
  "by_address",

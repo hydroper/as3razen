@@ -20,10 +20,10 @@
     * [ ] Field: Open namespace set
     * [ ] Field: Package property imports
       * [ ] Description: Mapping from package to PackagePropertyImport
-        * [ ] A PackagePropertyImport holds a reference to a package's property and the location of an `import ns.x;` directive.
+        * [x] A PackagePropertyImport holds a reference to a package's property and the location of an `import ns.x;` directive.
     * [ ] Field: Package wildcard imports
       * [ ] Description: List of PackageWildcardImport
-        * [ ] A PackageWildcardImport holds a reference to a package and the location of an `import ns.*;` directive.
+        * [x] A PackageWildcardImport holds a reference to a package and the location of an `import ns.*;` directive.
     * [ ] WithScope
     * [ ] FilterOperatorScope
     * [ ] ActivationScope
@@ -56,10 +56,10 @@
       * [ ] Description: Represents the resulting value of a conversion, whether implicit or explicit.
     * [ ] LambdaObject
       * [ ] Description: Represents the direct value of a `function` expression, holding back its activation.
-* [ ] Thingy factory
 * [ ] Interface implementation
 * [ ] Method overriding
 * [ ] Property resolution
+  * [ ] Packages
+    * [ ] Package concatenations: lookup for names in any `public` namespace.
 * [ ] Type conversion
 * [x] Type substitution
-* [ ] Semantic host

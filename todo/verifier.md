@@ -41,6 +41,22 @@ Do not forget to set source locations of entities such as classes and variables.
 * [ ] Set ASDoc comments properly for explicit or user namespaces.
 * [ ] `namespace ns1;` creates an `internal` system namespace, rather than an explicit or user namespace.
 
+## Packages
+
+Before analyzing a definitions in a set of programs, traverse the packages and the packages in all top-level `include` directives (as well as those in top-level block statements) to create them properly before ever hitting the `import ns.**;` and `public += ns.**;` directives.
+
+## Import
+
+### Recursive import
+
+The following:
+
+```
+import ns.**;
+```
+
+will contribute multiple `PackageWildcardImport`s to the enclosing scope and open all `public` namespaces of the respective packages.
+
 ## Package shadowing
 
 * [ ] Packages shadow variable names through fully qualified name comparisons against `Identifier` followed by zero or more `"." IdentifierName` sequences in each property operation.

@@ -26,6 +26,7 @@ pub struct SemanticHost {
     function_type: RefCell<Option<Thingy>>,
 
     non_null_primitive_types: RefCell<Option<Rc<Vec<Thingy>>>>,
+    numeric_types: RefCell<Option<Rc<Vec<Thingy>>>>,
     pub(crate) types_after_sub: RefCell<HashMap<Thingy, Vec<Thingy>>>,
     pub(crate) function_types: RefCell<HashMap<usize, Vec<Thingy>>>,
     pub(crate) tuple_types: RefCell<HashMap<usize, Vec<Thingy>>>,
@@ -73,6 +74,7 @@ impl SemanticHost {
             function_type: RefCell::new(None),
 
             non_null_primitive_types: RefCell::new(None),
+            numeric_types: RefCell::new(None),
             types_after_sub: RefCell::new(HashMap::new()),
             function_types: RefCell::new(HashMap::new()),
             tuple_types: RefCell::new(HashMap::new()),
@@ -142,6 +144,20 @@ impl SemanticHost {
             self.float_type().defer()?,
         ]);
         self.non_null_primitive_types.replace(Some(r.clone()));
+        Ok(r)
+    }
+
+    pub fn numeric_types(&self) -> Result<Rc<Vec<Thingy>>, DeferError> {
+        if let Some(r) = self.numeric_types.borrow().as_ref() {
+            return Ok(r.clone());
+        }
+        let r = Rc::new(vec![
+            self.number_type().defer()?,
+            self.int_type().defer()?,
+            self.uint_type().defer()?,
+            self.float_type().defer()?,
+        ]);
+        self.numeric_types.replace(Some(r.clone()));
         Ok(r)
     }
 

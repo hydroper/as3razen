@@ -429,4 +429,12 @@ impl<'a> ThingyFactory<'a> {
 
         mssub.into()
     }
+
+    pub fn create_package_property_import(&self, property: &Thingy, location: Option<Location>) -> Thingy {
+        PackagePropertyImport::new(&self.0.arena, property, location).into()
+    }
+
+    pub fn create_package_wildcard_import(&self, package_reference: &Thingy, location: Option<Location>) -> Thingy {
+        PackageWildcardImport::new(&self.0.arena, package_reference, location).into()
+    }
 }
