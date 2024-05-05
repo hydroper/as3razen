@@ -74,6 +74,13 @@ fn map_defer_error<T>(result: Result<T, DeferError>) -> Result<T, PropertyLookup
     result.map_err(|_| PropertyLookupError::Defer)
 }
 
+fn mark_used(host: &SemanticHost, property: &Thingy) {
+    let qn = property.name();
+    if !qn.in_public_or_protected_ns() {
+        host.remove_unused_thing(property);
+    }
+}
+
 impl<'a> PropertyLookup<'a> {
     pub fn lookup_in_object(&self, base: &Thingy, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
         let local_name = key.local_name();
@@ -98,6 +105,8 @@ impl<'a> PropertyLookup<'a> {
 
                 let r = self.get_qname(&class.properties(self.0), open_ns_set, qual.clone(), &local_name)?;
                 if let Some(r) = r {
+                    mark_used(self.0, &r);
+
                     // Defer if unresolved
                     defer(&r.static_type(self.0))?;
 
@@ -175,6 +184,27 @@ impl<'a> PropertyLookup<'a> {
             || map_defer_error(base_type.escape_of_non_nullable().is_dynamic_or_inherits_dynamic(self.0))?
             || !has_known_ns
             {
+                if qual.is_none() {
+                    // "import.meta" base
+                    if base.is::<MetaProperty>() {
+                        if local_name == "env" {
+                            return Ok(Some(self.0.meta_env_property()));
+                        }
+                        return Ok(None);
+                    }
+    
+                    // "import.meta.env" base
+                    if base.is::<MetaEnvProperty>() {
+                        let ev_dict = self.0.env();
+                        if let Some(ev) = ev_dict.get(&local_name) {
+                            let string_type = defer(&self.0.string_type())?;
+                            return Ok(Some(self.0.factory().create_string_constant(ev.clone(), &string_type)));
+                        } else {
+                            return Ok(None);
+                        }
+                    }
+                }
+
                 let k = map_defer_error(key.computed_or_local_name(self.0))?;
                 return Ok(Some(self.0.factory().create_dynamic_reference_value(base, qual, &k)));
             }
@@ -187,6 +217,8 @@ impl<'a> PropertyLookup<'a> {
                     let prop = self.get_qname(&class.prototype(self.0), open_ns_set, qual.clone(), &local_name)?;
 
                     if let Some(prop) = prop {
+                        mark_used(self.0, &prop);
+
                         // Throw if unresolved
                         defer(&prop.property_static_type(self.0))?;
 
@@ -201,6 +233,8 @@ impl<'a> PropertyLookup<'a> {
                     let prop = self.get_qname(&itrfc.prototype(self.0), open_ns_set, qual.clone(), &local_name)?;
 
                     if let Some(prop) = prop {
+                        mark_used(self.0, &prop);
+
                         // Defer if unresolved
                         defer(&prop.property_static_type(self.0))?;
 
@@ -215,6 +249,45 @@ impl<'a> PropertyLookup<'a> {
         // Base a little bit in https://github.com/hydroper-jet/privcompiler/blob/master/src/compiler/semantics/property_resolution.rs#L206
         // but read the semantics in the To Do list.
 
+        if base.is::<Package>() {
+            // Key must be a String constant
+            let Some(local_name) = local_name else {
+                return Ok(None);
+            };
+
+            // Qualifier must be a compile-time Namespace.
+            if qual.as_ref().map(|q| q.is::<Namespace>()).unwrap_or(true) {
+                return Ok(None);
+            }
+
+            let mut r: Option<Thingy> = None;
+
+            let prop = self.get_qname_in_ns_set_or_any_public_ns(&base.properties(self.0), open_ns_set, qual.clone(), &local_name)?;
+
+            if let Some(prop) = prop {
+                mark_used(self.0, &prop);
+
+                defer(&prop.static_type(self.0))?;
+
+                r = Some(map_defer_error(self.0.factory().create_package_reference_value(&base, &prop))?);
+            // Detect Vector from __AS3__.vec.Vector
+            } else if base == &self.0.top_level_package && local_name == "Vector" && qual.map(|q| q.is_public_ns()).unwrap_or(true) {
+                r = Some(defer(&self.0.vector_type())?);
+            }
+
+            for concatp in base.package_concats().iter() {
+                let r1 = self.lookup_in_object(&concatp, open_ns_set, qual.clone(), key)?;
+                if let Some(r1) = r1 {
+                    if r.is_some() {
+                        return Err(PropertyLookupError::AmbiguousReference(local_name));
+                    }
+                    r = Some(r1);
+                }
+            }
+
+            return Ok(r);
+        }
+
         todo()
     }
 
@@ -227,6 +300,15 @@ impl<'a> PropertyLookup<'a> {
             Ok(mapping.get(&self.0.factory().create_qname(&qual, local_name.to_owned())))
         } else {
             mapping.get_in_ns_set(open_ns_set, local_name).map_err(|e| PropertyLookupError::AmbiguousReference(e.0))
+        }
+    }
+
+    /// Qualifier is assumed to be a compile-time Namespace.
+    fn get_qname_in_ns_set_or_any_public_ns(&self, mapping: &NameMap, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, local_name: &str) -> Result<Option<Thingy>, PropertyLookupError> {
+        if let Some(qual) = qual {
+            Ok(mapping.get(&self.0.factory().create_qname(&qual, local_name.to_owned())))
+        } else {
+            mapping.get_in_ns_set_or_any_public_ns(open_ns_set, local_name).map_err(|e| PropertyLookupError::AmbiguousReference(e.0))
         }
     }
 }

@@ -22,13 +22,11 @@
 * [ ] Property lookup
   * [x] Value
   * [ ] Scope chain
-    * [ ] Concatenate open namespace sets from parent scopes
-  * [ ] Packages
-    * [ ] Top-level package: detect special `Vector` data type and translate it to `__AS3__.vec.Vector`
-    * [ ] Package concatenations: lookup for names in the namespace set or any `public` namespace.
-  * [ ] Alias-resolvee `PackageWildcardImport` used as a qualifier in a lexical reference (scope chain) does a wildcard lookup in a package
-  * [ ] Alias-resolvee `PackageRecursiveImport` used as a qualifier in a lexical reference (scope chain) does a recursive lookup in a package
-  * [ ] Remove import or non `public` non `protected` entity from unused if lookup in it is successful.
+    * [ ] Concatenate open namespace sets from parent scopes in ascending order (the actual scope's open namespaces must be immediately after them in the list)
+    * [ ] Alias-resolvee `PackageWildcardImport` used as a qualifier in a lexical reference (scope chain) does a wildcard lookup in a package
+    * [ ] Alias-resolvee `PackageRecursiveImport` used as a qualifier in a lexical reference (scope chain) does a recursive lookup in a package
+    * [ ] Remove import or non `public` non `protected` entity from unused if lookup in it is successful.
+  * [x] Packages
 * [ ] Type conversion
   * [ ] Implicit `Function` to `function(...): E` and vice-versa
   * [ ] Convert from non `Vector` parameterized type to the same parameterized type with different type arguments

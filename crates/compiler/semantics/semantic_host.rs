@@ -245,7 +245,7 @@ impl SemanticHost {
         Ok(r)
     }
 
-    /// Preload environment variables from the main project's `.env` file
+    /// Preloads environment variables from the main project's `.env` file
     /// using the DotEnv file format.
     pub fn env(&self) -> Rc<HashMap<String, String>> {
         if let Some(env) = self.env_cache.borrow().as_ref() {

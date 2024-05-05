@@ -95,3 +95,18 @@ contributes multiple concatenated packages from `qux.**` to the `foo.bar.*` pack
 
 * [ ] In ABC, a type parameter is automatically added for `Array` and `__AS3__.vec.Vector`.
 * [ ] In source, a type parameter is automatically added for `Array` and `__AS3__.vec.Vector`.
+
+## Property access
+
+* [ ] For dot and brackets operators, after filtering for shadowing package names
+  * At first check if the base is a reference to a type (`PackageReferenceValue` or `ScopeReferenceValue` with a `property` that matches a type)
+    * Lookup for property in that type first
+  * Finally, if the first check returned `Ok(None)` or did not occur, lookup for property in the reference's resulting data type (e.g. `Class`).
+
+## Open namespaces
+
+Open namespaces properly everywhere.
+
+* [ ] Package definitions opens the package's `internal`
+* [ ] Class definition opens its `private`, `protected`, `static protected`, and also the inherited classes's `protected` and `static protected`, in ascending order (right before the class's own namespaces for conventional list order purposes).
+* [ ] Enum definition opens its `private`.
