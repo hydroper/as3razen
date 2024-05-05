@@ -274,7 +274,7 @@ impl<'a> PropertyLookup<'a> {
 
                 let prop = prop.resolve_alias();
 
-                defer(&prop.static_type(self.0))?;
+                defer(&prop.property_static_type(self.0))?;
 
                 r = Some(map_defer_error(prop.wrap_property_reference(self.0))?);
             // Detect Vector from __AS3__.vec.Vector
@@ -299,7 +299,7 @@ impl<'a> PropertyLookup<'a> {
     }
 
     pub fn lookup_in_scope_chain(&self, scope: &Thingy, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
-        let open_ns_set = SharedArray::new();
+        let mut open_ns_set = SharedArray::new();
         open_ns_set.extend(scope.open_ns_set().iter());
         let mut p = scope.parent();
         while let Some(p1) = p {
@@ -331,6 +331,22 @@ impl<'a> PropertyLookup<'a> {
 
         let local_name = key.local_name();
         let has_known_ns = qual.as_ref().map(|q| q.is_namespace_or_ns_reference()).unwrap_or(true);
+        
+        if let Some(qual) = qual.as_ref() {
+            if qual.is::<PackageWildcardImport>() {
+                let Some(local_name) = local_name else {
+                    return Ok(None);
+                };
+                return self.lookup_in_object(&qual.package(), &open_ns_set, None, &PropertyLookupKey::LocalName(local_name.clone()));
+            }
+
+            if qual.is::<PackageRecursiveImport>() {
+                let Some(local_name) = local_name else {
+                    return Ok(None);
+                };
+                return self.lookup_in_package_recursive(&qual.package(), &open_ns_set, None, &PropertyLookupKey::LocalName(local_name.clone()));
+            }
+        }
 
         // Let r be the last assigned lookup success result.
         let mut r: Option<Thingy> = None;
@@ -369,7 +385,7 @@ impl<'a> PropertyLookup<'a> {
             }
         }
 
-        let mut amb: Option<Thingy> = None;
+        let mut amb: Option<Thingy>;
 
         // For a package scope
         if scope.is::<PackageScope>() && has_known_ns && local_name.is_some() {
@@ -385,27 +401,56 @@ impl<'a> PropertyLookup<'a> {
         // Base a little bit in https://github.com/hydroper-jet/privcompiler/blob/master/src/compiler/semantics/property_resolution.rs#L349
         // but read the semantics in the To Do list.
 
-        todo()
-    }
+        if let Some(local_name) = local_name {
+            if has_known_ns {
+                for import in scope.import_list().iter() {
+                    if import.is::<PackageWildcardImport>() {
+                        amb = self.lookup_in_object(&import.package(), &open_ns_set, qual.clone(), key)?;
+                        if let Some(amb) = amb {
+                            mark_used(self.0, &import);
+                            if r.is_some() {
+                                return Err(PropertyLookupError::AmbiguousReference(local_name));
+                            }
+                            r = Some(amb);
+                        }
+                    } else if import.is::<PackageRecursiveImport>() {
+                        amb = self.lookup_in_package_recursive(&import.package(), &open_ns_set, qual.clone(), key)?;
+                        if let Some(amb) = amb {
+                            mark_used(self.0, &import);
+                            if r.is_some() {
+                                return Err(PropertyLookupError::AmbiguousReference(local_name));
+                            }
+                            r = Some(amb);
+                        }
+                    } else {
+                        assert!(import.is::<PackagePropertyImport>());
+                        let prop = import.property();
+                        if prop.name().matches_in_ns_set_or_any_public_ns(&open_ns_set, &local_name) {
+                            mark_used(self.0, &import);
 
-    /*
-    /// Qualifier is assumed to be a compile-time namespace.
-    fn get_qname(&self, mapping: &NameMap, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, local_name: &str) -> Result<Option<Thingy>, PropertyLookupError> {
-        if let Some(qual) = qual {
-            if qual.is::<PackageWildcardImport>() || qual.is::<PackageRecursiveImport>() {
-                return Ok(None);
+                            if r.is_some() {
+                                return Err(PropertyLookupError::AmbiguousReference(local_name));
+                            }
+
+                            let prop = prop.resolve_alias();
+
+                            defer(&prop.property_static_type(self.0))?;
+
+                            r = Some(map_defer_error(prop.wrap_property_reference(self.0))?);
+                        }
+                    }
+                }
             }
-            let qual = if qual.is::<NamespaceAsReferenceValue>() {
-                qual.referenced_ns()
-            } else {
-                qual.clone()
-            };
-            Ok(mapping.get(&self.0.factory().create_qname(&qual, local_name.to_owned())))
-        } else {
-            mapping.get_in_ns_set(open_ns_set, local_name).map_err(|e| PropertyLookupError::AmbiguousReference(e.0))
         }
+
+        if r.is_none() {
+            if let Some(parent) = scope.parent() {
+                return self.lookup_in_scope_chain(&parent, qual, key);
+            }
+        }
+
+        Ok(r)
     }
-    */
 
     /// Qualifier is assumed to be a compile-time namespace.
     fn get_qname_in_ns_set_or_any_public_ns(&self, mapping: &NameMap, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, local_name: &str) -> Result<Option<Thingy>, PropertyLookupError> {
@@ -422,5 +467,21 @@ impl<'a> PropertyLookup<'a> {
         } else {
             mapping.get_in_ns_set_or_any_public_ns(open_ns_set, local_name).map_err(|e| PropertyLookupError::AmbiguousReference(e.0))
         }
+    }
+
+    fn lookup_in_package_recursive(&self, package: &Thingy, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, local_name: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
+        let mut r = self.lookup_in_object(&package, &open_ns_set, qual.clone(), local_name)?;
+
+        for (_, subpackage) in package.subpackages().borrow().iter() {
+            let r1 = self.lookup_in_package_recursive(subpackage, open_ns_set, qual.clone(), local_name)?;
+            if r1.is_some() {
+                if r.is_some() {
+                    return Err(PropertyLookupError::AmbiguousReference(local_name.local_name().unwrap()));
+                }
+                r = r1;
+            }
+        }
+
+        Ok(r)
     }
 }

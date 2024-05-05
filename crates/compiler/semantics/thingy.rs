@@ -3367,6 +3367,17 @@ impl QName {
     pub fn local_name(&self) -> String {
         self.0.m_local_name.clone()
     }
+
+    pub fn matches_in_ns_set_or_any_public_ns(&self, ns_set: &SharedArray<Thingy>, local_name: &str) -> bool {
+        let ns1 = self.namespace();
+        if !ns1.is_public_ns() {
+            let found_ns = ns_set.iter().find(|ns2| &ns1 == ns2).is_some();
+            if !found_ns {
+                return false;
+            }
+        }
+        self.local_name() == local_name
+    }
 }
 
 impl std::hash::Hash for QName {

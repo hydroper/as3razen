@@ -19,13 +19,7 @@
   * [x] Values
 * [ ] Interface implementation
 * [ ] Method overriding
-* [ ] Property lookup
-  * [x] Value
-  * [ ] Scope chain
-    * [ ] `PackageWildcardImport` used as a qualifier in a lexical reference (scope chain) does a wildcard lookup in a package
-    * [ ] `PackageRecursiveImport` used as a qualifier in a lexical reference (scope chain) does a recursive lookup in a package
-    * [ ] Remove import or non `public` non `protected` entity from unused if lookup in it is successful.
-  * [x] Packages
+* [x] Property lookup
 * [ ] Type conversion
   * [ ] Implicit `Function` to `function(...): E` and vice-versa
   * [ ] Convert from non `Vector` parameterized type to the same parameterized type with different type arguments

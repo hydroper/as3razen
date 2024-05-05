@@ -115,3 +115,9 @@ Open namespaces properly everywhere.
 
 * [ ] Set parents correctly in all definitions.
   * [ ] Enclosing scope, type, or package, for example.
+
+## Attributes
+
+* [ ] Restrict definitions at package block to be either `public` or `internal`.
+* [ ] Restrict definitions at top-level to be `internal`.
+* [ ] Restrict user-defined namespaces to be used only at the top-level of class definitions.
