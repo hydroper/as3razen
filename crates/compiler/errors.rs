@@ -2,15 +2,7 @@ use crate::ns::*;
 
 /// Error used to indicate that verification must be deferred.
 #[derive(Clone, Copy, PartialEq)]
-#[non_exhaustive]
-pub struct DeferError {
-}
-
-impl DeferError {
-    pub fn new() -> Self {
-        DeferError {}
-    }
-}
+pub struct DeferError();
 
 /// Error used to indicate an ambiguous reference to a local name.
 #[derive(Clone)]
