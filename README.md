@@ -1,20 +1,20 @@
 # FXRazen
 
-FXRazen is an ActionScript 3 compiler in alpha development phase, for use with the Adobe AIR technology. It will compile a dialect of MXML supporting a new component set.
+FXRazen is an ActionScript 3 compiler under development, for use with the Adobe AIR technology. It will compile a dialect of MXML supporting a new component set.
 
 The FXRazen infrastructure is implemented in Rust.
 
 ## Research
 
-[![](https://img.shields.io/badge/Rust%20guide-blue)](https://github.com/hydroper/as3parser/wiki/Rust-for-ActionScript-developers)
+[![](https://badgen.net/#static/SEE/RUST%20GUIDE/blue?icon=github)](https://github.com/hydroper/as3parser/wiki/Rust-for-ActionScript-developers)
 
-[![](https://img.shields.io/badge/Building%20a%20compiler-blue)](https://github.com/hydroper/as3parser/wiki/Building-a-compiler)
+[![](https://badgen.net/#static/SEE/BUILDING%20A%20COMPILER/blue?icon=github)](https://github.com/hydroper/as3parser/wiki/Building-a-compiler)
 
-[![](https://img.shields.io/badge/Semantic%20model-blue)](https://github.com/hydroper/as3parser/wiki/Semantic-model)
+[![](https://badgen.net/#static/SEE/SEMANTIC%20MODEL/blue?icon=github)](https://github.com/hydroper/as3parser/wiki/Semantic-model)
 
-[![](https://img.shields.io/badge/References-blue)](https://github.com/hydroper/as3parser/wiki/References)
+[![](https://badgen.net/#static/SEE/REFERENCES/blue?icon=github)](https://github.com/hydroper/as3parser/wiki/References)
 
-[![](https://img.shields.io/badge/Old%20codebase-blue)](https://github.com/hydroper-jet/privcompiler/tree/master/src/compiler)
+[![](https://badgen.net/#static/SEE/OLD%20PROJECT/blue?icon=github)](https://github.com/hydroper-jet/privcompiler/tree/master/src/compiler)
 
 ## License
 
