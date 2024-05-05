@@ -3,7 +3,7 @@
 * [x] QName
 * [x] NumberVariant
 * [x] NameMap
-* [ ] Things
+* [x] Things
   * [x] Namespaces
   * [x] NamespaceSet
   * [x] Packages
@@ -16,16 +16,7 @@
   * [x] OriginalMethodSlot extends MethodSlot
   * [x] MethodSlotAfterSubstitution extends MethodSlot
   * [x] Scopes
-  * [ ] Values
-    * [x] Constants
-    * [x] ThisObject
-    * [x] MetaProperty
-    * [x] MetaEnvProperty
-    * [x] Reference values
-    * [ ] ConversionValue
-      * [ ] Description: Represents the resulting value of a conversion, whether implicit or explicit.
-    * [ ] LambdaObject
-      * [ ] Description: Represents the direct value of a `function` expression, holding back its activation.
+  * [x] Values
 * [ ] Interface implementation
 * [ ] Method overriding
 * [ ] Property resolution

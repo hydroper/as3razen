@@ -34,6 +34,7 @@ smodel! {
         }
 
         /// Returns the static type of a property, whether for a type, variable, virtual or method slot or namespace.
+        /// Possibly `UnresolvedThingy`.
         pub fn property_static_type(&self, host: &SemanticHost) -> Thingy {
             panic!();
         }
@@ -54,6 +55,11 @@ smodel! {
 
         pub fn metadata(&self) -> SharedArray<Rc<Metadata>> {
             panic!();
+        }
+
+        /// Escapes out of a non nullable type.
+        pub fn escape_of_non_nullable(&self) -> Thingy {
+            self.clone()
         }
 
         pub fn object(&self) -> Thingy {
@@ -193,6 +199,18 @@ smodel! {
         }
 
         pub fn boolean_value(&self) -> bool {
+            panic!();
+        }
+
+        pub fn conversion_variant(&self) -> TypeConversionVariant {
+            panic!();
+        }
+
+        pub fn conversion_is_opt(&self) -> bool {
+            panic!();
+        }
+
+        pub fn conversion_target(&self) -> Thingy {
             panic!();
         }
 
@@ -1559,6 +1577,11 @@ smodel! {
             Ok(false)
         }
 
+        #[inheritdoc]
+        pub override fn escape_of_non_nullable(&self) -> Thingy {
+            self.base()
+        }
+
         override fn to_string_1(&self) -> String {
             if let Ok(ft) = self.base().to::<FunctionType>() {
                 format!("({})!", ft.to_string())
@@ -2907,6 +2930,57 @@ smodel! {
 
         pub override fn property(&self) -> Thingy {
             self.m_property().unwrap()
+        }
+    }
+
+    /// Represents the resulting value of a conversion, whether implicit or explicit.
+    pub struct ConversionValue: Value {
+        let ref m_base: Option<Thingy> = None;
+        let m_variant: TypeConversionVariant = TypeConversionVariant::BetweenNumber;
+        let m_opt: bool = true;
+        let ref m_target: Option<Thingy> = None;
+
+        pub(crate) fn ConversionValue(base: &Thingy, variant: TypeConversionVariant, opt: bool, target: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_base(Some(base.clone()));
+            self.set_m_variant(variant);
+            self.set_m_opt(opt);
+            self.set_m_target(Some(target.clone()));
+        }
+
+        /// Original value.
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn conversion_variant(&self) -> TypeConversionVariant {
+            self.m_variant()
+        }
+
+        /// Indicates whether the conversion has been performed by the `as` operator
+        /// (rather than `T(v)` or implicit conversion) and the resulting type
+        /// has been either escaped out of non nullable or made nullable.
+        pub override fn conversion_is_opt(&self) -> bool {
+            self.m_opt()
+        }
+
+        pub override fn conversion_target(&self) -> Thingy {
+            self.m_target().unwrap()
+        }
+    }
+
+    /// Represents the direct value of a `function` expression, holding back its activation.
+    pub struct LambdaObject: Value {
+        let ref m_activation: Option<Thingy> = None;
+
+        pub(crate) fn LambdaObject(activation: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_activation(Some(activation.clone()));
+        }
+
+        // Returns a `Some(activation)` value.
+        pub override fn activation(&self) -> Option<Thingy> {
+            self.m_activation()
         }
     }
 }

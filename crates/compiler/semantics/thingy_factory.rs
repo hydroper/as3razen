@@ -497,8 +497,8 @@ impl<'a> ThingyFactory<'a> {
         ThisObject::new(&self.0.arena, static_type).into()
     }
 
-    pub fn create_type_as_reference_value(&self, referenced_type: &Thingy) -> Thingy {
-        TypeAsReferenceValue::new(&self.0.arena, referenced_type, &self.0.class_type()).into()
+    pub fn create_type_as_reference_value(&self, referenced_type: &Thingy) -> Result<Thingy, DeferError> {
+        Ok(TypeAsReferenceValue::new(&self.0.arena, referenced_type, &self.0.class_type().defer()?).into())
     }
 
     pub fn create_xml_reference_value(&self, base: &Thingy, qualifier: Option<Thingy>, key: &Thingy) -> Thingy {
@@ -509,12 +509,12 @@ impl<'a> ThingyFactory<'a> {
         DynamicReferenceValue::new(&self.0.arena, base, qualifier, key, &self.0.any_type()).into()
     }
 
-    pub fn create_static_reference_value(&self, base: &Thingy, property: &Thingy) -> Thingy {
-        StaticReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0)).into()
+    pub fn create_static_reference_value(&self, base: &Thingy, property: &Thingy) -> Result<Thingy, DeferError> {
+        Ok(StaticReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0).defer()?).into())
     }
 
-    pub fn create_instance_reference_value(&self, base: &Thingy, property: &Thingy) -> Thingy {
-        InstanceReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0)).into()
+    pub fn create_instance_reference_value(&self, base: &Thingy, property: &Thingy) -> Result<Thingy, DeferError> {
+        Ok(InstanceReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0).defer()?).into())
     }
 
     pub fn create_tuple_reference_value(&self, base: &Thingy, index: usize) -> Thingy {
@@ -522,15 +522,33 @@ impl<'a> ThingyFactory<'a> {
         TupleReferenceValue::new(&self.0.arena, base, index, &st).into()
     }
 
-    pub fn create_scope_reference_value(&self, base: &Thingy, property: &Thingy) -> Thingy {
-        ScopeReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0)).into()
+    pub fn create_scope_reference_value(&self, base: &Thingy, property: &Thingy) -> Result<Thingy, DeferError> {
+        Ok(ScopeReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0).defer()?).into())
     }
 
     pub fn create_dynamic_scope_reference_value(&self, base: &Thingy, qualifier: Option<Thingy>, key: &Thingy) -> Thingy {
         DynamicScopeReferenceValue::new(&self.0.arena, base, qualifier, key, &self.0.any_type()).into()
     }
 
-    pub fn create_package_reference_value(&self, base: &Thingy, property: &Thingy) -> Thingy {
-        PackageReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0)).into()
+    pub fn create_package_reference_value(&self, base: &Thingy, property: &Thingy) -> Result<Thingy, DeferError> {
+        Ok(PackageReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0).defer()?).into())
+    }
+
+    pub fn create_conversion_value(&self, base: &Thingy, variant: TypeConversionVariant, opt: bool, target: &Thingy) -> Result<Thingy, DeferError> {
+        let mut st = if opt && !target.includes_null(self.0)? {
+            if target.is::<NonNullableType>() {
+                target.base()
+            } else {
+                self.create_nullable_type(target)
+            }
+        } else { target.clone() };
+        if opt && !st.includes_null(self.0)? {
+            st = self.create_nullable_type(target);
+        }
+        Ok(ConversionValue::new(&self.0.arena, base, variant, opt, target, &st).into())
+    }
+
+    pub fn create_lambda_object(&self, activation: &Thingy) -> Result<Thingy, DeferError> {
+        Ok(LambdaObject::new(&self.0.arena, activation, &self.0.function_type().defer()?).into())
     }
 }
