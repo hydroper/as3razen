@@ -256,14 +256,14 @@ impl NumberVariant {
         }
     }
 
-    pub fn convert_type(&self, target_type: &Thingy, host: &SemanticHost) -> Self {
-        let number_type = host.number_type();
-        let float_type = host.float_type();
-        let int_type = host.int_type();
-        let uint_type = host.int_type();
-        // let big_int_type = host.big_int_type();
+    pub fn convert_type(&self, target_type: &Thingy, host: &SemanticHost) -> Result<Self, DeferError> {
+        let number_type = host.number_type().defer()?;
+        let float_type = host.float_type().defer()?;
+        let int_type = host.int_type().defer()?;
+        let uint_type = host.int_type().defer()?;
+        // let big_int_type = host.big_int_type().defer()?;
 
-        if target_type == &number_type {
+        Ok(if target_type == &number_type {
             match self {
                 Self::Float(v) => Self::Number(*v as f64),
                 Self::Number(v) => Self::Number(*v),
@@ -303,16 +303,24 @@ impl NumberVariant {
             }
         } else if target_type == &int_type {
             match self {
-                Self::Float(v) => Self::Int(unsafe { v.to_int_unchecked() }),
-                Self::Number(v) => Self::Int(unsafe { v.to_int_unchecked() }),
+                Self::Float(v) => Self::Int(if v.is_infinite() {
+                    if v.is_sign_negative() { i32::MIN } else { i32::MAX }
+                } else if v.is_nan() { 0 } else { unsafe { v.to_int_unchecked() } }),
+                Self::Number(v) => Self::Int(if v.is_infinite() {
+                    if v.is_sign_negative() { i32::MIN } else { i32::MAX }
+                } else if v.is_nan() { 0 } else { unsafe { v.to_int_unchecked() } }),
                 // Self::BigInt(v) => Self::Int(v.try_into().unwrap_or(0)),
                 Self::Int(v) => Self::Int((*v).try_into().unwrap_or(0)),
                 Self::Uint(v) => Self::Int((*v).try_into().unwrap_or(0)),
             }
         } else if target_type == &uint_type {
             match self {
-                Self::Float(v) => Self::Uint(unsafe { v.to_int_unchecked() }),
-                Self::Number(v) => Self::Uint(unsafe { v.to_int_unchecked() }),
+                Self::Float(v) => Self::Uint(if v.is_infinite() {
+                    if v.is_sign_negative() { u32::MIN } else { u32::MAX }
+                } else if v.is_nan() { 0 } else { unsafe { v.to_int_unchecked() } }),
+                Self::Number(v) => Self::Uint(if v.is_infinite() {
+                    if v.is_sign_negative() { u32::MIN } else { u32::MAX }
+                } else if v.is_nan() { 0 } else { unsafe { v.to_int_unchecked() } }),
                 // Self::BigInt(v) => Self::Int(v.try_into().unwrap_or(0)),
                 Self::Int(v) => Self::Uint((*v).try_into().unwrap_or(0)),
                 Self::Uint(v) => Self::Uint((*v).try_into().unwrap_or(0)),
@@ -328,7 +336,7 @@ impl NumberVariant {
         */
         } else {
             panic!()
-        }
+        })
     }
 
     pub fn is_nan(&self) -> bool {
@@ -355,7 +363,7 @@ impl NumberVariant {
         }
     }
 
-    pub fn as_number(&self) -> Option<f64> {
+    pub fn as_double(&self) -> Option<f64> {
         if let NumberVariant::Number(v) = self { Some(*v) } else { None }
     }
 

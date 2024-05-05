@@ -19,7 +19,7 @@
   * [x] Values
 * [ ] Interface implementation
 * [ ] Method overriding
-* [ ] Property resolution
+* [ ] Property lookup
   * [ ] Packages
     * [ ] Package concatenations: lookup for names in the namespace set or any `public` namespace.
   * [ ] Alias-resolvee `PackageWildcardImport` used as a qualifier in a lexical reference does a wildcard lookup in a package

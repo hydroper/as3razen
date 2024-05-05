@@ -4,6 +4,9 @@ pub use name_map::*;
 mod number_variant;
 pub use number_variant::*;
 
+mod property_lookup;
+pub use property_lookup::*;
+
 mod semantic_host;
 pub use semantic_host::*;
 
