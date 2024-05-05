@@ -94,6 +94,16 @@ impl NumberVariant {
         }
     }
 
+    pub fn nan(type_thing: &Thingy, host: &SemanticHost) -> Self {
+        if type_thing == &host.number_type() {
+            Self::Number(f64::NAN)
+        } else if type_thing == &host.float_type() {
+            Self::Float(f32::NAN)
+        } else {
+            panic!("Type does not support NaN.");
+        }
+    }
+
     pub fn one(type_thing: &Thingy, host: &SemanticHost) -> Self {
         if type_thing == &host.number_type() {
             Self::Number(1.0)

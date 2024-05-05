@@ -28,4 +28,4 @@
 * [ ] Type conversion
   * [ ] Implicit `Function` to `function(...): E` and vice-versa
 * [x] Type substitution
-* [ ] Type's default value
+* [x] Type's default value

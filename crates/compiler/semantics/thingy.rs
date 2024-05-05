@@ -202,6 +202,10 @@ smodel! {
             panic!();
         }
 
+        pub fn type_default_value(&self, host: &SemanticHost) -> Result<Option<Thingy>, DeferError> {
+            panic!();
+        }
+
         pub fn conversion_variant(&self) -> TypeConversionVariant {
             panic!();
         }
@@ -383,10 +387,12 @@ smodel! {
             panic!();
         }
 
+        /// Includes possibly unresolved.
         pub fn implements(&self, host: &SemanticHost) -> SharedArray<Thingy> {
             panic!();
         }
 
+        /// Possibly unresolved.
         pub fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
             panic!();
         }
@@ -467,6 +473,7 @@ smodel! {
             panic!();
         }
 
+        /// Includes possibly unresolved.
         pub fn extends_interfaces(&self, host: &SemanticHost) -> SharedArray<Thingy> {
             panic!();
         }
@@ -778,6 +785,25 @@ smodel! {
         pub override fn property_static_type(&self, host: &SemanticHost) -> Thingy {
             host.class_type()
         }
+
+        pub override fn type_default_value(&self, host: &SemanticHost) -> Result<Option<Thingy>, DeferError> {
+            if self.includes_undefined(host)? {
+                Ok(Some(host.factory().create_undefined_constant(self)))
+            } else if self.includes_null(host)? {
+                Ok(Some(host.factory().create_null_constant(self)))
+            } else if host.numeric_types()?.contains(self) {
+                if host.floating_point_types()?.contains(self) {
+                    let v = NumberVariant::nan(self, host);
+                    return Ok(Some(host.factory().create_number_constant(v, self)));
+                }
+                let v = NumberVariant::zero(self, host);
+                Ok(Some(host.factory().create_number_constant(v, self)))
+            } else if <Type as Into<Thingy>>::into(self.clone()) == host.boolean_type().defer()? {
+                Ok(Some(host.factory().create_boolean_constant(false, self)))
+            } else {
+                Ok(None)
+            }
+        }
     }
 
     pub struct AnyType : Type {
@@ -958,10 +984,12 @@ smodel! {
             self.m_known_subclasses()
         }
 
+        #[inheritdoc]
         pub override fn implements(&self, host: &SemanticHost) -> SharedArray<Thingy> {
             self.m_implements()
         }
 
+        #[inheritdoc]
         pub override fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
             self.m_extends_class()
         }
@@ -1089,6 +1117,7 @@ smodel! {
             self.set_m_is_external(value);
         }
 
+        #[inheritdoc]
         pub override fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
             Some(host.object_type())
         }
@@ -1187,6 +1216,7 @@ smodel! {
             self.m_known_implementors()
         }
 
+        #[inheritdoc]
         pub override fn extends_interfaces(&self, host: &SemanticHost) -> SharedArray<Thingy> {
             self.m_extends_interfaces()
         }
@@ -1297,6 +1327,7 @@ smodel! {
             self.origin().is_option_set()
         }
 
+        #[inheritdoc]
         pub override fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
             if let Some(r) = self.m_extends_class() {
                 return Some(r.clone());
@@ -1315,6 +1346,7 @@ smodel! {
             Some(r)
         }
 
+        #[inheritdoc]
         pub override fn implements(&self, host: &SemanticHost) -> SharedArray<Thingy> {
             if let Some(r) = self.m_implements() {
                 return r;
@@ -1325,6 +1357,7 @@ smodel! {
             r
         }
 
+        #[inheritdoc]
         pub override fn extends_interfaces(&self, host: &SemanticHost) -> SharedArray<Thingy> {
             if let Some(r) = self.m_extends_interfaces() {
                 return r;
@@ -1440,6 +1473,7 @@ smodel! {
             false
         }
 
+        #[inheritdoc]
         pub override fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
             Some(host.array_type())
         }
@@ -1493,6 +1527,7 @@ smodel! {
             false
         }
 
+        #[inheritdoc]
         pub override fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
             Some(host.function_type())
         }
