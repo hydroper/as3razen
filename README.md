@@ -1,8 +1,8 @@
 # FXRazen
 
-FXRazen is an ActionScript 3 compiler in alpha development phase, for use with the Adobe AIR technology.
+FXRazen is an ActionScript 3 compiler in alpha development phase, for use with the Adobe AIR technology. It will compile a dialect of MXML supporting a new component set.
 
-FXRazen aims to be similiar to the Apache Flex or Royale compilers which are implemented in the Java language using the Maven ecosystem. FXRazen is completely in Rust, using the Cargo (crates.io) ecosystem of dependencies.
+The FXRazen infrastructure is implemented in Rust.
 
 ## Research
 

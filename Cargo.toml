@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "crates/compiler",
+    "crates/fxrazen",
 ]
 resolver = "2"
