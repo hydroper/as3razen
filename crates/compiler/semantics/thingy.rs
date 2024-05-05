@@ -3010,6 +3010,7 @@ smodel! {
         }
     }
 
+    /// Instance reference value in a possibly non nullable base.
     pub struct InstanceReferenceValue: ReferenceValue {
         let ref m_base: Option<Thingy> = None;
         let ref m_property: Option<Thingy> = None;
@@ -3029,6 +3030,7 @@ smodel! {
         }
     }
 
+    /// Tuple reference value in a possibly non nullable base.
     pub struct TupleReferenceValue: ReferenceValue {
         let ref m_base: Option<Thingy> = None;
         let ref m_index: usize = 0;
