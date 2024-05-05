@@ -398,9 +398,6 @@ impl<'a> PropertyLookup<'a> {
             }
         }
 
-        // Base a little bit in https://github.com/hydroper-jet/privcompiler/blob/master/src/compiler/semantics/property_resolution.rs#L349
-        // but read the semantics in the To Do list.
-
         if let Some(local_name) = local_name {
             if has_known_ns {
                 for import in scope.import_list().iter() {

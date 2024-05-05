@@ -2,25 +2,7 @@
 
 FXRazen is an ActionScript 3 compiler in alpha development phase, for use with the Adobe AIR technology.
 
-FXRazen aims to comply with either the Apache Flex or Royale compilers which are implemented in the Java language using the Maven ecosystem. FXRazen would be completely in Rust, using the Cargo (crates.io) ecosystem of dependencies.
-
-## Motivation
-
-**Goal**
-
-I enjoy developing a compiler from scratch and have spent too much time implementing parsers, and a few time spans with semantic analysis.
-
-I have learned certain lessons for preventing bugs such as those in type substitution through the use of throwing *defer* verification errors instead of using a number of phases for partially verifying a series of compilation units.
-
-In previous verifiers I was not creating control flow graphs because I assumed labeled controls such as `break` would not affect return value expectation, but it may, and I also never reached code generation in a compiler codebase. Control flow graphs have vertices and edges (which connect two vertices).
-
-**ASDoc**
-
-I have found Flex ASDoc's implementation to be problematic in certain ways, and there is no compiler option in Flex to allow optional Markdown support.
-
-**Package manager**
-
-I would like to have friendly package management in ActionScript 3 comparable to that of Cargo for Rust. Distriqt's APM is interesting in that it handles ANEs, which I should watch for later when implementing a package manager. I just think though that the package manager should be integrated with the language's compiler for more flexibility.
+FXRazen aims to be similiar to the Apache Flex or Royale compilers which are implemented in the Java language using the Maven ecosystem. FXRazen is completely in Rust, using the Cargo (crates.io) ecosystem of dependencies.
 
 ## Research
 
