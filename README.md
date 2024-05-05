@@ -6,15 +6,15 @@ The FXRazen infrastructure is implemented in Rust.
 
 ## Research
 
-[![](https://badgen.net/#static/SEE/RUST%20GUIDE/blue?icon=github)](https://github.com/hydroper/as3parser/wiki/Rust-for-ActionScript-developers)
+[![](https://badgen.net/live/SEE/RUST%20GUIDE/blue?icon=github)](https://github.com/hydroper/as3parser/wiki/Rust-for-ActionScript-developers)
 
-[![](https://badgen.net/#static/SEE/BUILDING%20A%20COMPILER/blue?icon=github)](https://github.com/hydroper/as3parser/wiki/Building-a-compiler)
+[![](https://badgen.net/live/SEE/BUILDING%20A%20COMPILER/blue?icon=github)](https://github.com/hydroper/as3parser/wiki/Building-a-compiler)
 
-[![](https://badgen.net/#static/SEE/SEMANTIC%20MODEL/blue?icon=github)](https://github.com/hydroper/as3parser/wiki/Semantic-model)
+[![](https://badgen.net/live/SEE/SEMANTIC%20MODEL/blue?icon=github)](https://github.com/hydroper/as3parser/wiki/Semantic-model)
 
-[![](https://badgen.net/#static/SEE/REFERENCES/blue?icon=github)](https://github.com/hydroper/as3parser/wiki/References)
+[![](https://badgen.net/live/SEE/REFERENCES/blue?icon=github)](https://github.com/hydroper/as3parser/wiki/References)
 
-[![](https://badgen.net/#static/SEE/OLD%20PROJECT/blue?icon=github)](https://github.com/hydroper-jet/privcompiler/tree/master/src/compiler)
+[![](https://badgen.net/live/SEE/OLD%20PROJECT/blue?icon=github)](https://github.com/hydroper-jet/privcompiler/tree/master/src/compiler)
 
 ## License
 
