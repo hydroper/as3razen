@@ -254,9 +254,6 @@ impl<'a> PropertyLookup<'a> {
             return Ok(None);
         }
 
-        // Base a little bit in https://github.com/hydroper-jet/privcompiler/blob/master/src/compiler/semantics/property_resolution.rs#L206
-        // but read the semantics in the To Do list.
-
         if base.is::<Package>() {
             // Key must be a local name
             let Some(local_name) = local_name else {
@@ -384,6 +381,9 @@ impl<'a> PropertyLookup<'a> {
                 r = amb;
             }
         }
+
+        // Base a little bit in https://github.com/hydroper-jet/privcompiler/blob/master/src/compiler/semantics/property_resolution.rs#L349
+        // but read the semantics in the To Do list.
 
         todo()
     }
