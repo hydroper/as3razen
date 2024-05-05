@@ -1,4 +1,6 @@
-# FXRazen
+<p align="center">
+  <img src="assets/banner.png" alt="Banner">
+</p>
 
 FXRazen is an ActionScript 3 compiler under development, for use with the Adobe AIR technology. It will compile a dialect of MXML supporting a new component set.
 
