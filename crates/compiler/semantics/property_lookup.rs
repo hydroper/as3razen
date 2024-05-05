@@ -124,9 +124,6 @@ impl<'a> PropertyLookup<'a> {
             return Ok(None);
         }
 
-        // Base a little bit in https://github.com/hydroper-jet/privcompiler/blob/master/src/compiler/semantics/property_resolution.rs#L128
-        // but read the semantics in the To Do list.
-
         // For a value
         if base.is::<Value>() {
             let base_type = defer(&base.static_type(self.0))?;
@@ -214,6 +211,9 @@ impl<'a> PropertyLookup<'a> {
 
             return Ok(None);
         }
+
+        // Base a little bit in https://github.com/hydroper-jet/privcompiler/blob/master/src/compiler/semantics/property_resolution.rs#L206
+        // but read the semantics in the To Do list.
 
         todo()
     }
