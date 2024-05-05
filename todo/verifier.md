@@ -108,5 +108,5 @@ contributes multiple concatenated packages from `qux.**` to the `foo.bar.*` pack
 Open namespaces properly everywhere.
 
 * [ ] Package definitions opens the package's `internal`
-* [ ] Class definition opens its `private`, `protected`, `static protected`, and also the inherited classes's `protected` and `static protected`, in ascending order (right before the class's own namespaces for conventional list order purposes).
+* [ ] Class definition opens its `private`, `protected`, `static protected`, and also the inherited classes's `protected` and `static protected`.
 * [ ] Enum definition opens its `private`.

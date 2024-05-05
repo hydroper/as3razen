@@ -1,4 +1,4 @@
-# MasterWidget
+# BetaX
 
 BetaX is called the future base component set that the FXRazen project may support.
 

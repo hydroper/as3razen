@@ -292,7 +292,37 @@ impl<'a> PropertyLookup<'a> {
     }
 
     pub fn lookup_in_scope_chain(&self, scope: &Thingy, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
-        //
+        let open_ns_set = SharedArray::new();
+        open_ns_set.extend(scope.open_ns_set().iter());
+        let mut p = scope.parent();
+        while let Some(p1) = p {
+            open_ns_set.extend(p1.open_ns_set().iter());
+            p = p1.parent();
+        }
+
+        // If it's a "with" scope
+        if scope.is::<WithScope>() {
+            let obj = scope.object();
+            let obj_static_type = defer(&obj.static_type(self.0))?;
+
+            if [self.0.any_type(), self.0.xml_type(), self.0.xml_list_type()].contains(&obj_static_type.escape_of_non_nullable()) {
+                let k = map_defer_error(key.computed_or_local_name(self.0))?;
+                return Ok(Some(self.0.factory().create_dynamic_scope_reference_value(scope, qual, &k)));
+            }
+
+            let r = self.lookup_in_object(&obj, &open_ns_set, qual.clone(), key)?;
+            if let Some(r) = r {
+                return Ok(Some(r));
+            }
+        }
+
+        // If it's a filter operator's scope
+        if scope.is::<FilterScope>() {
+            let k = map_defer_error(key.computed_or_local_name(self.0))?;
+            return Ok(Some(self.0.factory().create_dynamic_scope_reference_value(scope, qual, &k)));
+        }
+
+        todo()
     }
 
     /// Qualifier is assumed to be a compile-time Namespace.
