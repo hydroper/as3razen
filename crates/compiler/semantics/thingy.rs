@@ -569,6 +569,84 @@ smodel! {
             panic!();
         }
 
+        pub fn is_ascending_type_of(&self, possibly_subtype: &Thingy, host: &SemanticHost) -> Result<bool, DeferError> {
+            possibly_subtype.is_subtype_of(self, host)
+        }
+    
+        pub fn is_subtype_of(&self, possibly_ascending_type: &Thingy, host: &SemanticHost) -> Result<bool, DeferError> {
+            if possibly_ascending_type.is::<AnyType>() {
+                return Ok(true);
+            }
+            for t in self.all_ascending_types(host) {
+                // Defer if unresolved
+                t.defer()?;
+
+                if &t == possibly_ascending_type {
+                    return Ok(true);
+                }
+            }
+            Ok(false)
+        }
+    
+        pub fn is_equals_or_subtype_of(&self, other: &Thingy, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(self == other || self.is_subtype_of(other, host)?)
+        }
+    
+        /// Returns all ascending types of a type in ascending type order,
+        /// each possibly unresolved.
+        pub fn all_ascending_types(&self, host: &SemanticHost) -> Vec<Thingy> {
+            let mut r = vec![];
+            let mut r2 = vec![];
+            for type_thing in self.direct_ascending_types(host) {
+                if !type_thing.is::<UnresolvedThingy>() {
+                    for type_symbol in type_thing.all_ascending_types(host) {
+                        if !r.contains(&type_thing) {
+                            r.push(type_thing.clone());
+                        }
+                    }
+                }
+                if !r.contains(&type_thing) {
+                    r2.push(type_thing.clone());
+                }
+            }
+            r.extend(r2);
+            r
+        }
+    
+        /// Returns direct ascending types of a type, each possibly unresolved.
+        pub fn direct_ascending_types(&self, host: &SemanticHost) -> Vec<Thingy> {
+            if self.is::<ClassType>() {
+                let mut r: Vec<Thingy> = self.implements(host).iter().collect();
+                if let Some(ascending_class) = self.extends_class(host) {
+                    r.push(ascending_class);
+                }
+                return r;
+            } else if self.is::<EnumType>() {
+                return vec![self.extends_class(host).unwrap()];
+            } else if self.is::<InterfaceType>() {
+                return self.extends_interfaces(host).iter().collect();
+            } else if self.is::<FunctionType>() {
+                return vec![host.function_type()];
+            } else if self.is::<TupleType>() {
+                return vec![host.object_type()];
+            }
+            return vec![];
+        }
+    
+        pub fn expect_type(&self) -> Result<Thingy, TypeExpectError> {
+            if self.is::<TypeAsReferenceValue>() {
+                return Ok(self.referenced_type());
+            }
+            if self.is::<PackageReferenceValue>() || self.is::<ScopeReferenceValue>() {
+                return self.property().expect_type();
+            }
+            if self.is::<Type>() {
+                Ok(self.clone())
+            } else {
+                Err(TypeExpectError())
+            }
+        }
+
         fn to_string_1(&self) -> String {
             "".into()
         }
@@ -2894,6 +2972,31 @@ smodel! {
 
         pub override fn property(&self) -> Thingy {
             self.m_property().unwrap()
+        }
+    }
+
+    pub struct StaticDynamicReferenceValue: ReferenceValue {
+        let ref m_base: Option<Thingy> = None;
+        let ref m_qual: Option<Thingy> = None;
+        let ref m_key: Option<Thingy> = None;
+
+        pub(crate) fn StaticDynamicReferenceValue(base: &Thingy, qualifier: Option<Thingy>, key: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_base(Some(base.clone()));
+            self.set_m_qual(qualifier);
+            self.set_m_key(Some(key.clone()));
+        }
+
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn qualifier(&self) -> Option<Thingy> {
+            self.m_qual()
+        }
+
+        pub override fn key(&self) -> Thingy {
+            self.m_key().unwrap()
         }
     }
 

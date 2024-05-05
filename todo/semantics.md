@@ -20,10 +20,12 @@
 * [ ] Interface implementation
 * [ ] Method overriding
 * [ ] Property lookup
+  * [ ] Scope chain
+    * [ ] Concatenate open namespace sets from parent scopes
   * [ ] Packages
     * [ ] Package concatenations: lookup for names in the namespace set or any `public` namespace.
-  * [ ] Alias-resolvee `PackageWildcardImport` used as a qualifier in a lexical reference does a wildcard lookup in a package
-  * [ ] Alias-resolvee `PackageRecursiveImport` used as a qualifier in a lexical reference does a recursive lookup in a package
+  * [ ] Alias-resolvee `PackageWildcardImport` used as a qualifier in a lexical reference (scope chain) does a wildcard lookup in a package
+  * [ ] Alias-resolvee `PackageRecursiveImport` used as a qualifier in a lexical reference (scope chain) does a recursive lookup in a package
   * [ ] Remove import or non `public` non `protected` entity from unused if lookup in it is successful.
 * [ ] Type conversion
   * [ ] Implicit `Function` to `function(...): E` and vice-versa

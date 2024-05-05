@@ -513,6 +513,10 @@ impl<'a> ThingyFactory<'a> {
         Ok(StaticReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0).defer()?).into())
     }
 
+    pub fn create_static_dynamic_reference_value(&self, base: &Thingy, qualifier: Option<Thingy>, key: &Thingy) -> Thingy {
+        StaticDynamicReferenceValue::new(&self.0.arena, base, qualifier, key, &self.0.any_type()).into()
+    }
+
     pub fn create_instance_reference_value(&self, base: &Thingy, property: &Thingy) -> Result<Thingy, DeferError> {
         Ok(InstanceReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0).defer()?).into())
     }

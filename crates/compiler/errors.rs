@@ -18,3 +18,6 @@ pub enum PropertyLookupError {
         nullable_type: Thingy,
     },
 }
+
+#[derive(Clone, Copy, PartialEq)]
+pub struct TypeExpectError();

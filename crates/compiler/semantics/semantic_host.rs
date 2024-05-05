@@ -27,6 +27,8 @@ pub struct SemanticHost {
     namespace_type: RefCell<Option<Thingy>>,
     function_type: RefCell<Option<Thingy>>,
     class_type: RefCell<Option<Thingy>>,
+    xml_type: RefCell<Option<Thingy>>,
+    xml_list_type: RefCell<Option<Thingy>>,
 
     meta_prop: Thingy,
     meta_env_prop: Thingy,
@@ -88,6 +90,8 @@ impl SemanticHost {
             namespace_type: RefCell::new(None),
             function_type: RefCell::new(None),
             class_type: RefCell::new(None),
+            xml_type: RefCell::new(None),
+            xml_list_type: RefCell::new(None),
 
             non_null_primitive_types: RefCell::new(None),
             numeric_types: RefCell::new(None),
@@ -154,6 +158,8 @@ impl SemanticHost {
     global_lookup!(namespace_type, "Namespace");
     global_lookup!(function_type, "Function");
     global_lookup!(class_type, "Class");
+    global_lookup!(xml_type, "XML");
+    global_lookup!(xml_list_type, "XMLList");
 
     /// Returns the set of primitive types that do not contain `null`,
     /// such as `Boolean`, `Number`, `int`, `uint`, and `float`.
