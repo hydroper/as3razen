@@ -346,6 +346,36 @@ smodel! {
             panic!();
         }
 
+        /// If a type is `[T]`, returns `T`, either as an origin type parameter
+        /// or as a substitute type.
+        pub fn array_element_type(&self, host: &SemanticHost) -> Result<Option<Thingy>, DeferError> {
+            let array_type = host.array_type().defer()?;
+            if self == &array_type {
+                Ok(Some(array_type.type_params().unwrap().get(0).unwrap()))
+            } else if self.type_after_sub_has_origin(&array_type) {
+                Ok(Some(self.substitute_types().get(0).unwrap()))
+            } else {
+                Ok(None)
+            }
+        }
+
+        /// If a type is `Vector.<T>`, returns `T`, either as an origin type parameter
+        /// or as a substitute type.
+        pub fn vector_element_type(&self, host: &SemanticHost) -> Result<Option<Thingy>, DeferError> {
+            let vec_type = host.vector_type().defer()?;
+            if self == &vec_type {
+                Ok(Some(vec_type.type_params().unwrap().get(0).unwrap()))
+            } else if self.type_after_sub_has_origin(&vec_type) {
+                Ok(Some(self.substitute_types().get(0).unwrap()))
+            } else {
+                Ok(None)
+            }
+        }
+
+        pub fn type_after_sub_has_origin(&self, origin: &Thingy) -> bool {
+            self.is::<TypeAfterSubstitution>() && &self.origin() == origin
+        }
+
         /// Iterator over a descending class hierarchy.
         pub fn descending_class_hierarchy<'a>(&self, host: &'a SemanticHost) -> DescendingClassHierarchy<'a> {
             DescendingClassHierarchy(Some(self.clone()), host)
@@ -3137,6 +3167,48 @@ smodel! {
 
         pub override fn property(&self) -> Thingy {
             self.m_property().unwrap()
+        }
+    }
+
+    /// Array element reference value with a possibly non-nullable base.
+    /// The key is assumed to be of the `Number` data type.
+    pub struct ArrayElementReferenceValue: ReferenceValue {
+        let ref m_base: Option<Thingy> = None;
+        let ref m_key: Option<Thingy> = None;
+
+        pub(crate) fn ArrayElementReferenceValue(base: &Thingy, key: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_base(Some(base.clone()));
+            self.set_m_key(Some(key.clone()));
+        }
+
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn key(&self) -> Thingy {
+            self.m_key().unwrap()
+        }
+    }
+
+    /// Vector element reference value with a possibly non-nullable base.
+    /// The key is assumed to be of the `Number` data type.
+    pub struct VectorElementReferenceValue: ReferenceValue {
+        let ref m_base: Option<Thingy> = None;
+        let ref m_key: Option<Thingy> = None;
+
+        pub(crate) fn VectorElementReferenceValue(base: &Thingy, key: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_base(Some(base.clone()));
+            self.set_m_key(Some(key.clone()));
+        }
+
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn key(&self) -> Thingy {
+            self.m_key().unwrap()
         }
     }
 

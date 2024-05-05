@@ -45,7 +45,7 @@ Do not forget to set source locations of entities such as classes and variables.
 
 * [ ] Before analyzing a definitions in a set of programs, traverse the packages and the packages in all top-level `include` directives (as well as those in top-level block statements) to create them properly before ever hitting the `import ns.**;` and `public += ns.**;` directives.
 
-* [ ] Besides the pre packages pass, another pass, specifically for the AS3 language built-ins (any top-level package is taken into consideration, for efficiency), is ideal for optimization: "predefine" classes partially and cache them at the class definition, which is important for primitive types used in name lookups (such as `String` and `Number`).
+* [ ] Besides the pre packages pass, another pass, specifically for the AS3 language built-ins (the top-level package and `__AS3__.vec` are taken into consideration, for efficiency), is ideal for optimization: "predefine" classes partially and cache them at the class definition, which is important for primitive types used in name lookups (such as `String` and `Number`).
 
 ## Import
 

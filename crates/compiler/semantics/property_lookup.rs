@@ -5,25 +5,24 @@ pub struct PropertyLookup<'a>(pub &'a SemanticHost);
 #[derive(Clone)]
 pub enum PropertyLookupKey {
     LocalName(String),
-    /// Computed key.
-    Value(Thingy),
+    Computed(Thingy),
 }
 
 impl PropertyLookupKey {
-    pub fn thingy(&self, host: &SemanticHost) -> Result<Thingy, DeferError> {
+    pub fn computed_or_local_name(&self, host: &SemanticHost) -> Result<Thingy, DeferError> {
         match self {
             Self::LocalName(s) => {
                 let string_type = host.string_type().defer()?;
                 Ok(host.factory().create_string_constant(s.clone(), &string_type))
             },
-            Self::Value(s) => Ok(s.clone()),
+            Self::Computed(s) => Ok(s.clone()),
         }
     }
 
     pub fn static_type(&self, host: &SemanticHost) -> Result<Thingy, DeferError> {
         match self {
             Self::LocalName(_) => host.string_type().defer(),
-            Self::Value(s) => s.static_type(host).defer(),
+            Self::Computed(s) => s.static_type(host).defer(),
         }
     }
 
@@ -31,7 +30,7 @@ impl PropertyLookupKey {
         match self {
             Self::LocalName(s) => Some(s.clone()),
             /*
-            Self::Value(s) => {
+            Self::Computed(s) => {
                 if s.is::<StringConstant>() {
                     Some(s.local_name())
                 } else {
@@ -45,7 +44,7 @@ impl PropertyLookupKey {
 
     pub fn double_value(&self, host: &SemanticHost) -> Result<Option<f64>, DeferError> {
         Ok(match self {
-            Self::Value(d) => {
+            Self::Computed(d) => {
                 if d.is::<NumberConstant>() {
                     let v = d.number_value();
                     Some(match &v {
@@ -89,7 +88,7 @@ impl<'a> PropertyLookup<'a> {
 
             // Qualifier must be a compile-time Namespace, otherwise return static dynamic reference.
             if qual.as_ref().map(|q| q.is::<Namespace>()).unwrap_or(true) {
-                let k = map_defer_error(PropertyLookupKey::String(local_name).thingy(self.0))?;
+                let k = map_defer_error(PropertyLookupKey::LocalName(local_name).computed_or_local_name(self.0))?;
                 return Ok(Some(self.0.factory().create_static_dynamic_reference_value(base, qual, &k)));
             }
 
@@ -118,7 +117,7 @@ impl<'a> PropertyLookup<'a> {
 
             // Qualifier must be a compile-time Namespace, otherwise return static dynamic reference.
             if qual.map(|q| q.is::<Namespace>()).unwrap_or(true) {
-                let k = map_defer_error(PropertyLookupKey::String(key).thingy(self.0))?;
+                let k = map_defer_error(PropertyLookupKey::LocalName(key).computed_or_local_name(self.0))?;
                 return Ok(Some(self.0.factory().create_static_dynamic_reference_value(base, qual, &k)));
             }
 
@@ -131,22 +130,62 @@ impl<'a> PropertyLookup<'a> {
         // For a value
         if base.is::<Value>() {
             let base_type = defer(&base.static_type(self.0))?;
+            let base_esc_type = base_type.escape_of_non_nullable();
 
             // If base is a value whose type is one of { XML, XML!, XMLList, XMLList! }, return a XML reference value.
-            if [defer(&self.0.xml_type())?, defer(&self.0.xml_list_type())?].contains(&base_type.escape_of_non_nullable()) {
-                let k = map_defer_error(key.thingy(self.0))?;
+            if [defer(&self.0.xml_type())?, defer(&self.0.xml_list_type())?].contains(&base_esc_type) {
+                let k = map_defer_error(key.computed_or_local_name(self.0))?;
                 return Ok(Some(self.0.factory().create_xml_reference_value(base, qual, &k)));
             }
 
+            let has_known_ns = qual.as_ref().map(|q| q.is::<Namespace>()).unwrap_or(true);
+
+            let Some(local_name) = local_name else {
+                // Attempt to index Array
+                if let Some(_) = map_defer_error(base_esc_type.array_element_type(self.0))? {
+                    let iv: Option<Thingy> = TypeConversion(self.0).implicit(key.computed_or_local_name(self.0), &defer(&self.0.number_type())?, false);
+                    if let Some(iv) = iv {
+                        return Ok(Some(map_defer_error(self.0.factory().create_array_element_reference_value(&base, &iv))?));
+                    }
+                }
+
+                // Attempt to index Vector
+                if let Some(_) = map_defer_error(base_esc_type.vector_element_type(self.0))? {
+                    let iv: Option<Thingy> = TypeConversion(self.0).implicit(key.computed_or_local_name(self.0), &defer(&self.0.number_type())?, false);
+                    if let Some(iv) = iv {
+                        return Ok(Some(map_defer_error(self.0.factory().create_vector_element_reference_value(&base, &iv))?));
+                    }
+                }
+                
+                // Attempt to index a tuple
+                if double_key.is_some() && base_esc_type.is::<TupleType>() {
+                    let index: usize = unsafe { double_key.unwrap().to_int_unchecked() };
+                    if index >= base_type.element_types().length() {
+                        return Ok(None);
+                    }
+                    return Ok(Some(self.0.factory().create_tuple_reference_value(&base, index)));
+                }
+
+                let k = map_defer_error(key.computed_or_local_name(self.0))?;
+                return Ok(Some(self.0.factory().create_dynamic_reference_value(base, qual, &k)));
+            };
+
             // If base data type is one of { *, Object, Object! }, or a dynamic class, or
-            // if key is not a local name, return a dynamic reference value.
-            let any_or_object = [self.0.any_type(), defer(&self.0.object_type())?].contains(&base_type.escape_of_non_nullable());
-            if any_or_object || local_name.is_none() || map_defer_error(base_type.escape_of_non_nullable().is_dynamic_or_inherits_dynamic(self.0))? {
-                let k = map_defer_error(key.thingy(self.0))?;
+            // if qualifier is not a compile-time control namespace,
+            // return a dynamic reference value..
+            let any_or_object = [self.0.any_type(), defer(&self.0.object_type())?].contains(&base_esc_type);
+            if
+                any_or_object
+            || map_defer_error(base_type.escape_of_non_nullable().is_dynamic_or_inherits_dynamic(self.0))?
+            || !has_known_ns
+            {
+                let k = map_defer_error(key.computed_or_local_name(self.0))?;
                 return Ok(Some(self.0.factory().create_dynamic_reference_value(base, qual, &k)));
             }
 
             todo();
+
+            return Ok(None);
         }
 
         todo()

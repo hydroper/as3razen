@@ -22,9 +22,9 @@
 * [ ] Property lookup
   * [ ] Value
     * [x] Dynamic classes (not `Proxy`; it is assumed to not be marked `dynamic`) result in untyped (dynamic) references in all cases.
-    * [ ] Index `Array.<T>` with type safety
-    * [ ] Index `Vector.<T>` with type safety
-    * [ ] Index with computed key
+    * [x] Index `Array.<T>` with type safety
+    * [x] Index `Vector.<T>` with type safety
+    * [x] Index with computed key
   * [ ] Scope chain
     * [ ] Concatenate open namespace sets from parent scopes
   * [ ] Packages

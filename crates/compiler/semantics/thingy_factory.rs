@@ -509,6 +509,16 @@ impl<'a> ThingyFactory<'a> {
         DynamicReferenceValue::new(&self.0.arena, base, qualifier, key, &self.0.any_type()).into()
     }
 
+    pub fn create_array_element_reference_value(&self, base: &Thingy, key: &Thingy) -> Result<Thingy, DeferError> {
+        let st = base.static_type(self.0).defer()?.escape_of_non_nullable().array_element_type(self.0)?.unwrap();
+        Ok(ArrayElementReferenceValue::new(&self.0.arena, base, key, &st).into())
+    }
+
+    pub fn create_vector_element_reference_value(&self, base: &Thingy, key: &Thingy) -> Result<Thingy, DeferError> {
+        let st = base.static_type(self.0).defer()?.escape_of_non_nullable().vector_element_type(self.0)?.unwrap();
+        Ok(VectorElementReferenceValue::new(&self.0.arena, base, key, &st).into())
+    }
+
     pub fn create_static_reference_value(&self, base: &Thingy, property: &Thingy) -> Result<Thingy, DeferError> {
         Ok(StaticReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0).defer()?).into())
     }
