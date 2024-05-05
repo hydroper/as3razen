@@ -425,18 +425,6 @@ impl<'a> ThingyFactory<'a> {
         mssub.into()
     }
 
-    pub fn create_package_property_import(&self, property: &Thingy, location: Option<Location>) -> Thingy {
-        PackagePropertyImport::new(&self.0.arena, property, location).into()
-    }
-
-    pub fn create_package_wildcard_import(&self, package: &Thingy, location: Option<Location>) -> Thingy {
-        PackageWildcardImport::new(&self.0.arena, package, location).into()
-    }
-
-    pub fn create_package_recursive_import(&self, package: &Thingy, location: Option<Location>) -> Thingy {
-        PackageRecursiveImport::new(&self.0.arena, package, location).into()
-    }
-
     pub fn create_scope(&self) -> Thingy {
         Scope::new(&self.0.arena).into()
     }
@@ -471,6 +459,18 @@ impl<'a> ThingyFactory<'a> {
 
     pub fn create_value(&self, static_type: &Thingy) -> Thingy {
         Value::new(&self.0.arena, static_type).into()
+    }
+
+    pub fn create_package_property_import(&self, property: &Thingy, location: Option<Location>) -> Thingy {
+        PackagePropertyImport::new(&self.0.arena, property, location, &self.0.any_type()).into()
+    }
+
+    pub fn create_package_wildcard_import(&self, package: &Thingy, location: Option<Location>) -> Thingy {
+        PackageWildcardImport::new(&self.0.arena, package, location, &self.0.any_type()).into()
+    }
+
+    pub fn create_package_recursive_import(&self, package: &Thingy, location: Option<Location>) -> Thingy {
+        PackageRecursiveImport::new(&self.0.arena, package, location, &self.0.any_type()).into()
     }
 
     pub fn create_undefined_constant(&self, static_type: &Thingy) -> Thingy {

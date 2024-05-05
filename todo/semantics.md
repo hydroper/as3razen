@@ -22,8 +22,8 @@
 * [ ] Property lookup
   * [x] Value
   * [ ] Scope chain
-    * [ ] Alias-resolvee `PackageWildcardImport` used as a qualifier in a lexical reference (scope chain) does a wildcard lookup in a package
-    * [ ] Alias-resolvee `PackageRecursiveImport` used as a qualifier in a lexical reference (scope chain) does a recursive lookup in a package
+    * [ ] `PackageWildcardImport` used as a qualifier in a lexical reference (scope chain) does a wildcard lookup in a package
+    * [ ] `PackageRecursiveImport` used as a qualifier in a lexical reference (scope chain) does a recursive lookup in a package
     * [ ] Remove import or non `public` non `protected` entity from unused if lookup in it is successful.
   * [x] Packages
 * [ ] Type conversion

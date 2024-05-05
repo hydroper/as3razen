@@ -33,7 +33,8 @@ smodel! {
             panic!();
         }
 
-        /// Returns the static type of a property, whether for a type, variable, virtual or method slot or namespace.
+        /// Returns the static type of a property, whether for a type, variable, virtual or method slot or namespace,
+        /// or act as identity of a value's static type.
         /// Possibly `UnresolvedThingy`.
         pub fn property_static_type(&self, host: &SemanticHost) -> Thingy {
             panic!();
@@ -407,7 +408,7 @@ smodel! {
         }
 
         pub fn wrap_property_reference(&self, host: &SemanticHost) -> Result<Thingy, DeferError> {
-            if self.is::<ReferenceValue>() {
+            if self.is::<Value>() {
                 return Ok(self.clone());
             }
             if self.is::<Type>() && (self.is::<VoidType>() || self.is::<AnyType>() || self.is::<FunctionType>() || self.is::<TupleType>() || self.is::<NullableType>() || self.is::<NonNullableType>()) {
@@ -2629,75 +2630,6 @@ smodel! {
         }
     }
 
-    pub struct PackagePropertyImport: Thingy {
-        let ref m_property: Option<Thingy> = None;
-        let ref m_location: Option<Location> = None;
-
-        pub(crate) fn PackagePropertyImport(property: &Thingy, location: Option<Location>) {
-            super();
-            self.set_m_property(Some(property.clone()));
-            self.set_m_location(location);
-        }
-
-        pub override fn property(&self) -> Thingy {
-            self.m_property().unwrap()
-        }
-
-        pub override fn location(&self) -> Option<Location> {
-            self.m_location()
-        }
-
-        pub override fn set_location(&self, loc: Option<Location>) {
-            self.set_m_location(loc);
-        }
-    }
-
-    pub struct PackageWildcardImport: Thingy {
-        let ref m_package: Option<Thingy> = None;
-        let ref m_location: Option<Location> = None;
-
-        pub(crate) fn PackageWildcardImport(package: &Thingy, location: Option<Location>) {
-            super();
-            self.set_m_package(Some(package.clone()));
-            self.set_m_location(location);
-        }
-
-        pub override fn package(&self) -> Thingy {
-            self.m_package().unwrap()
-        }
-
-        pub override fn location(&self) -> Option<Location> {
-            self.m_location()
-        }
-
-        pub override fn set_location(&self, loc: Option<Location>) {
-            self.set_m_location(loc);
-        }
-    }
-
-    pub struct PackageRecursiveImport: Thingy {
-        let ref m_package: Option<Thingy> = None;
-        let ref m_location: Option<Location> = None;
-
-        pub(crate) fn PackageRecursiveImport(package: &Thingy, location: Option<Location>) {
-            super();
-            self.set_m_package(Some(package.clone()));
-            self.set_m_location(location);
-        }
-
-        pub override fn package(&self) -> Thingy {
-            self.m_package().unwrap()
-        }
-
-        pub override fn location(&self) -> Option<Location> {
-            self.m_location()
-        }
-
-        pub override fn set_location(&self, loc: Option<Location>) {
-            self.set_m_location(loc);
-        }
-    }
-
     pub struct Scope: Thingy {
         let ref m_parent: Option<Thingy> = None;
         let ref m_properties: NameMap = NameMap::new();
@@ -2876,6 +2808,80 @@ smodel! {
 
         pub override fn set_static_type(&self, value: Thingy) {
             self.set_m_static_type(Some(value));
+        }
+
+        #[inheritdoc]
+        pub override fn property_static_type(&self, host: &SemanticHost) -> Thingy {
+            self.static_type(host)
+        }
+    }
+
+    pub struct PackagePropertyImport: Value {
+        let ref m_property: Option<Thingy> = None;
+        let ref m_location: Option<Location> = None;
+
+        pub(crate) fn PackagePropertyImport(property: &Thingy, location: Option<Location>, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_property(Some(property.clone()));
+            self.set_m_location(location);
+        }
+
+        pub override fn property(&self) -> Thingy {
+            self.m_property().unwrap()
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.m_location()
+        }
+
+        pub override fn set_location(&self, loc: Option<Location>) {
+            self.set_m_location(loc);
+        }
+    }
+
+    pub struct PackageWildcardImport: Value {
+        let ref m_package: Option<Thingy> = None;
+        let ref m_location: Option<Location> = None;
+
+        pub(crate) fn PackageWildcardImport(package: &Thingy, location: Option<Location>, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_package(Some(package.clone()));
+            self.set_m_location(location);
+        }
+
+        pub override fn package(&self) -> Thingy {
+            self.m_package().unwrap()
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.m_location()
+        }
+
+        pub override fn set_location(&self, loc: Option<Location>) {
+            self.set_m_location(loc);
+        }
+    }
+
+    pub struct PackageRecursiveImport: Value {
+        let ref m_package: Option<Thingy> = None;
+        let ref m_location: Option<Location> = None;
+
+        pub(crate) fn PackageRecursiveImport(package: &Thingy, location: Option<Location>, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_package(Some(package.clone()));
+            self.set_m_location(location);
+        }
+
+        pub override fn package(&self) -> Thingy {
+            self.m_package().unwrap()
+        }
+
+        pub override fn location(&self) -> Option<Location> {
+            self.m_location()
+        }
+
+        pub override fn set_location(&self, loc: Option<Location>) {
+            self.set_m_location(loc);
         }
     }
 

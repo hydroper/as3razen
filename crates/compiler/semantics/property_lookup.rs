@@ -352,6 +352,39 @@ impl<'a> PropertyLookup<'a> {
             r = Some(map_defer_error(r1.wrap_property_reference(self.0))?);
         }
 
+        if scope.is::<Activation>() && scope.this().is_some() && r.is_none() {
+            let r1 = self.lookup_in_object(&scope.this().unwrap(), &open_ns_set, qual.clone(), key)?;
+            if let Some(r1) = r1 {
+                if !(r1.is::<DynamicReferenceValue>() || r1.is::<XmlReferenceValue>()) {
+                    r = Some(r1);
+                }
+            }
+        }
+
+        // If scope is a class or enum scope and a local name key is specified
+        if (scope.is::<ClassScope>() || scope.is::<EnumScope>()) && local_name.is_some() {
+            let r1 = self.lookup_in_object(&scope.class(), &open_ns_set, qual.clone(), key)?;
+            if r1.is_some() {
+                if r.is_some() {
+                    return Err(PropertyLookupError::AmbiguousReference(local_name.as_ref().unwrap().clone()));
+                }
+                r = r1;
+            }
+        }
+
+        let mut amb: Option<Thingy> = None;
+
+        // For a package scope
+        if scope.is::<PackageScope>() && has_known_ns && local_name.is_some() {
+            amb = self.lookup_in_object(&scope.package(), &open_ns_set, qual.clone(), key)?;
+            if amb.is_some() {
+                if r.is_some() {
+                    return Err(PropertyLookupError::AmbiguousReference(local_name.as_ref().unwrap().clone()));
+                }
+                r = amb;
+            }
+        }
+
         todo()
     }
 
@@ -359,6 +392,9 @@ impl<'a> PropertyLookup<'a> {
     /// Qualifier is assumed to be a compile-time namespace.
     fn get_qname(&self, mapping: &NameMap, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, local_name: &str) -> Result<Option<Thingy>, PropertyLookupError> {
         if let Some(qual) = qual {
+            if qual.is::<PackageWildcardImport>() || qual.is::<PackageRecursiveImport>() {
+                return Ok(None);
+            }
             let qual = if qual.is::<NamespaceAsReferenceValue>() {
                 qual.referenced_ns()
             } else {
@@ -374,6 +410,9 @@ impl<'a> PropertyLookup<'a> {
     /// Qualifier is assumed to be a compile-time namespace.
     fn get_qname_in_ns_set_or_any_public_ns(&self, mapping: &NameMap, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, local_name: &str) -> Result<Option<Thingy>, PropertyLookupError> {
         if let Some(qual) = qual {
+            if qual.is::<PackageWildcardImport>() || qual.is::<PackageRecursiveImport>() {
+                return Ok(None);
+            }
             let qual = if qual.is::<NamespaceAsReferenceValue>() {
                 qual.referenced_ns()
             } else {
