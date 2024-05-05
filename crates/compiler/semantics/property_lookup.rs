@@ -4,7 +4,7 @@ pub struct PropertyLookup<'a>(pub &'a SemanticHost);
 
 #[derive(Clone)]
 pub enum PropertyLookupKey {
-    String(String),
+    LocalName(String),
     /// Computed key.
     Value(Thingy),
 }
@@ -12,7 +12,7 @@ pub enum PropertyLookupKey {
 impl PropertyLookupKey {
     pub fn thingy(&self, host: &SemanticHost) -> Result<Thingy, DeferError> {
         match self {
-            Self::String(s) => {
+            Self::LocalName(s) => {
                 let string_type = host.string_type().defer()?;
                 Ok(host.factory().create_string_constant(s.clone(), &string_type))
             },
@@ -22,18 +22,18 @@ impl PropertyLookupKey {
 
     pub fn static_type(&self, host: &SemanticHost) -> Result<Thingy, DeferError> {
         match self {
-            Self::String(_) => host.string_type().defer(),
+            Self::LocalName(_) => host.string_type().defer(),
             Self::Value(s) => s.static_type(host).defer(),
         }
     }
 
-    pub fn string_value(&self) -> Option<String> {
+    pub fn local_name(&self) -> Option<String> {
         match self {
-            Self::String(s) => Some(s.clone()),
+            Self::LocalName(s) => Some(s.clone()),
             /*
             Self::Value(s) => {
                 if s.is::<StringConstant>() {
-                    Some(s.string_value())
+                    Some(s.local_name())
                 } else {
                     None
                 }
@@ -77,27 +77,13 @@ fn map_defer_error<T>(result: Result<T, DeferError>) -> Result<T, PropertyLookup
 
 impl<'a> PropertyLookup<'a> {
     pub fn lookup_in_object(&self, base: &Thingy, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
-        // If base is a value whose type is one of { XML, XMLList }, return a XML reference value.
-        if base.is::<Value>() && [defer(&self.0.xml_type())?, defer(&self.0.xml_list_type())?].contains(&defer(&base.static_type(self.0))?) {
-            let k = map_defer_error(key.thingy(self.0))?;
-            return Ok(Some(self.0.factory().create_xml_reference_value(base, qual, &k)));
-        }
-
-        let string_key = key.string_value();
+        let local_name = key.local_name();
         let double_key = map_defer_error(key.double_value(self.0))?;
-
-        // If base is a value whose type is one of { *, Object, Object! }, or
-        // if key is not a String or Number constant,
-        // return a dynamic reference value.
-        if base.is::<Value>() && [self.0.any_type(), defer(&self.0.object_type())?].contains(&defer(&base.static_type(self.0))?.escape_of_non_nullable()) {
-            let k = map_defer_error(key.thingy(self.0))?;
-            return Ok(Some(self.0.factory().create_dynamic_reference_value(base, qual, &k)));
-        }
 
         // If base is a class or enum
         if base.is_class_type_possibly_after_sub() || base.is::<EnumType>() {
             // Key must be a String constant
-            let Some(local_name) = string_key else {
+            let Some(local_name) = local_name else {
                 return Ok(None);
             };
 
@@ -126,7 +112,7 @@ impl<'a> PropertyLookup<'a> {
         // If base is an interface
         if base.is_interface_type_possibly_after_sub() {
             // Key must be a String constant
-            let Some(key) = string_key else {
+            let Some(key) = local_name else {
                 return Ok(None);
             };
 
@@ -141,6 +127,27 @@ impl<'a> PropertyLookup<'a> {
 
         // Base a little bit in https://github.com/hydroper-jet/privcompiler/blob/master/src/compiler/semantics/property_resolution.rs#L128
         // but read the semantics in the To Do list.
+
+        // For a value
+        if base.is::<Value>() {
+            let base_type = defer(&base.static_type(self.0))?;
+
+            // If base is a value whose type is one of { XML, XML!, XMLList, XMLList! }, return a XML reference value.
+            if [defer(&self.0.xml_type())?, defer(&self.0.xml_list_type())?].contains(&base_type.escape_of_non_nullable()) {
+                let k = map_defer_error(key.thingy(self.0))?;
+                return Ok(Some(self.0.factory().create_xml_reference_value(base, qual, &k)));
+            }
+
+            // If base data type is one of { *, Object, Object! }, or a dynamic class, or
+            // if key is not a local name, return a dynamic reference value.
+            let any_or_object = [self.0.any_type(), defer(&self.0.object_type())?].contains(&base_type.escape_of_non_nullable());
+            if any_or_object || local_name.is_none() || map_defer_error(base_type.escape_of_non_nullable().is_dynamic_or_inherits_dynamic(self.0))? {
+                let k = map_defer_error(key.thingy(self.0))?;
+                return Ok(Some(self.0.factory().create_dynamic_reference_value(base, qual, &k)));
+            }
+
+            todo();
+        }
 
         todo()
     }

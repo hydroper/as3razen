@@ -39,6 +39,10 @@ smodel! {
             panic!();
         }
 
+        pub fn is_dynamic_or_inherits_dynamic(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(false)
+        }
+
         pub fn tuple_index(&self) -> usize {
             0
         }
@@ -1077,6 +1081,17 @@ smodel! {
             self.set_m_flags(v);
         }
 
+        pub override fn is_dynamic_or_inherits_dynamic(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            if self.is_dynamic() {
+                return Ok(true);
+            }
+            if let Some(cb) = self.extends_class(host) {
+                cb.is_dynamic_or_inherits_dynamic(host)
+            } else {
+                Ok(false)
+            }
+        }
+
         /// Whether the class is an `[Options]` class.
         pub override fn is_options_class(&self) -> bool {
             self.m_flags().contains(ClassTypeFlags::IS_OPTIONS_CLASS)
@@ -1441,6 +1456,10 @@ smodel! {
             self.origin().is_dynamic()
         }
 
+        pub override fn is_dynamic_or_inherits_dynamic(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            self.origin().is_dynamic_or_inherits_dynamic(host)
+        }
+
         pub override fn is_options_class(&self) -> bool {
             self.origin().is_options_class()
         }
@@ -1587,6 +1606,10 @@ smodel! {
             true
         }
 
+        pub override fn is_dynamic_or_inherits_dynamic(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(self.is_dynamic())
+        }
+
         pub override fn is_options_class(&self) -> bool {
             false
         }
@@ -1639,6 +1662,10 @@ smodel! {
 
         pub override fn is_dynamic(&self) -> bool {
             false
+        }
+
+        pub override fn is_dynamic_or_inherits_dynamic(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(self.is_dynamic())
         }
 
         pub override fn is_options_class(&self) -> bool {

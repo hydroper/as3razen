@@ -21,7 +21,7 @@
 * [ ] Method overriding
 * [ ] Property lookup
   * [ ] Value
-    * [ ] Dynamic classes (not `Proxy`; it is assumed to not be marked `dynamic`) result in untyped (dynamic) references in all cases.
+    * [x] Dynamic classes (not `Proxy`; it is assumed to not be marked `dynamic`) result in untyped (dynamic) references in all cases.
     * [ ] Index `Array.<T>` with type safety
     * [ ] Index `Vector.<T>` with type safety
     * [ ] Index with computed key
