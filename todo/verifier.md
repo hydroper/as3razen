@@ -43,29 +43,29 @@ Do not forget to set source locations of entities such as classes and variables.
 
 ## Packages
 
-Before analyzing a definitions in a set of programs, traverse the packages and the packages in all top-level `include` directives (as well as those in top-level block statements) to create them properly before ever hitting the `import ns.**;` and `public += ns.**;` directives.
+* [ ] Before analyzing a definitions in a set of programs, traverse the packages and the packages in all top-level `include` directives (as well as those in top-level block statements) to create them properly before ever hitting the `import ns.**;` and `public += ns.**;` directives.
 
-Besides the pre packages pass, another pass, specifically for the AS3 language built-ins (any top-level package is taken into consideration, for efficiency), is ideal for optimization: "predefine" classes partially and cache them at the class definition, which is important for primitive types used in name lookups (such as `String` and `Number`).
+* [ ] Besides the pre packages pass, another pass, specifically for the AS3 language built-ins (any top-level package is taken into consideration, for efficiency), is ideal for optimization: "predefine" classes partially and cache them at the class definition, which is important for primitive types used in name lookups (such as `String` and `Number`).
 
 ## Import
 
 ### Name import
 
-A `import x = ns.y;` directive assigns an alias `x` to the enclosing scope.
+* [ ] A `import x = ns.y;` directive assigns an alias `x` to the enclosing scope.
 
-An `import ns.y;` directive contributes a `PackagePropertyImport` to the enclosing scope, which may be fully qualified (`ns.y`) or lexically referred to (`y`).
+* [ ] An `import ns.y;` directive contributes a `PackagePropertyImport` to the enclosing scope, which may be fully qualified (`ns.y`) or lexically referred to (`y`).
 
 ### Wildcard import
 
-An wildcard import contributes a `PackageWildcardImport` to the enclosing scope. No need to contribute an open namespace, since the lookup in wildcard import happens with the open namespace set and any `public` namespace.
+* [ ] An wildcard import contributes a `PackageWildcardImport` to the enclosing scope. No need to contribute an open namespace, since the lookup in wildcard import happens with the open namespace set and any `public` namespace.
 
-An `import foons = foo.*;` assigns an alias to a `PackageWildcardImport` to the enclosing package.
+* [ ] An `import foons = foo.*;` assigns an alias to a `PackageWildcardImport` to the enclosing package.
 
 ### Recursive import
 
-An `import ns.**;` contributes a `PackageRecursiveImport` to the enclosing scope.
+* [ ] An `import ns.**;` contributes a `PackageRecursiveImport` to the enclosing scope.
 
-An `import foons = foo.**;` assigns an alias to a `PackageRecursiveImport` to the enclosing package.
+* [ ] An `import foons = foo.**;` assigns an alias to a `PackageRecursiveImport` to the enclosing package.
 
 ## Package concatenation
 
@@ -86,3 +86,12 @@ contributes multiple concatenated packages from `qux.**` to the `foo.bar.*` pack
 ## Activations
 
 * [ ] Detect captured properties by calling `set_property_has_capture()` in the parent activation when resolving a lexical reference and the activation to which it belongs, if any, is different from the current activation.
+
+## Parameterized types
+
+* [ ] Parameterized types, when referred to without an immediately following `.<...>` sequence, are equivalent to `T.<*>`.
+
+## Array type
+
+* [ ] In ABC, a type parameter is automatically added for `Array` and `__AS3__.vec.Vector`.
+* [ ] In source, a type parameter is automatically added for `Array` and `__AS3__.vec.Vector`.

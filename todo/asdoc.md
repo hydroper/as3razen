@@ -1,5 +1,9 @@
 # ASDoc
 
+## Vector
+
+* [ ] Automatically move the `__AS3__.vec.Vector` class to the top-level package and remove documentation for that package.
+
 ## Sections
 
 Additional Markdown sections may be described in the FXRazen package's `asdoc.xml` file, used when rendering the ASDoc documentation for a FXRazen package.

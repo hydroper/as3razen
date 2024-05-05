@@ -468,7 +468,7 @@ smodel! {
         }
 
         pub fn fully_qualified_name(&self) -> String {
-            self.fully_qualified_name_list().join(".")
+            self.fully_qualified_name_list().join(".").replace("__AS3__.vec.Vector", "Vector")
         }
     
         pub fn fully_qualified_name_list(&self) -> Vec<String> {
@@ -645,6 +645,16 @@ smodel! {
             } else {
                 Err(TypeExpectError())
             }
+        }
+
+        /// Lookups property in an object.
+        pub fn lookup_in_object(&self, host: &SemanticHost, base: &Thingy, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
+            PropertyLookup(host).lookup_in_object(base, open_ns_set, qual, key)
+        }
+
+        /// Lookups property in the scope chain.
+        pub fn lookup_in_scope_chain(&self, host: &SemanticHost, base: &Thingy, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
+            PropertyLookup(host).lookup_in_scope_chain(base, qual, key)
         }
 
         fn to_string_1(&self) -> String {

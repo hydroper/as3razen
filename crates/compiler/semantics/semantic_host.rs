@@ -14,6 +14,7 @@ pub struct SemanticHost {
     invalidation_thingy: Thingy,
     unresolved_thingy: Thingy,
     pub(crate) top_level_package: Thingy,
+    as3_vec_package: RefCell<Option<Thingy>>,
     any_type: Thingy,
     void_type: Thingy,
     object_type: RefCell<Option<Thingy>>,
@@ -29,6 +30,7 @@ pub struct SemanticHost {
     class_type: RefCell<Option<Thingy>>,
     xml_type: RefCell<Option<Thingy>>,
     xml_list_type: RefCell<Option<Thingy>>,
+    vector_type: RefCell<Option<Thingy>>,
 
     meta_prop: Thingy,
     meta_env_prop: Thingy,
@@ -69,6 +71,7 @@ impl SemanticHost {
             user_namespaces,
             qnames,
             top_level_package: top_level_package.clone().into(),
+            as3_vec_package: RefCell::new(None),
             invalidation_thingy,
             unresolved_thingy,
 
@@ -92,6 +95,7 @@ impl SemanticHost {
             class_type: RefCell::new(None),
             xml_type: RefCell::new(None),
             xml_list_type: RefCell::new(None),
+            vector_type: RefCell::new(None),
 
             non_null_primitive_types: RefCell::new(None),
             numeric_types: RefCell::new(None),
@@ -121,6 +125,15 @@ impl SemanticHost {
 
     pub fn top_level_package(&self) -> Thingy {
         self.top_level_package.clone()
+    }
+
+    pub fn as3_vec_package(&self) -> Thingy {
+        if let Some(p) = self.as3_vec_package.borrow().as_ref() {
+            return p.clone();
+        }
+        let p = self.factory().create_package(["__AS3__", "vec"]);
+        self.as3_vec_package.replace(Some(p.clone()));
+        p
     }
 
     pub fn invalidation_thingy(&self) -> Thingy {
@@ -160,6 +173,20 @@ impl SemanticHost {
     global_lookup!(class_type, "Class");
     global_lookup!(xml_type, "XML");
     global_lookup!(xml_list_type, "XMLList");
+
+    /// Retrieves `__AS3__.vec.Vector`, a possibly unresolved thing.
+    pub fn vector_type(&self) -> Thingy {
+        if let Some(r) = self.vector_type.borrow().as_ref() {
+            return r.clone();
+        }
+        let pckg = self.as3_vec_package();
+        if let Some(r) = pckg.properties(self).get(&self.factory().create_qname(&pckg.public_ns().unwrap().into(), "Vector".to_owned())) {
+            self.vector_type.replace(Some(r.clone()));
+            r
+        } else {
+            self.unresolved_thingy()
+        }
+    }
 
     /// Returns the set of primitive types that do not contain `null`,
     /// such as `Boolean`, `Number`, `int`, `uint`, and `float`.

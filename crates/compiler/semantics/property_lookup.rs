@@ -5,7 +5,7 @@ pub struct PropertyLookup<'a>(pub &'a SemanticHost);
 #[derive(Clone)]
 pub enum PropertyLookupKey {
     String(String),
-    Number(f64),
+    /// Computed key.
     Value(Thingy),
 }
 
@@ -16,10 +16,6 @@ impl PropertyLookupKey {
                 let string_type = host.string_type().defer()?;
                 Ok(host.factory().create_string_constant(s.clone(), &string_type))
             },
-            Self::Number(d) => {
-                let number_type = host.number_type().defer()?;
-                Ok(host.factory().create_number_constant(NumberVariant::Number(d.clone()), &number_type))
-            },
             Self::Value(s) => Ok(s.clone()),
         }
     }
@@ -27,7 +23,6 @@ impl PropertyLookupKey {
     pub fn static_type(&self, host: &SemanticHost) -> Result<Thingy, DeferError> {
         match self {
             Self::String(_) => host.string_type().defer(),
-            Self::Number(_) => host.number_type().defer(),
             Self::Value(s) => s.static_type(host).defer(),
         }
     }
@@ -35,6 +30,7 @@ impl PropertyLookupKey {
     pub fn string_value(&self) -> Option<String> {
         match self {
             Self::String(s) => Some(s.clone()),
+            /*
             Self::Value(s) => {
                 if s.is::<StringConstant>() {
                     Some(s.string_value())
@@ -42,13 +38,13 @@ impl PropertyLookupKey {
                     None
                 }
             },
+            */
             _ => None,
         }
     }
 
     pub fn double_value(&self, host: &SemanticHost) -> Result<Option<f64>, DeferError> {
         Ok(match self {
-            Self::Number(d) => Some(*d),
             Self::Value(d) => {
                 if d.is::<NumberConstant>() {
                     let v = d.number_value();
@@ -99,7 +95,7 @@ impl<'a> PropertyLookup<'a> {
         }
 
         // If base is a class or enum
-        if base.is::<ClassType>() || base.is::<EnumType>() {
+        if base.is_class_type_possibly_after_sub() || base.is::<EnumType>() {
             // Key must be a String constant
             let Some(local_name) = string_key else {
                 return Ok(None);
@@ -128,7 +124,7 @@ impl<'a> PropertyLookup<'a> {
         }
 
         // If base is an interface
-        if base.is::<InterfaceType>() {
+        if base.is_interface_type_possibly_after_sub() {
             // Key must be a String constant
             let Some(key) = string_key else {
                 return Ok(None);
