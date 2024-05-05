@@ -35,5 +35,7 @@
   * [ ] Remove import or non `public` non `protected` entity from unused if lookup in it is successful.
 * [ ] Type conversion
   * [ ] Implicit `Function` to `function(...): E` and vice-versa
+  * [ ] Convert from non `Vector` parameterized type to the same parameterized type with different type arguments
+  * [ ] Covariant `Vector`
 * [x] Type substitution
 * [x] Type's default value
