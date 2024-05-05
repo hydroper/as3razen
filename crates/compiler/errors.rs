@@ -1,3 +1,5 @@
+use crate::ns::*;
+
 /// Error used to indicate that verification must be deferred.
 #[derive(Clone, Copy, PartialEq)]
 #[non_exhaustive]
@@ -14,3 +16,13 @@ impl DeferError {
 #[derive(Clone)]
 #[non_exhaustive]
 pub struct AmbiguousReferenceError(pub String);
+
+#[derive(Clone)]
+pub enum PropertyLookupError {
+    Defer,
+    AmbiguousReference(String),
+    VoidBase,
+    NullableObject {
+        nullable_type: Thingy,
+    },
+}
