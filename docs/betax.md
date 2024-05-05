@@ -1,8 +1,6 @@
-# Flex
+# MasterWidget
 
-## MXML
-
-MXML components are required to contain a `fx:Package` element indicating the package they belong to. Use the empty string for the top-level package.
+BetaX is called the future base component set that the FXRazen project may support.
 
 ```xml
 <?xml version="1.0"?>
