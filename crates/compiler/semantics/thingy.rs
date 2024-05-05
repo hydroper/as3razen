@@ -129,6 +129,10 @@ smodel! {
             panic!();
         }
 
+        pub fn referenced_ns(&self) -> Thingy {
+            panic!();
+        }
+
         pub fn parent(&self) -> Option<Thingy> {
             panic!();
         }
@@ -398,9 +402,19 @@ smodel! {
             DescendingDefinitionHierarchy(Some(self.clone()))
         }
 
+        pub fn is_namespace_or_ns_reference(&self) -> bool {
+            false
+        }
+
         pub fn wrap_property_reference(&self, host: &SemanticHost) -> Result<Thingy, DeferError> {
+            if self.is::<ReferenceValue>() {
+                return Ok(self.clone());
+            }
             if self.is::<Type>() && (self.is::<VoidType>() || self.is::<AnyType>() || self.is::<FunctionType>() || self.is::<TupleType>() || self.is::<NullableType>() || self.is::<NonNullableType>()) {
                 return host.factory().create_type_as_reference_value(self);
+            }
+            if self.is::<Namespace>() {
+                return host.factory().create_namespace_as_reference_value(self);
             }
             let parent = self.parent().unwrap();
             if parent.is::<ClassType>() || parent.is::<EnumType>() {
@@ -724,6 +738,10 @@ smodel! {
         #[inheritdoc]
         pub override fn property_static_type(&self, host: &SemanticHost) -> Thingy {
             host.namespace_type()
+        }
+
+        pub override fn is_namespace_or_ns_reference(&self) -> bool {
+            true
         }
     }
 
@@ -2977,6 +2995,23 @@ smodel! {
 
         pub override fn referenced_type(&self) -> Thingy {
             self.m_type().unwrap()
+        }
+    }
+
+    pub struct NamespaceAsReferenceValue: ReferenceValue {
+        let ref m_ns: Option<Thingy> = None;
+
+        pub(crate) fn NamespaceAsReferenceValue(referenced_ns: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_ns(Some(referenced_ns.clone()));
+        }
+
+        pub override fn referenced_ns(&self) -> Thingy {
+            self.m_ns().unwrap()
+        }
+
+        pub override fn is_namespace_or_ns_reference(&self) -> bool {
+            true
         }
     }
 

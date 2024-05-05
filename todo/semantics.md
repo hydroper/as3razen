@@ -22,7 +22,6 @@
 * [ ] Property lookup
   * [x] Value
   * [ ] Scope chain
-    * [ ] Concatenate open namespace sets from parent scopes in ascending order (the actual scope's open namespaces must be immediately after them in the list)
     * [ ] Alias-resolvee `PackageWildcardImport` used as a qualifier in a lexical reference (scope chain) does a wildcard lookup in a package
     * [ ] Alias-resolvee `PackageRecursiveImport` used as a qualifier in a lexical reference (scope chain) does a recursive lookup in a package
     * [ ] Remove import or non `public` non `protected` entity from unused if lookup in it is successful.

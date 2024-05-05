@@ -501,6 +501,10 @@ impl<'a> ThingyFactory<'a> {
         Ok(TypeAsReferenceValue::new(&self.0.arena, referenced_type, &self.0.class_type().defer()?).into())
     }
 
+    pub fn create_namespace_as_reference_value(&self, referenced_ns: &Thingy) -> Result<Thingy, DeferError> {
+        Ok(NamespaceAsReferenceValue::new(&self.0.arena, referenced_ns, &self.0.namespace_type().defer()?).into())
+    }
+
     pub fn create_xml_reference_value(&self, base: &Thingy, qualifier: Option<Thingy>, key: &Thingy) -> Thingy {
         XmlReferenceValue::new(&self.0.arena, base, qualifier, key, &self.0.any_type()).into()
     }

@@ -110,3 +110,8 @@ Open namespaces properly everywhere.
 * [ ] Package definitions opens the package's `internal`
 * [ ] Class definition opens its `private`, `protected`, `static protected`, and also the inherited classes's `protected` and `static protected`.
 * [ ] Enum definition opens its `private`.
+
+## Parents
+
+* [ ] Set parents correctly in all definitions.
+  * [ ] Enclosing scope, type, or package, for example.

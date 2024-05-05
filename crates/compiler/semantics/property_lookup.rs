@@ -93,8 +93,8 @@ impl<'a> PropertyLookup<'a> {
                 return Ok(None);
             };
 
-            // Qualifier must be a compile-time Namespace, otherwise return static dynamic reference.
-            if qual.as_ref().map(|q| q.is::<Namespace>()).unwrap_or(true) {
+            // Qualifier must be a compile-time namespace, otherwise return static dynamic reference.
+            if qual.as_ref().map(|q| q.is_namespace_or_ns_reference()).unwrap_or(true) {
                 let k = map_defer_error(PropertyLookupKey::LocalName(local_name).computed_or_local_name(self.0))?;
                 return Ok(Some(self.0.factory().create_static_dynamic_reference_value(base, qual, &k)));
             }
@@ -103,14 +103,16 @@ impl<'a> PropertyLookup<'a> {
                 // Defer if unresolved
                 defer(&class)?;
 
-                let r = self.get_qname(&class.properties(self.0), open_ns_set, qual.clone(), &local_name)?;
+                let r = self.get_qname_in_ns_set_or_any_public_ns(&class.properties(self.0), open_ns_set, qual.clone(), &local_name)?;
                 if let Some(r) = r {
                     mark_used(self.0, &r);
 
-                    // Defer if unresolved
-                    defer(&r.static_type(self.0))?;
+                    let r = r.resolve_alias();
 
-                    return Ok(Some(map_defer_error(self.0.factory().create_static_reference_value(&class, &r))?));
+                    // Defer if unresolved
+                    defer(&r.property_static_type(self.0))?;
+
+                    return Ok(Some(map_defer_error(r.wrap_property_reference(self.0))?));
                 }
             }
 
@@ -124,8 +126,8 @@ impl<'a> PropertyLookup<'a> {
                 return Ok(None);
             };
 
-            // Qualifier must be a compile-time Namespace, otherwise return static dynamic reference.
-            if qual.map(|q| q.is::<Namespace>()).unwrap_or(true) {
+            // Qualifier must be a compile-time namespace, otherwise return static dynamic reference.
+            if qual.map(|q| q.is_namespace_or_ns_reference()).unwrap_or(true) {
                 let k = map_defer_error(PropertyLookupKey::LocalName(key).computed_or_local_name(self.0))?;
                 return Ok(Some(self.0.factory().create_static_dynamic_reference_value(base, qual, &k)));
             }
@@ -144,7 +146,7 @@ impl<'a> PropertyLookup<'a> {
                 return Ok(Some(self.0.factory().create_xml_reference_value(base, qual, &k)));
             }
 
-            let has_known_ns = qual.as_ref().map(|q| q.is::<Namespace>()).unwrap_or(true);
+            let has_known_ns = qual.as_ref().map(|q| q.is_namespace_or_ns_reference()).unwrap_or(true);
 
             let Some(local_name) = local_name else {
                 // Attempt to index Array
@@ -214,13 +216,19 @@ impl<'a> PropertyLookup<'a> {
                     // Defer if unresolved
                     defer(&class)?;
 
-                    let prop = self.get_qname(&class.prototype(self.0), open_ns_set, qual.clone(), &local_name)?;
+                    let prop = self.get_qname_in_ns_set_or_any_public_ns(&class.prototype(self.0), open_ns_set, qual.clone(), &local_name)?;
 
                     if let Some(prop) = prop {
                         mark_used(self.0, &prop);
 
+                        let prop = prop.resolve_alias();
+
                         // Throw if unresolved
                         defer(&prop.property_static_type(self.0))?;
+
+                        if prop.is_namespace_or_ns_reference() {
+                            return Ok(Some(map_defer_error(self.0.factory().create_namespace_as_reference_value(&prop))?));
+                        }
 
                         return Ok(Some(map_defer_error(self.0.factory().create_instance_reference_value(&base, &prop))?));
                     }
@@ -230,7 +238,7 @@ impl<'a> PropertyLookup<'a> {
                     // Defer if unresolved
                     defer(itrfc)?;
 
-                    let prop = self.get_qname(&itrfc.prototype(self.0), open_ns_set, qual.clone(), &local_name)?;
+                    let prop = self.get_qname_in_ns_set_or_any_public_ns(&itrfc.prototype(self.0), open_ns_set, qual.clone(), &local_name)?;
 
                     if let Some(prop) = prop {
                         mark_used(self.0, &prop);
@@ -250,13 +258,13 @@ impl<'a> PropertyLookup<'a> {
         // but read the semantics in the To Do list.
 
         if base.is::<Package>() {
-            // Key must be a String constant
+            // Key must be a local name
             let Some(local_name) = local_name else {
                 return Ok(None);
             };
 
-            // Qualifier must be a compile-time Namespace.
-            if qual.as_ref().map(|q| q.is::<Namespace>()).unwrap_or(true) {
+            // Qualifier must be a compile-time namespace.
+            if qual.as_ref().map(|q| q.is_namespace_or_ns_reference()).unwrap_or(true) {
                 return Ok(None);
             }
 
@@ -267,9 +275,11 @@ impl<'a> PropertyLookup<'a> {
             if let Some(prop) = prop {
                 mark_used(self.0, &prop);
 
+                let prop = prop.resolve_alias();
+
                 defer(&prop.static_type(self.0))?;
 
-                r = Some(map_defer_error(self.0.factory().create_package_reference_value(&base, &prop))?);
+                r = Some(map_defer_error(prop.wrap_property_reference(self.0))?);
             // Detect Vector from __AS3__.vec.Vector
             } else if base == &self.0.top_level_package && local_name == "Vector" && qual.map(|q| q.is_public_ns()).unwrap_or(true) {
                 r = Some(defer(&self.0.vector_type())?);
@@ -322,21 +332,53 @@ impl<'a> PropertyLookup<'a> {
             return Ok(Some(self.0.factory().create_dynamic_scope_reference_value(scope, qual, &k)));
         }
 
+        let local_name = key.local_name();
+        let has_known_ns = qual.as_ref().map(|q| q.is_namespace_or_ns_reference()).unwrap_or(true);
+
+        // Let r be the last assigned lookup success result.
+        let mut r: Option<Thingy> = None;
+
+        if has_known_ns && local_name.is_some() {
+            r = self.get_qname_in_ns_set_or_any_public_ns(&scope.properties(self.0), &open_ns_set, qual.clone(), local_name.as_ref().unwrap())?;
+        }
+
+        if let Some(r1) = r.as_ref() {
+            mark_used(self.0, r1);
+
+            let r1 = r1.resolve_alias();
+
+            defer(&r1.property_static_type(self.0))?;
+
+            r = Some(map_defer_error(r1.wrap_property_reference(self.0))?);
+        }
+
         todo()
     }
 
-    /// Qualifier is assumed to be a compile-time Namespace.
+    /*
+    /// Qualifier is assumed to be a compile-time namespace.
     fn get_qname(&self, mapping: &NameMap, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, local_name: &str) -> Result<Option<Thingy>, PropertyLookupError> {
         if let Some(qual) = qual {
+            let qual = if qual.is::<NamespaceAsReferenceValue>() {
+                qual.referenced_ns()
+            } else {
+                qual.clone()
+            };
             Ok(mapping.get(&self.0.factory().create_qname(&qual, local_name.to_owned())))
         } else {
             mapping.get_in_ns_set(open_ns_set, local_name).map_err(|e| PropertyLookupError::AmbiguousReference(e.0))
         }
     }
+    */
 
-    /// Qualifier is assumed to be a compile-time Namespace.
+    /// Qualifier is assumed to be a compile-time namespace.
     fn get_qname_in_ns_set_or_any_public_ns(&self, mapping: &NameMap, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, local_name: &str) -> Result<Option<Thingy>, PropertyLookupError> {
         if let Some(qual) = qual {
+            let qual = if qual.is::<NamespaceAsReferenceValue>() {
+                qual.referenced_ns()
+            } else {
+                qual.clone()
+            };
             Ok(mapping.get(&self.0.factory().create_qname(&qual, local_name.to_owned())))
         } else {
             mapping.get_in_ns_set_or_any_public_ns(open_ns_set, local_name).map_err(|e| PropertyLookupError::AmbiguousReference(e.0))
