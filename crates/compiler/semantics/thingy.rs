@@ -342,6 +342,36 @@ smodel! {
             panic!();
         }
 
+        /// Iterator over a descending class hierarchy.
+        pub fn descending_class_hierarchy<'a>(&self, host: &'a SemanticHost) -> DescendingClassHierarchy<'a> {
+            DescendingClassHierarchy(Some(self.clone()), host)
+        }
+
+        /// Iterator over a descending scope hierarchy.
+        pub fn descending_scope_hierarchy(&self) -> DescendingScopeHierarchy {
+            DescendingScopeHierarchy(Some(self.clone()))
+        }
+
+        /// Iterator over a descending definition hierarchy.
+        pub fn descending_definition_hierarchy(&self) -> DescendingDefinitionHierarchy {
+            DescendingDefinitionHierarchy(Some(self.clone()))
+        }
+
+        pub fn wrap_property_reference(&self, host: &SemanticHost) -> Result<Thingy, DeferError> {
+            if self.is::<Type>() && (self.is::<VoidType>() || self.is::<AnyType>() || self.is::<FunctionType>() || self.is::<TupleType>() || self.is::<NullableType>() || self.is::<NonNullableType>()) {
+                return host.factory().create_type_as_reference_value(self);
+            }
+            let parent = self.parent().unwrap();
+            if parent.is::<ClassType>() || parent.is::<EnumType>() {
+                return host.factory().create_static_reference_value(&parent, self);
+            }
+            if parent.is::<Package>() {
+                return host.factory().create_package_reference_value(&parent, self);
+            }
+            assert!(parent.is::<Scope>());
+            return host.factory().create_scope_reference_value(&parent, self);
+        }
+
         pub fn activation(&self) -> Option<Thingy> {
             panic!();
         }
@@ -3239,4 +3269,50 @@ impl Eq for ControlFlowBlock {}
 pub struct ControlFlowEdge {
     pub from: ControlFlowBlock,
     pub to: ControlFlowBlock,
+}
+
+pub struct DescendingClassHierarchy<'a>(Option<Thingy>, &'a SemanticHost);
+
+impl<'a> Iterator for DescendingClassHierarchy<'a> {
+    type Item = Thingy;
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(r) = self.0.clone() {
+            if r.is::<UnresolvedThingy>() {
+                self.0 = None;
+            } else {
+                self.0 = r.extends_class(self.1);
+            }
+            Some(r)
+        } else {
+            None
+        }
+    }
+}
+
+pub struct DescendingScopeHierarchy(Option<Thingy>);
+
+impl Iterator for DescendingScopeHierarchy {
+    type Item = Thingy;
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(r) = self.0.clone() {
+            self.0 = r.parent();
+            Some(r)
+        } else {
+            None
+        }
+    }
+}
+
+pub struct DescendingDefinitionHierarchy(Option<Thingy>);
+
+impl Iterator for DescendingDefinitionHierarchy {
+    type Item = Thingy;
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(r) = self.0.clone() {
+            self.0 = r.parent();
+            Some(r)
+        } else {
+            None
+        }
+    }
 }
