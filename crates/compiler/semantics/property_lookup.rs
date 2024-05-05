@@ -79,8 +79,8 @@ impl<'a> PropertyLookup<'a> {
         let local_name = key.local_name();
         let double_key = map_defer_error(key.double_value(self.0))?;
 
-        // If base is a class or enum
-        if base.is_class_type_possibly_after_sub() || base.is::<EnumType>() {
+        // If base is a class
+        if base.is_class_or_equivalent() {
             // Key must be a String constant
             let Some(local_name) = local_name else {
                 return Ok(None);
@@ -174,8 +174,7 @@ impl<'a> PropertyLookup<'a> {
             // if qualifier is not a compile-time control namespace,
             // return a dynamic reference value..
             let any_or_object = [self.0.any_type(), defer(&self.0.object_type())?].contains(&base_esc_type);
-            if
-                any_or_object
+            if any_or_object
             || map_defer_error(base_type.escape_of_non_nullable().is_dynamic_or_inherits_dynamic(self.0))?
             || !has_known_ns
             {
@@ -183,7 +182,35 @@ impl<'a> PropertyLookup<'a> {
                 return Ok(Some(self.0.factory().create_dynamic_reference_value(base, qual, &k)));
             }
 
-            todo();
+            if base_esc_type.is_class_or_equivalent() {
+                for class in base_esc_type.descending_class_hierarchy(self.0).collect::<Vec<_>>() {
+                    // Defer if unresolved
+                    defer(&class)?;
+
+                    let prop = self.get_qname(&class.prototype(self.0), open_ns_set, qual.clone(), &local_name)?;
+
+                    if let Some(prop) = prop {
+                        // Throw if unresolved
+                        defer(&prop.property_static_type(self.0))?;
+
+                        return Ok(Some(map_defer_error(self.0.factory().create_instance_reference_value(&base, &prop))?));
+                    }
+                }
+            } else if base_esc_type.is_interface_type_possibly_after_sub() {
+                for itrfc in base_esc_type.all_ascending_types(self.0).iter().rev() {
+                    // Defer if unresolved
+                    defer(itrfc)?;
+
+                    let prop = self.get_qname(&itrfc.prototype(self.0), open_ns_set, qual.clone(), &local_name)?;
+
+                    if let Some(prop) = prop {
+                        // Defer if unresolved
+                        defer(&prop.property_static_type(self.0))?;
+
+                        return Ok(Some(map_defer_error(self.0.factory().create_instance_reference_value(&base, &prop))?));
+                    }
+                }
+            }
 
             return Ok(None);
         }

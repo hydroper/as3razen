@@ -20,11 +20,7 @@
 * [ ] Interface implementation
 * [ ] Method overriding
 * [ ] Property lookup
-  * [ ] Value
-    * [x] Dynamic classes (not `Proxy`; it is assumed to not be marked `dynamic`) result in untyped (dynamic) references in all cases.
-    * [x] Index `Array.<T>` with type safety
-    * [x] Index `Vector.<T>` with type safety
-    * [x] Index with computed key
+  * [x] Value
   * [ ] Scope chain
     * [ ] Concatenate open namespace sets from parent scopes
   * [ ] Packages

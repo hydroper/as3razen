@@ -82,6 +82,13 @@ smodel! {
             panic!();
         }
 
+        pub fn is_class_or_equivalent(&self) -> bool {
+            self.is_class_type_possibly_after_sub()
+            || self.is::<EnumType>()
+            || self.is::<TupleType>()
+            || self.is::<FunctionType>()
+        }
+
         pub fn local_name(&self) -> String {
             "".into()
         }
