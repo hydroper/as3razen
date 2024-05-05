@@ -25,6 +25,23 @@ smodel! {
             panic!();
         }
 
+        pub fn qualifier(&self) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn key(&self) -> Thingy {
+            panic!();
+        }
+
+        /// Returns the static type of a property, whether for a type, variable, virtual or method slot or namespace.
+        pub fn property_static_type(&self, host: &SemanticHost) -> Thingy {
+            panic!();
+        }
+
+        pub fn tuple_index(&self) -> usize {
+            0
+        }
+
         pub fn system_ns_kind(&self) -> Option<SystemNamespaceKind> {
             None
         }
@@ -88,6 +105,10 @@ smodel! {
         }
         
         pub fn set_property_has_capture(&self, property: &Thingy, value: bool) {
+            panic!();
+        }
+
+        pub fn referenced_type(&self) -> Thingy {
             panic!();
         }
 
@@ -167,6 +188,14 @@ smodel! {
             panic!();
         }
 
+        pub fn string_value(&self) -> String {
+            panic!();
+        }
+
+        pub fn boolean_value(&self) -> bool {
+            panic!();
+        }
+
         /// Returns whether a type is a class, whether
         /// original or after substitution.
         pub fn is_class_type_possibly_after_sub(&self) -> bool {
@@ -213,6 +242,10 @@ smodel! {
         }
 
         pub fn set_static_type(&self, value: Thingy) {
+            panic!();
+        }
+
+        pub fn clone_constant(&self, host: &SemanticHost) -> Thingy {
             panic!();
         }
 
@@ -503,6 +536,11 @@ smodel! {
         pub(crate) fn Namespace() {
             super();
         }
+
+        #[inheritdoc]
+        pub override fn property_static_type(&self, host: &SemanticHost) -> Thingy {
+            host.namespace_type()
+        }
     }
 
     pub struct SystemNamespace: Namespace {
@@ -716,6 +754,11 @@ smodel! {
 
         pub override fn includes_null(&self, host: &SemanticHost) -> Result<bool, DeferError> {
             Ok(false)
+        }
+
+        #[inheritdoc]
+        pub override fn property_static_type(&self, host: &SemanticHost) -> Thingy {
+            host.class_type()
         }
     }
 
@@ -1564,6 +1607,11 @@ smodel! {
         fn VariableSlot() {
             super();
         }
+
+        #[inheritdoc]
+        pub override fn property_static_type(&self, host: &SemanticHost) -> Thingy {
+            self.static_type(host)
+        }
     }
 
     pub struct OriginalVariableSlot: VariableSlot {
@@ -1762,6 +1810,11 @@ smodel! {
     pub struct VirtualSlot: Thingy {
         fn VirtualSlot() {
             super();
+        }
+
+        #[inheritdoc]
+        pub override fn property_static_type(&self, host: &SemanticHost) -> Thingy {
+            self.static_type(host)
         }
     }
 
@@ -1995,6 +2048,11 @@ smodel! {
     pub struct MethodSlot: Thingy {
         fn MethodSlot() {
             super();
+        }
+
+        #[inheritdoc]
+        pub override fn property_static_type(&self, host: &SemanticHost) -> Thingy {
+            host.function_type()
         }
     }
 
@@ -2574,11 +2632,21 @@ smodel! {
         pub(crate) fn UndefinedConstant(static_type: &Thingy) {
             super(static_type);
         }
+
+        pub override fn clone_constant(&self, host: &SemanticHost) -> Thingy {
+            host.factory().create_undefined_constant(&self.static_type(host))
+        }
     }
 
     pub struct NullConstant: Constant {
         pub(crate) fn NullConstant(static_type: &Thingy) {
             super(static_type);
+        }
+
+
+
+        pub override fn clone_constant(&self, host: &SemanticHost) -> Thingy {
+            host.factory().create_null_constant(&self.static_type(host))
         }
     }
 
@@ -2592,6 +2660,253 @@ smodel! {
 
         pub override fn number_value(&self) -> NumberVariant {
             self.m_value()
+        }
+
+        pub override fn clone_constant(&self, host: &SemanticHost) -> Thingy {
+            host.factory().create_number_constant(self.m_value(), &self.static_type(host))
+        }
+    }
+
+    pub struct StringConstant: Constant {
+        let ref m_value: String = String::new();
+
+        pub(crate) fn StringConstant(value: String, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_value(value);
+        }
+
+        pub override fn string_value(&self) -> String {
+            self.m_value()
+        }
+
+        pub override fn clone_constant(&self, host: &SemanticHost) -> Thingy {
+            host.factory().create_string_constant(self.m_value(), &self.static_type(host))
+        }
+    }
+
+    pub struct BooleanConstant: Constant {
+        let m_value: bool = true;
+
+        pub(crate) fn BooleanConstant(value: bool, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_value(value);
+        }
+
+        pub override fn boolean_value(&self) -> bool {
+            self.m_value()
+        }
+
+        pub override fn clone_constant(&self, host: &SemanticHost) -> Thingy {
+            host.factory().create_boolean_constant(self.m_value(), &self.static_type(host))
+        }
+    }
+
+    pub struct ThisObject: Value {
+        pub(crate) fn ThisObject(static_type: &Thingy) {
+            super(static_type);
+        }
+    }
+
+    /// The `import.meta` value.
+    pub struct MetaProperty: Value {
+        pub(crate) fn MetaProperty(static_type: &Thingy) {
+            super(static_type);
+        }
+    }
+
+    /// The `import.meta.env` value.
+    pub struct MetaEnvProperty: Value {
+        pub(crate) fn MetaEnvProperty(static_type: &Thingy) {
+            super(static_type);
+        }
+    }
+
+    pub struct ReferenceValue: Value {
+        pub(crate) fn ReferenceValue(static_type: &Thingy) {
+            super(static_type);
+        }
+    }
+
+    pub struct TypeAsReferenceValue: ReferenceValue {
+        let ref m_type: Option<Thingy> = None;
+
+        pub(crate) fn TypeAsReferenceValue(referenced_type: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_type(Some(referenced_type.clone()));
+        }
+
+        pub override fn referenced_type(&self) -> Thingy {
+            self.m_type().unwrap()
+        }
+    }
+
+    pub struct XmlReferenceValue: ReferenceValue {
+        let ref m_base: Option<Thingy> = None;
+        let ref m_qual: Option<Thingy> = None;
+        let ref m_key: Option<Thingy> = None;
+
+        pub(crate) fn XmlReferenceValue(base: &Thingy, qualifier: Option<Thingy>, key: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_base(Some(base.clone()));
+            self.set_m_qual(qualifier);
+            self.set_m_key(Some(key.clone()));
+        }
+
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn qualifier(&self) -> Option<Thingy> {
+            self.m_qual()
+        }
+
+        pub override fn key(&self) -> Thingy {
+            self.m_key().unwrap()
+        }
+    }
+
+    pub struct DynamicReferenceValue: ReferenceValue {
+        let ref m_base: Option<Thingy> = None;
+        let ref m_qual: Option<Thingy> = None;
+        let ref m_key: Option<Thingy> = None;
+
+        pub(crate) fn DynamicReferenceValue(base: &Thingy, qualifier: Option<Thingy>, key: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_base(Some(base.clone()));
+            self.set_m_qual(qualifier);
+            self.set_m_key(Some(key.clone()));
+        }
+
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn qualifier(&self) -> Option<Thingy> {
+            self.m_qual()
+        }
+
+        pub override fn key(&self) -> Thingy {
+            self.m_key().unwrap()
+        }
+    }
+
+    pub struct StaticReferenceValue: ReferenceValue {
+        let ref m_base: Option<Thingy> = None;
+        let ref m_property: Option<Thingy> = None;
+
+        pub(crate) fn StaticReferenceValue(base: &Thingy, property: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_base(Some(base.clone()));
+            self.set_m_property(Some(property.clone()));
+        }
+
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn property(&self) -> Thingy {
+            self.m_property().unwrap()
+        }
+    }
+
+    pub struct InstanceReferenceValue: ReferenceValue {
+        let ref m_base: Option<Thingy> = None;
+        let ref m_property: Option<Thingy> = None;
+
+        pub(crate) fn InstanceReferenceValue(base: &Thingy, property: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_base(Some(base.clone()));
+            self.set_m_property(Some(property.clone()));
+        }
+
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn property(&self) -> Thingy {
+            self.m_property().unwrap()
+        }
+    }
+
+    pub struct TupleReferenceValue: ReferenceValue {
+        let ref m_base: Option<Thingy> = None;
+        let ref m_index: usize = 0;
+
+        pub(crate) fn TupleReferenceValue(base: &Thingy, index: usize, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_base(Some(base.clone()));
+            self.set_m_index(index);
+        }
+
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn tuple_index(&self) -> usize {
+            self.m_index()
+        }
+    }
+
+    pub struct ScopeReferenceValue: ReferenceValue {
+        let ref m_base: Option<Thingy> = None;
+        let ref m_property: Option<Thingy> = None;
+
+        pub(crate) fn ScopeReferenceValue(base: &Thingy, property: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_base(Some(base.clone()));
+            self.set_m_property(Some(property.clone()));
+        }
+
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn property(&self) -> Thingy {
+            self.m_property().unwrap()
+        }
+    }
+
+    pub struct DynamicScopeReferenceValue: ReferenceValue {
+        let ref m_base: Option<Thingy> = None;
+        let ref m_qual: Option<Thingy> = None;
+        let ref m_key: Option<Thingy> = None;
+
+        pub(crate) fn DynamicScopeReferenceValue(base: &Thingy, qualifier: Option<Thingy>, key: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_base(Some(base.clone()));
+            self.set_m_qual(qualifier);
+            self.set_m_key(Some(key.clone()));
+        }
+
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn qualifier(&self) -> Option<Thingy> {
+            self.m_qual()
+        }
+
+        pub override fn key(&self) -> Thingy {
+            self.m_key().unwrap()
+        }
+    }
+
+    pub struct PackageReferenceValue: ReferenceValue {
+        let ref m_base: Option<Thingy> = None;
+        let ref m_property: Option<Thingy> = None;
+
+        pub(crate) fn PackageReferenceValue(base: &Thingy, property: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_base(Some(base.clone()));
+            self.set_m_property(Some(property.clone()));
+        }
+
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+
+        pub override fn property(&self) -> Thingy {
+            self.m_property().unwrap()
         }
     }
 }

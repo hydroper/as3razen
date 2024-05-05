@@ -26,6 +26,10 @@ pub struct SemanticHost {
     array_type: RefCell<Option<Thingy>>,
     namespace_type: RefCell<Option<Thingy>>,
     function_type: RefCell<Option<Thingy>>,
+    class_type: RefCell<Option<Thingy>>,
+
+    meta_prop: Thingy,
+    meta_env_prop: Thingy,
 
     non_null_primitive_types: RefCell<Option<Rc<Vec<Thingy>>>>,
     numeric_types: RefCell<Option<Rc<Vec<Thingy>>>>,
@@ -51,6 +55,8 @@ impl SemanticHost {
         let invalidation_thingy: Thingy = InvalidationThingy::new(&arena).into();
         let unresolved_thingy: Thingy = UnresolvedThingy::new(&arena).into();
         let top_level_package = Package::new(&arena, "".into());
+        let meta_prop: Thingy = MetaProperty::new(&arena, &any_type).into();
+        let meta_env_prop: Thingy = MetaEnvProperty::new(&arena, &any_type).into();
         let host = Self {
             arena,
             project_path: options.project_path.clone(),
@@ -64,6 +70,9 @@ impl SemanticHost {
 
             unused_things: Rc::new(RefCell::new(vec![])),
 
+            meta_prop,
+            meta_env_prop,
+
             any_type,
             void_type,
             object_type: RefCell::new(None),
@@ -76,6 +85,7 @@ impl SemanticHost {
             array_type: RefCell::new(None),
             namespace_type: RefCell::new(None),
             function_type: RefCell::new(None),
+            class_type: RefCell::new(None),
 
             non_null_primitive_types: RefCell::new(None),
             numeric_types: RefCell::new(None),
@@ -121,6 +131,14 @@ impl SemanticHost {
         self.void_type.clone()
     }
 
+    pub fn meta_property(&self) -> Thingy {
+        self.meta_prop.clone()
+    }
+
+    pub fn meta_env_property(&self) -> Thingy {
+        self.meta_env_prop.clone()
+    }
+
     global_lookup!(object_type, "Object");
     global_lookup!(boolean_type, "Boolean");
     global_lookup!(number_type, "Number");
@@ -131,6 +149,7 @@ impl SemanticHost {
     global_lookup!(array_type, "Array");
     global_lookup!(namespace_type, "Namespace");
     global_lookup!(function_type, "Function");
+    global_lookup!(class_type, "Class");
 
     /// Returns the set of primitive types that do not contain `null`,
     /// such as `Boolean`, `Number`, `int`, `uint`, and `float`.
@@ -224,7 +243,7 @@ impl Default for SemanticHostOptions {
 
 macro global_lookup {
     ($field:ident, $as3name:expr) => {
-        /// Possibly unresolved.
+        /// Retrieves a possibly unresolved thing.
         pub fn $field(&self) -> Thingy {
             if let Some(r) = self.$field.borrow().as_ref() {
                 return r.clone();

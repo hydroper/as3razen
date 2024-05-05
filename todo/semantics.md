@@ -17,25 +17,11 @@
   * [x] MethodSlotAfterSubstitution extends MethodSlot
   * [x] Scopes
   * [ ] Values
-    * [ ] Constants
-      * [x] UndefinedConstant
-      * [x] NullConstant
-      * [x] NumberConstant
-      * [ ] StringConstant
-      * [ ] BooleanConstant
-    * [ ] ThisObject
-    * [ ] MetaProperty
-      * [ ] Description: Represents the `import.meta` property.
-    * [ ] Reference values
-      * [ ] TypeAsReferenceValue
-      * [ ] XmlReferenceValue
-      * [ ] DynamicReferenceValue
-      * [ ] StaticReferenceValue
-      * [ ] InstanceReferenceValue
-      * [ ] TupleReferenceValue
-      * [ ] ScopeReferenceValue
-      * [ ] DynamicScopeReferenceValue
-      * [ ] PackageReferenceValue
+    * [x] Constants
+    * [x] ThisObject
+    * [x] MetaProperty
+    * [x] MetaEnvProperty
+    * [x] Reference values
     * [ ] ConversionValue
       * [ ] Description: Represents the resulting value of a conversion, whether implicit or explicit.
     * [ ] LambdaObject
@@ -49,5 +35,6 @@
   * [ ] Alias-resolvee `PackageRecursiveImport` used as a qualifier in a lexical reference does a recursive lookup in a package
   * [ ] Remove import or non `public` non `protected` entity from unused if lookup in it is successful.
 * [ ] Type conversion
+  * [ ] Implicit `Function` to `function(...): E` and vice-versa
 * [x] Type substitution
 * [ ] Type's default value

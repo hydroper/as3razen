@@ -484,4 +484,53 @@ impl<'a> ThingyFactory<'a> {
     pub fn create_number_constant(&self, value: NumberVariant, static_type: &Thingy) -> Thingy {
         NumberConstant::new(&self.0.arena, value, static_type).into()
     }
+
+    pub fn create_string_constant(&self, value: String, static_type: &Thingy) -> Thingy {
+        StringConstant::new(&self.0.arena, value, static_type).into()
+    }
+
+    pub fn create_boolean_constant(&self, value: bool, static_type: &Thingy) -> Thingy {
+        BooleanConstant::new(&self.0.arena, value, static_type).into()
+    }
+
+    pub fn create_this_object(&self, static_type: &Thingy) -> Thingy {
+        ThisObject::new(&self.0.arena, static_type).into()
+    }
+
+    pub fn create_type_as_reference_value(&self, referenced_type: &Thingy) -> Thingy {
+        TypeAsReferenceValue::new(&self.0.arena, referenced_type, &self.0.class_type()).into()
+    }
+
+    pub fn create_xml_reference_value(&self, base: &Thingy, qualifier: Option<Thingy>, key: &Thingy) -> Thingy {
+        XmlReferenceValue::new(&self.0.arena, base, qualifier, key, &self.0.any_type()).into()
+    }
+
+    pub fn create_dynamic_reference_value(&self, base: &Thingy, qualifier: Option<Thingy>, key: &Thingy) -> Thingy {
+        DynamicReferenceValue::new(&self.0.arena, base, qualifier, key, &self.0.any_type()).into()
+    }
+
+    pub fn create_static_reference_value(&self, base: &Thingy, property: &Thingy) -> Thingy {
+        StaticReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0)).into()
+    }
+
+    pub fn create_instance_reference_value(&self, base: &Thingy, property: &Thingy) -> Thingy {
+        InstanceReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0)).into()
+    }
+
+    pub fn create_tuple_reference_value(&self, base: &Thingy, index: usize) -> Thingy {
+        let st = base.static_type(self.0).element_types().get(index).unwrap();
+        TupleReferenceValue::new(&self.0.arena, base, index, &st).into()
+    }
+
+    pub fn create_scope_reference_value(&self, base: &Thingy, property: &Thingy) -> Thingy {
+        ScopeReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0)).into()
+    }
+
+    pub fn create_dynamic_scope_reference_value(&self, base: &Thingy, qualifier: Option<Thingy>, key: &Thingy) -> Thingy {
+        DynamicScopeReferenceValue::new(&self.0.arena, base, qualifier, key, &self.0.any_type()).into()
+    }
+
+    pub fn create_package_reference_value(&self, base: &Thingy, property: &Thingy) -> Thingy {
+        PackageReferenceValue::new(&self.0.arena, base, property, &property.property_static_type(self.0)).into()
+    }
 }
