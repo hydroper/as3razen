@@ -299,11 +299,11 @@ smodel! {
         pub fn set_is_dynamic(&self, value: bool) {
         }
 
-        pub fn is_option_set(&self) -> bool {
+        pub fn is_options_class(&self) -> bool {
             false
         }
 
-        pub fn set_is_option_set(&self, value: bool) {
+        pub fn set_is_options_class(&self, value: bool) {
         }
 
         pub fn is_static(&self) -> bool {
@@ -1067,14 +1067,14 @@ smodel! {
             self.set_m_flags(v);
         }
 
-        /// Whether the class is an `[OptionSet]` class.
-        pub override fn is_option_set(&self) -> bool {
-            self.m_flags().contains(ClassTypeFlags::IS_OPTION_SET)
+        /// Whether the class is an `[Options]` class.
+        pub override fn is_options_class(&self) -> bool {
+            self.m_flags().contains(ClassTypeFlags::IS_OPTIONS_CLASS)
         }
 
-        pub override fn set_is_option_set(&self, value: bool) {
+        pub override fn set_is_options_class(&self, value: bool) {
             let mut v = self.m_flags();
-            v.set(ClassTypeFlags::IS_OPTION_SET, value);
+            v.set(ClassTypeFlags::IS_OPTIONS_CLASS, value);
             self.set_m_flags(v);
         }
 
@@ -1213,7 +1213,7 @@ smodel! {
             false
         }
 
-        pub override fn is_option_set(&self) -> bool {
+        pub override fn is_options_class(&self) -> bool {
             false
         }
 
@@ -1431,8 +1431,8 @@ smodel! {
             self.origin().is_dynamic()
         }
 
-        pub override fn is_option_set(&self) -> bool {
-            self.origin().is_option_set()
+        pub override fn is_options_class(&self) -> bool {
+            self.origin().is_options_class()
         }
 
         #[inheritdoc]
@@ -1577,7 +1577,7 @@ smodel! {
             true
         }
 
-        pub override fn is_option_set(&self) -> bool {
+        pub override fn is_options_class(&self) -> bool {
             false
         }
 
@@ -1631,7 +1631,7 @@ smodel! {
             false
         }
 
-        pub override fn is_option_set(&self) -> bool {
+        pub override fn is_options_class(&self) -> bool {
             false
         }
 
@@ -3249,7 +3249,7 @@ bitflags! {
         const IS_STATIC     = 0b00000010;
         const IS_ABSTRACT   = 0b00000100;
         const IS_DYNAMIC    = 0b00001000;
-        const IS_OPTION_SET = 0b00010000;
+        const IS_OPTIONS_CLASS = 0b00010000;
         const IS_EXTERNAL   = 0b00100000;
     }
 }
