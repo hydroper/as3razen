@@ -288,10 +288,11 @@ impl<'a> PropertyLookup<'a> {
             return Ok(r);
         }
 
-        todo()
+        Ok(None)
     }
 
     pub fn lookup_in_scope_chain(&self, scope: &Thingy, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
+        //
     }
 
     /// Qualifier is assumed to be a compile-time Namespace.
