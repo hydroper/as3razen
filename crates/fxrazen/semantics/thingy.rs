@@ -62,8 +62,13 @@ smodel! {
             panic!();
         }
 
-        /// Escapes out of a non nullable type.
+        /// Escapes out of a non nullable type layer.
         pub fn escape_of_non_nullable(&self) -> Thingy {
+            self.clone()
+        }
+
+        /// Escapes out of a nullable or non nullable type layer.
+        pub fn escape_of_nullable_or_non_nullable(&self) -> Thingy {
             self.clone()
         }
 
@@ -1783,6 +1788,10 @@ smodel! {
             Ok(true)
         }
 
+        pub override fn escape_of_nullable_or_non_nullable(&self) -> Thingy {
+            self.base()
+        }
+
         override fn to_string_1(&self) -> String {
             if let Ok(ft) = self.base().to::<FunctionType>() {
                 format!("?{}", ft.to_string())
@@ -1815,6 +1824,10 @@ smodel! {
 
         #[inheritdoc]
         pub override fn escape_of_non_nullable(&self) -> Thingy {
+            self.base()
+        }
+
+        pub override fn escape_of_nullable_or_non_nullable(&self) -> Thingy {
             self.base()
         }
 

@@ -2,8 +2,10 @@ use crate::ns::*;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum TypeConversionVariant {
+    /// Implicit conversion.
     FromAny,
 
+    /// Implicit conversion.
     ToAny,
 
     /// Implicit conversion between number types,
@@ -94,6 +96,51 @@ pub struct TypeConversions<'a>(pub &'a SemanticHost);
 
 impl<'a> TypeConversions<'a> {
     pub fn implicit_constant(&self, value: &Thingy, target_type: &Thingy) -> Result<Option<Thingy>, DeferError> {
+        let from_type = value.static_type(self.0);
+        if &from_type == target_type {
+            return Ok(Some(value.clone()));
+        }
+        if !value.is::<Constant>() {
+            return Ok(None);
+        }
+
+        // undefined to type containing undefined or null
+        if value.is::<UndefinedConstant>() {
+            if target_type.includes_undefined(self.0)? {
+                return Ok(Some(self.0.factory().create_undefined_constant(target_type)));
+            } else if target_type.includes_null(self.0)? {
+                return Ok(Some(self.0.factory().create_null_constant(target_type)));
+            }
+        }
+
+        // null to type containing undefined or null
+        if value.is::<NullConstant>() && (target_type.includes_undefined(self.0)? || target_type.includes_null(self.0)?) {
+            return Ok(Some(self.0.factory().create_null_constant(target_type)));
+        }
+
+        let object_type = self.0.object_type().defer()?;
+        let target_esc_type = target_type.escape_of_nullable_or_non_nullable();
+
+        // Number constant to *, Object or Object!
+        if value.is::<NumberConstant>() && (target_type.is::<AnyType>() || target_esc_type == object_type) {
+            return Ok(Some(self.0.factory().create_number_constant(value.number_value(), target_type)));
+        }
+
+        if value.is::<NumberConstant>() && self.0.numeric_types()?.contains(&target_esc_type) {
+            let v = value.number_value().convert_type(target_type, self.0)?;
+            return Ok(Some(self.0.factory().create_number_constant(v, target_type)));
+        }
+
+        // From T or T! constant to T?, or
+        // from T or T? constant to T!
+        if (target_type.is::<NullableType>() && target_type.base() == from_type.escape_of_nullable_or_non_nullable())
+        || (target_type.is::<NonNullableType>() && target_type.base() == from_type.escape_of_nullable_or_non_nullable()) {
+            let new_k = value.clone_constant(self.0);
+            new_k.set_static_type(target_type.clone());
+            return Ok(Some(new_k));
+        }
+
+        Ok(None)
     }
 
     pub fn implicit(&self, value: &Thingy, target_type: &Thingy, optional: bool) -> Result<Option<Thingy>, DeferError> {
