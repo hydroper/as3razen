@@ -461,7 +461,11 @@ impl<'a> PropertyLookup<'a> {
                 qual.clone()
             };
             if let Some(k) = qual.system_ns_kind() {
-                mapping.get_in_system_ns_kind(k, local_name).map_err(|e| PropertyLookupError::AmbiguousReference(e.0))
+                if k == SystemNamespaceKind::Public {
+                    mapping.get_in_system_ns_kind(k, local_name).map_err(|e| PropertyLookupError::AmbiguousReference(e.0))
+                } else {
+                    mapping.get_in_system_ns_kind_in_ns_set(open_ns_set, k, local_name).map_err(|e| PropertyLookupError::AmbiguousReference(e.0))
+                }
             } else {
                 Ok(mapping.get(&self.0.factory().create_qname(&qual, local_name.to_owned())))
             }

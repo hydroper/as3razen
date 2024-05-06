@@ -88,6 +88,28 @@ impl NameMap {
         Ok(r)
     }
 
+    /// Retrieves a thingy matching a local name in a namespace set where the namespace is a specific
+    /// system namespace.
+    pub fn get_in_system_ns_kind_in_ns_set(&self, ns_set: &SharedArray<Thingy>, kind: SystemNamespaceKind, local_name: &str) -> Result<Option<Thingy>, AmbiguousReferenceError> {
+        let mut r: Option<Thingy> = None;
+        for (qname, thingy) in self.borrow().iter() {
+            let ns1 = qname.namespace();
+            let found_ns = ns_set.iter().find(|ns2| {
+                &ns1 == ns2 && ns1.system_ns_kind().map(|k1| kind == k1).unwrap_or(false)
+            }).is_some();
+            if !found_ns {
+                continue;
+            }
+            if qname.local_name() == local_name {
+                if r.is_some() {
+                    return Err(AmbiguousReferenceError(local_name.to_owned()));
+                }
+                r = Some(thingy.clone());
+            }
+        }
+        Ok(r)
+    }
+
     /// Retrieves a thingy matching a local name in any `public` namespace.
     pub fn get_in_any_public_ns(&self, local_name: &str) -> Result<Option<Thingy>, AmbiguousReferenceError> {
         let mut r: Option<Thingy> = None;
