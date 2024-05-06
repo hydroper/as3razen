@@ -66,8 +66,8 @@ impl ExpressionSubverifier {
                     verifier.add_verify_error(&id.location, FxDiagnosticKind::AccessOfVoid, diagarg![]);
                     return Ok(None);
                 },
-                PropertyLookupError::NullableObject { nullable_type } => {
-                    verifier.add_verify_error(&id.location, FxDiagnosticKind::AccessOfNullableObject, diagarg![nullable_type]);
+                PropertyLookupError::NullableObject { .. } => {
+                    verifier.add_verify_error(&id.location, FxDiagnosticKind::AccessOfNullable, diagarg![]);
                     return Ok(None);
                 },
             }

@@ -10,5 +10,9 @@ lazy_static! {
         FxDiagnosticKind::EntityIsReadOnly.id() => "Entity is read-only.".into(),
         FxDiagnosticKind::EntityIsWriteOnly.id() => "Entity is write-only.".into(),
         FxDiagnosticKind::EntityMustNotBeDeleted.id() => "Entity must not be deleted.".into(),
+        FxDiagnosticKind::UndefinedProperty.id() => "Access of possibly undefined property '{1}'.".into(),
+        FxDiagnosticKind::AmbiguousReference.id() => "Ambiguous reference to '{1}'.".into(),
+        FxDiagnosticKind::AccessOfVoid.id() => "Accessing property of void.".into(),
+        FxDiagnosticKind::AccessOfNullable.id() => "Accessing property of nullable data type.".into(),
     };
 }

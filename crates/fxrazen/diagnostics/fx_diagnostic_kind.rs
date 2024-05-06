@@ -6,6 +6,10 @@ pub enum FxDiagnosticKind {
     EntityIsReadOnly = 2050,
     EntityIsWriteOnly = 2051,
     EntityMustNotBeDeleted = 2052,
+    UndefinedProperty = 2053,
+    AmbiguousReference = 2054,
+    AccessOfVoid = 2055,
+    AccessOfNullable = 2056,
 }
 
 impl FxDiagnosticKind {
