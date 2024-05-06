@@ -721,6 +721,24 @@ smodel! {
             return vec![];
         }
     
+        pub(crate) fn not_overriden_abstract_getter(&self, getter_from_base_class: &Thingy, subclass: &Thingy, host: &SemanticHost) -> bool {
+            if getter_from_base_class.is_abstract() {
+                let prop2 = subclass.prototype(host).get(&getter_from_base_class.name());
+                prop2.is_none() || !prop2.clone().unwrap().is::<VirtualSlot>() || prop2.unwrap().getter(host).is_none()
+            } else {
+                false
+            }
+        }
+    
+        pub(crate) fn not_overriden_abstract_setter(&self, setter_from_base_class: &Thingy, subclass: &Thingy, host: &SemanticHost) -> bool {
+            if setter_from_base_class.is_abstract() {
+                let prop2 = subclass.prototype(host).get(&setter_from_base_class.name());
+                prop2.is_none() || !prop2.clone().unwrap().is::<VirtualSlot>() || prop2.unwrap().setter(host).is_none()
+            } else {
+                false
+            }
+        }
+
         pub fn expect_type(&self) -> Result<Thingy, TypeExpectError> {
             if self.is::<TypeAsReferenceValue>() {
                 return Ok(self.referenced_type());

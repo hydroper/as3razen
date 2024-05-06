@@ -16,8 +16,7 @@ impl<'a> InterfaceImplementations<'a> {
 
             for (name, item) in interface.prototype(self.0).borrow().iter() {
                 let local_name = name.local_name();
-                let implementor_item = implementor_prototype.get_in_any_public_ns(&local_name).ok();
-                let implementor_item = if let Some(item) = implementor_item { item } else { None };
+                let implementor_item = implementor_prototype.get_in_any_public_ns(&local_name).ok().unwrap_or(None);
 
                 if implementor_item.is_none() {
                     if item.is::<VirtualSlot>() {

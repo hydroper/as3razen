@@ -116,6 +116,20 @@ impl NameMap {
         Ok(r)
     }
 
+    /// Retrieves a thingy matching a local name in a specific system namespace kind.
+    pub fn get_in_system_ns_kind(&self, kind: SystemNamespaceKind, local_name: &str) -> Result<Option<Thingy>, AmbiguousReferenceError> {
+        let mut r: Option<Thingy> = None;
+        for (qname, thingy) in self.borrow().iter() {
+            if qname.local_name() == local_name && qname.namespace().system_ns_kind().map(|k1| kind == k1).unwrap_or(false) {
+                if r.is_some() {
+                    return Err(AmbiguousReferenceError(local_name.to_owned()));
+                }
+                r = Some(thingy.clone());
+            }
+        }
+        Ok(r)
+    }
+
     pub fn set(&mut self, name: QName, thing: Thingy) {
         self.0.set(name, thing);
     }

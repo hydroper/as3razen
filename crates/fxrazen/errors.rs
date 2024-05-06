@@ -21,3 +21,14 @@ pub enum PropertyLookupError {
 
 #[derive(Clone, Copy, PartialEq)]
 pub struct TypeExpectError();
+
+#[derive(Clone)]
+pub enum MethodOverridingError {
+    Defer,
+    MustOverrideAMethod,
+    IncompatibleOverride {
+        expected_signature: Thingy,
+        actual_signature: Thingy,
+    },
+    OverridingFinalMethod,
+}

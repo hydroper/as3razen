@@ -1,6 +1,9 @@
 mod interface_implementations;
 pub use interface_implementations::*;
 
+mod method_overriding;
+pub use method_overriding::*;
+
 mod name_map;
 pub use name_map::*;
 
