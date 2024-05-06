@@ -10,7 +10,7 @@ use crate::ns::*;
 /// A set of programs can be verified by invoking `verify_programs()`:
 /// 
 /// ```ignore
-/// verifier.verify_programs(program_list);
+/// verifier.verify_programs(program_list, mxml_list);
 /// ```
 /// 
 /// A single expression can be verified by invoking `verify_expression()`:
@@ -65,7 +65,7 @@ impl Verifier {
     /// # Panics
     ///
     /// Panics if the verifier is already invalidated before verifying.
-    pub fn verify_programs(&mut self, programs: Vec<Rc<Program>>) {
+    pub fn verify_programs(&mut self, programs: Vec<Rc<Program>>, mxml_list: Vec<Rc<Mxml>>) {
         if self.verifier.invalidated {
             panic!("Verifier already invalidated.");
         }
