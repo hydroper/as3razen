@@ -121,3 +121,8 @@ Open namespaces properly everywhere.
 * [ ] Restrict definitions at package block to be either `public` or `internal`.
 * [ ] Restrict definitions at top-level to be `internal`.
 * [ ] Restrict user-defined namespaces to be used only at the top-level of class definitions.
+
+## Non nullable mode
+
+* [ ] For every type expression that is not marked "nullable", implicitly wrap the result into non-nullable form.
+* [ ] Implicitly convert the result of a `T(v)` conversion to `T!` (non-nullable form).

@@ -127,7 +127,7 @@ impl<'a> PropertyLookup<'a> {
             };
 
             // Qualifier must be a compile-time namespace, otherwise return static dynamic reference.
-            if qual.map(|q| q.is_namespace_or_ns_reference()).unwrap_or(true) {
+            if qual.as_ref().map(|q| q.is_namespace_or_ns_reference()).unwrap_or(true) {
                 let k = map_defer_error(PropertyLookupKey::LocalName(key).computed_or_local_name(self.0))?;
                 return Ok(Some(self.0.factory().create_static_dynamic_reference_value(base, qual, &k)));
             }
@@ -151,7 +151,7 @@ impl<'a> PropertyLookup<'a> {
             let Some(local_name) = local_name else {
                 // Attempt to index Array
                 if let Some(_) = map_defer_error(base_esc_type.array_element_type(self.0))? {
-                    let iv: Option<Thingy> = TypeConversion(self.0).implicit(key.computed_or_local_name(self.0), &defer(&self.0.number_type())?, false);
+                    let iv: Option<Thingy> = map_defer_error(TypeConversions(self.0).implicit(&map_defer_error(key.computed_or_local_name(self.0))?, &defer(&self.0.number_type())?, false))?;
                     if let Some(iv) = iv {
                         return Ok(Some(map_defer_error(self.0.factory().create_array_element_reference_value(&base, &iv))?));
                     }
@@ -159,7 +159,7 @@ impl<'a> PropertyLookup<'a> {
 
                 // Attempt to index Vector
                 if let Some(_) = map_defer_error(base_esc_type.vector_element_type(self.0))? {
-                    let iv: Option<Thingy> = TypeConversion(self.0).implicit(key.computed_or_local_name(self.0), &defer(&self.0.number_type())?, false);
+                    let iv: Option<Thingy> = map_defer_error(TypeConversions(self.0).implicit(&map_defer_error(key.computed_or_local_name(self.0))?, &defer(&self.0.number_type())?, false))?;
                     if let Some(iv) = iv {
                         return Ok(Some(map_defer_error(self.0.factory().create_vector_element_reference_value(&base, &iv))?));
                     }
@@ -278,7 +278,7 @@ impl<'a> PropertyLookup<'a> {
 
                 r = Some(map_defer_error(prop.wrap_property_reference(self.0))?);
             // Detect Vector from __AS3__.vec.Vector
-            } else if base == &self.0.top_level_package && local_name == "Vector" && qual.map(|q| q.is_public_ns()).unwrap_or(true) {
+            } else if base == &self.0.top_level_package && local_name == "Vector" && qual.as_ref().map(|q| q.is_public_ns()).unwrap_or(true) {
                 r = Some(defer(&self.0.vector_type())?);
             }
 
