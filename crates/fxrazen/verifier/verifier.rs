@@ -52,7 +52,7 @@ impl Verifier {
                 deferred_function_commons: vec![],
                 invalidated: false,
                 deferred_counter: 0,
-                scope: host.factory().create_scope(),
+                scope: None,
             },
         }
     }
@@ -105,7 +105,7 @@ pub(crate) struct Subverifier {
     pub deferred_function_commons: Vec<(usize, Thingy, Rc<FunctionCommon>)>,
     invalidated: bool,
     pub deferred_counter: usize,
-    pub scope: Thingy,
+    pub scope: Option<Thingy>,
 }
 
 impl Subverifier {
@@ -142,14 +142,18 @@ impl Subverifier {
 
     pub fn enter_scope(&mut self, scope: &Thingy) {
         let k = self.scope.clone();
-        self.scope = scope.clone();
+        self.scope = Some(scope.clone());
         if scope.parent().is_none() {
-            scope.set_parent(Some(k));
+            scope.set_parent(k);
         }
     }
 
     pub fn exit_scope(&mut self) {
-        self.scope = self.scope.parent().unwrap();
+        self.scope = self.scope.as_ref().and_then(|scope| scope.parent());
+    }
+
+    pub fn scope(&self) -> Thingy {
+        self.scope.as_ref().unwrap().clone()
     }
 
     pub fn verify_expression(&mut self, exp: &Rc<Expression>, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
@@ -174,17 +178,17 @@ impl Subverifier {
         match context.mode {
             VerifyMode::Read => {
                 if result.write_only(&self.host) {
-                    self.add_verify_error(&exp.location(), FxDiagnosticKind::ReferenceIsWriteOnly, diagarg![]);
+                    self.add_verify_error(&exp.location(), FxDiagnosticKind::EntityIsWriteOnly, diagarg![]);
                 }
             },
             VerifyMode::Write => {
                 if result.read_only(&self.host) {
-                    self.add_verify_error(&exp.location(), FxDiagnosticKind::ReferenceIsReadOnly, diagarg![]);
+                    self.add_verify_error(&exp.location(), FxDiagnosticKind::EntityIsReadOnly, diagarg![]);
                 }
             },
             VerifyMode::Delete => {
                 if !result.deletable(&self.host) {
-                    self.add_verify_error(&exp.location(), FxDiagnosticKind::ReferenceIsNotDeletable, diagarg![]);
+                    self.add_verify_error(&exp.location(), FxDiagnosticKind::EntityMustNotBeDeleted, diagarg![]);
                 }
             },
         }
@@ -200,7 +204,7 @@ impl Subverifier {
         let v = v.unwrap();
         let v = v.expect_type();
         if v.is_err() {
-            self.add_verify_error(&exp.location(), FxDiagnosticKind::MustResolveToType, diagarg![]);
+            self.add_verify_error(&exp.location(), FxDiagnosticKind::EntityIsNotAType, diagarg![]);
             self.host.node_mapping().set(exp, None);
             return Ok(None);
         }
@@ -221,7 +225,7 @@ impl Subverifier {
         let got_type = v.static_type(&self.host);
         let v = TypeConversions(&self.host).implicit(&v, limit_type, false)?;
         if v.is_none() {
-            self.add_verify_error(&exp.location(), FxDiagnosticKind::IncompatibleTypes, diagarg![got_type, limit_type.clone()]);
+            self.add_verify_error(&exp.location(), FxDiagnosticKind::ImplicitCoercionToUnrelatedType, diagarg![got_type, limit_type.clone()]);
             self.host.node_mapping().set(exp, None);
             return Ok(None);
         }
