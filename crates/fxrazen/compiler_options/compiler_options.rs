@@ -8,8 +8,6 @@ pub struct CompilerOptions {
     /// * `for..in` will contribute any bindings to a new scope
     ///   surrounding the loop's body.
     pub block_scope: bool,
-    /// Non-nullable mode.
-    pub non_nullable: bool,
     /// Whether to allow Markdown text in ASDoc comments.
     pub asdoc_markdown: bool,
     pub warnings: CompilerWarningOptions,
@@ -27,7 +25,6 @@ impl Default for CompilerOptions {
             strict: true,
             infer_types: true,
             block_scope: true,
-            non_nullable: true,
             asdoc_markdown: true,
             warnings: Default::default(),
         }

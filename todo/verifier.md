@@ -89,7 +89,9 @@ contributes multiple concatenated packages from `qux.**` to the `foo.bar.*` pack
 
 ## Parameterized types
 
-* [ ] Parameterized types, when referred to without an immediately following `.<...>` sequence, are equivalent to `T.<*>`.
+* Parameterized types, when referred to without an immediately following `.<...>` sequence, are equivalent to `T.<*, ...>`.
+  * [x] Lexical reference
+  * [ ] Dot operator
 
 ## Array type
 
@@ -122,13 +124,6 @@ Open namespaces properly everywhere.
 * [ ] Restrict definitions at top-level to be `internal`.
 * [ ] Definitions at the top-level of a class may be in any namespace.
 * [ ] Restrict user-defined namespaces to be used only at the top-level of class definitions.
-
-## Non nullable mode
-
-In non-nullable mode:
-
-* [ ] For every type expression that is not marked "nullable" and does not match a non-null primitive type, implicitly wrap the result into the non-nullable form.
-* [ ] Implicitly convert the result of a `T(v)` conversion to `T!` (non-nullable form).
 
 ## Getters and setters
 
