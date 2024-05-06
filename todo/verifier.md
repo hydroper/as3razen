@@ -85,7 +85,7 @@ contributes multiple concatenated packages from `qux.**` to the `foo.bar.*` pack
 
 ## Activations
 
-* [ ] Detect captured properties by calling `set_property_has_capture()` in the parent activation when resolving a lexical reference and the activation to which it belongs, if any, is different from the current activation.
+* [x] Detect captured properties by calling `set_property_has_capture()` in the parent activation when resolving a lexical reference and the activation to which it belongs, if any, is different from the current activation.
 
 ## Parameterized types
 

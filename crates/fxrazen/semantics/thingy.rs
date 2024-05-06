@@ -120,6 +120,15 @@ smodel! {
             panic!();
         }
         
+        pub fn search_activation(&self) -> Option<Thingy> {
+            for scope in self.descending_scope_hierarchy() {
+                if scope.is::<Activation>() {
+                    return Some(scope);
+                }
+            }
+            return None
+        }
+
         pub fn this(&self) -> Option<Thingy> {
             panic!();
         }
@@ -771,13 +780,13 @@ smodel! {
         }
 
         /// Lookups property in an object.
-        pub fn lookup_in_object(&self, host: &SemanticHost, base: &Thingy, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
-            PropertyLookup(host).lookup_in_object(base, open_ns_set, qual, key)
+        pub fn lookup_in_object(&self, host: &SemanticHost, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
+            PropertyLookup(host).lookup_in_object(self, open_ns_set, qual, key)
         }
 
         /// Lookups property in the scope chain.
-        pub fn lookup_in_scope_chain(&self, host: &SemanticHost, base: &Thingy, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
-            PropertyLookup(host).lookup_in_scope_chain(base, qual, key)
+        pub fn lookup_in_scope_chain(&self, host: &SemanticHost, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
+            PropertyLookup(host).lookup_in_scope_chain(self, qual, key)
         }
 
         fn to_string_1(&self) -> String {

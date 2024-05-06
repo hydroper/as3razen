@@ -213,9 +213,10 @@ impl Subverifier {
         Ok(Some(v))
     }
 
-    pub fn limit_expression_type(&mut self, exp: &Rc<Expression>, limit_type: &Thingy) -> Result<Option<Thingy>, DeferError> {
+    /// Implicitly coerce expression to a type.
+    pub fn imp_coerce_expr(&mut self, exp: &Rc<Expression>, target_type: &Thingy) -> Result<Option<Thingy>, DeferError> {
         let v = self.verify_expression(exp, &VerifierExpressionContext {
-            context_type: Some(limit_type.clone()),
+            context_type: Some(target_type.clone()),
             ..default()
         })?;
         if v.is_none() {
@@ -223,9 +224,9 @@ impl Subverifier {
         }
         let v = v.unwrap();
         let got_type = v.static_type(&self.host);
-        let v = TypeConversions(&self.host).implicit(&v, limit_type, false)?;
+        let v = TypeConversions(&self.host).implicit(&v, target_type, false)?;
         if v.is_none() {
-            self.add_verify_error(&exp.location(), FxDiagnosticKind::ImplicitCoercionToUnrelatedType, diagarg![got_type, limit_type.clone()]);
+            self.add_verify_error(&exp.location(), FxDiagnosticKind::ImplicitCoercionToUnrelatedType, diagarg![got_type, target_type.clone()]);
             self.host.node_mapping().set(exp, None);
             return Ok(None);
         }
