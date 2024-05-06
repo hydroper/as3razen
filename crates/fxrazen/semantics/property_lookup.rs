@@ -75,6 +75,9 @@ fn map_defer_error<T>(result: Result<T, DeferError>) -> Result<T, PropertyLookup
 }
 
 fn mark_used(host: &SemanticHost, property: &Thingy) {
+    if property.is::<InvalidationThingy>() {
+        return;
+    }
     let qn = property.name();
     if !qn.in_public_or_protected_ns() {
         host.remove_unused_thing(property);

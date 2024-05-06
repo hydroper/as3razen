@@ -85,7 +85,7 @@ impl Verifier {
         }
         self.verifier.reset_state();
 
-        ()
+        todo_here()
     }
 
     pub fn enter_scope(&mut self, scope: &Thingy) {

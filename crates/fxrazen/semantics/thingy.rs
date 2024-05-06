@@ -449,6 +449,9 @@ smodel! {
             if self.is::<Namespace>() {
                 return host.factory().create_namespace_as_reference_value(self);
             }
+            if self.is::<InvalidationThingy>() {
+                return Ok(self.clone());
+            }
             let parent = self.parent().unwrap();
             if parent.is::<ClassType>() || parent.is::<EnumType>() {
                 return host.factory().create_static_reference_value(&parent, self);
@@ -792,6 +795,11 @@ smodel! {
     pub struct InvalidationThingy: Thingy {
         pub(crate) fn InvalidationThingy() {
             super();
+        }
+
+        #[inheritdoc]
+        pub override fn property_static_type(&self, host: &SemanticHost) -> Thingy {
+            host.any_type()
         }
     }
 
