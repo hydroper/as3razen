@@ -1,11 +1,13 @@
+use std::fmt::Debug;
+
 use crate::ns::*;
 
 /// Error used to indicate that verification must be deferred.
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct DeferError();
 
 /// Error used to indicate an ambiguous reference to a local name.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 #[non_exhaustive]
 pub struct AmbiguousReferenceError(pub String);
 
@@ -19,7 +21,13 @@ pub enum PropertyLookupError {
     },
 }
 
-#[derive(Clone, Copy, PartialEq)]
+impl Debug for PropertyLookupError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "PropertyLookupError()")
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct TypeExpectError();
 
 #[derive(Clone)]
@@ -31,4 +39,10 @@ pub enum MethodOverridingError {
         actual_signature: Thingy,
     },
     OverridingFinalMethod,
+}
+
+impl Debug for MethodOverridingError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "MethodOverridingError()")
+    }
 }

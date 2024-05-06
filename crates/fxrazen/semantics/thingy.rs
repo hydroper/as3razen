@@ -649,6 +649,10 @@ smodel! {
             panic!();
         }
 
+        pub fn deletable(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
         pub fn var_constant(&self) -> Option<Thingy> {
             panic!();
         }
@@ -3075,6 +3079,18 @@ smodel! {
         pub override fn referenced_type(&self) -> Thingy {
             self.m_type().unwrap()
         }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            true
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn deletable(&self, host: &SemanticHost) -> bool {
+            false
+        }
     }
 
     pub struct NamespaceAsReferenceValue: ReferenceValue {
@@ -3091,6 +3107,18 @@ smodel! {
 
         pub override fn is_namespace_or_ns_reference(&self) -> bool {
             true
+        }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            true
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn deletable(&self, host: &SemanticHost) -> bool {
+            false
         }
     }
 
@@ -3117,6 +3145,18 @@ smodel! {
         pub override fn key(&self) -> Thingy {
             self.m_key().unwrap()
         }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn deletable(&self, host: &SemanticHost) -> bool {
+            true
+        }
     }
 
     pub struct DynamicReferenceValue: ReferenceValue {
@@ -3142,6 +3182,18 @@ smodel! {
         pub override fn key(&self) -> Thingy {
             self.m_key().unwrap()
         }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn deletable(&self, host: &SemanticHost) -> bool {
+            true
+        }
     }
 
     pub struct StaticReferenceValue: ReferenceValue {
@@ -3160,6 +3212,18 @@ smodel! {
 
         pub override fn property(&self) -> Thingy {
             self.m_property().unwrap()
+        }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            self.property().read_only(host)
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            self.property().write_only(host)
+        }
+
+        pub override fn deletable(&self, host: &SemanticHost) -> bool {
+            false
         }
     }
 
@@ -3186,6 +3250,18 @@ smodel! {
         pub override fn key(&self) -> Thingy {
             self.m_key().unwrap()
         }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn deletable(&self, host: &SemanticHost) -> bool {
+            false
+        }
     }
 
     /// Instance reference value in a possibly non nullable base.
@@ -3205,6 +3281,18 @@ smodel! {
 
         pub override fn property(&self) -> Thingy {
             self.m_property().unwrap()
+        }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            self.property().read_only(host)
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            self.property().write_only(host)
+        }
+
+        pub override fn deletable(&self, host: &SemanticHost) -> bool {
+            false
         }
     }
 
@@ -3226,6 +3314,18 @@ smodel! {
         pub override fn tuple_index(&self) -> usize {
             self.m_index()
         }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn deletable(&self, host: &SemanticHost) -> bool {
+            false
+        }
     }
 
     pub struct ScopeReferenceValue: ReferenceValue {
@@ -3244,6 +3344,18 @@ smodel! {
 
         pub override fn property(&self) -> Thingy {
             self.m_property().unwrap()
+        }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            self.property().read_only(host)
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            self.property().write_only(host)
+        }
+
+        pub override fn deletable(&self, host: &SemanticHost) -> bool {
+            false
         }
     }
 
@@ -3270,6 +3382,18 @@ smodel! {
         pub override fn key(&self) -> Thingy {
             self.m_key().unwrap()
         }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn deletable(&self, host: &SemanticHost) -> bool {
+            true
+        }
     }
 
     pub struct PackageReferenceValue: ReferenceValue {
@@ -3288,6 +3412,18 @@ smodel! {
 
         pub override fn property(&self) -> Thingy {
             self.m_property().unwrap()
+        }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            self.property().read_only(host)
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            self.property().write_only(host)
+        }
+
+        pub override fn deletable(&self, host: &SemanticHost) -> bool {
+            false
         }
     }
 
@@ -3310,6 +3446,18 @@ smodel! {
         pub override fn key(&self) -> Thingy {
             self.m_key().unwrap()
         }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn deletable(&self, host: &SemanticHost) -> bool {
+            true
+        }
     }
 
     /// Vector element reference value with a possibly non-nullable base.
@@ -3330,6 +3478,18 @@ smodel! {
 
         pub override fn key(&self) -> Thingy {
             self.m_key().unwrap()
+        }
+
+        pub override fn read_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn write_only(&self, host: &SemanticHost) -> bool {
+            false
+        }
+
+        pub override fn deletable(&self, host: &SemanticHost) -> bool {
+            false
         }
     }
 

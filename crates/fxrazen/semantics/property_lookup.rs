@@ -178,12 +178,13 @@ impl<'a> PropertyLookup<'a> {
                 return Ok(Some(self.0.factory().create_dynamic_reference_value(base, qual, &k)));
             };
 
-            // If base data type is one of { *, Object, Object! }, or a dynamic class, or
+            // If base data type is one of { *, Object, Object! }, or a dynamic class, or Dictionary, or
             // if qualifier is not a compile-time control namespace,
             // return a dynamic reference value..
             let any_or_object = [self.0.any_type(), defer(&self.0.object_type())?].contains(&base_esc_type);
             if any_or_object
             || map_defer_error(base_type.escape_of_non_nullable().is_dynamic_or_inherits_dynamic(self.0))?
+            || base_type.escape_of_non_nullable() == map_defer_error(self.0.dictionary_type().defer())?
             || !has_known_ns
             {
                 if qual.is_none() {

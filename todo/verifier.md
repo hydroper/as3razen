@@ -119,7 +119,8 @@ Open namespaces properly everywhere.
 ## Attributes
 
 * [ ] Restrict definitions at package block to be either `public` or `internal`.
-* [ ] Restrict definitions at top-level to be `public` or `internal`. Search a bit to know exactly what this `public` has to be.
+* [ ] Restrict definitions at top-level to be `internal`.
+* [ ] Definitions at the top-level of a class may be in any namespace.
 * [ ] Restrict user-defined namespaces to be used only at the top-level of class definitions.
 
 ## Non nullable mode

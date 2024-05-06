@@ -2,7 +2,7 @@ use crate::ns::*;
 
 pub struct SemanticHost {
     pub(crate) arena: ThingyArena,
-
+    node_mapping: TreeSemantics<Thingy>,
     project_path: Option<String>,
     env_cache: RefCell<Option<Rc<HashMap<String, String>>>>,
 
@@ -11,10 +11,12 @@ pub struct SemanticHost {
     pub(crate) explicit_namespaces: RefCell<HashMap<String, Thingy>>,
     pub(crate) user_namespaces: RefCell<HashMap<String, Thingy>>,
     pub(crate) qnames: RefCell<HashMap<Thingy, HashMap<String, QName>>>,
+
     invalidation_thingy: Thingy,
     unresolved_thingy: Thingy,
     pub(crate) top_level_package: Thingy,
     as3_vec_package: RefCell<Option<Thingy>>,
+    flash_utils_package: RefCell<Option<Thingy>>,
     any_type: Thingy,
     void_type: Thingy,
     object_type: RefCell<Option<Thingy>>,
@@ -31,6 +33,9 @@ pub struct SemanticHost {
     xml_type: RefCell<Option<Thingy>>,
     xml_list_type: RefCell<Option<Thingy>>,
     vector_type: RefCell<Option<Thingy>>,
+    proxy_type: RefCell<Option<Thingy>>,
+    dictionary_type: RefCell<Option<Thingy>>,
+    flash_proxy_ns: RefCell<Option<Thingy>>,
 
     meta_prop: Thingy,
     meta_env_prop: Thingy,
@@ -65,6 +70,7 @@ impl SemanticHost {
         let meta_env_prop: Thingy = MetaEnvProperty::new(&arena, &any_type).into();
         let host = Self {
             arena,
+            node_mapping: TreeSemantics::new(),
             project_path: options.project_path.clone(),
             env_cache: RefCell::new(None),
             explicit_namespaces,
@@ -72,6 +78,7 @@ impl SemanticHost {
             qnames,
             top_level_package: top_level_package.clone().into(),
             as3_vec_package: RefCell::new(None),
+            flash_utils_package: RefCell::new(None),
             invalidation_thingy,
             unresolved_thingy,
 
@@ -96,6 +103,9 @@ impl SemanticHost {
             xml_type: RefCell::new(None),
             xml_list_type: RefCell::new(None),
             vector_type: RefCell::new(None),
+            proxy_type: RefCell::new(None),
+            dictionary_type: RefCell::new(None),
+            flash_proxy_ns: RefCell::new(None),
 
             non_null_primitive_types: RefCell::new(None),
             numeric_types: RefCell::new(None),
@@ -115,12 +125,21 @@ impl SemanticHost {
         top_level_package.set_public_ns(Some(host.factory().create_public_ns(Some(top_level_package.clone().into()))));
         top_level_package.set_internal_ns(Some(host.factory().create_internal_ns(Some(top_level_package.clone().into()))));
 
+        // Initialize "flash_proxy" namespace
+        host.flash_proxy_ns.replace(Some(host.factory().create_user_ns("http://www.adobe.com/2006/actionscript/flash/proxy".into())));
+
         host
     }
 
     #[inline(always)]
     pub fn factory(&self) -> ThingyFactory {
         ThingyFactory(self)
+    }
+
+    /// Mapping from a node to something in the semantic model.
+    #[inline(always)]
+    pub fn node_mapping(&self) -> &TreeSemantics<Thingy> {
+        &self.node_mapping
     }
 
     pub fn top_level_package(&self) -> Thingy {
@@ -133,6 +152,15 @@ impl SemanticHost {
         }
         let p = self.factory().create_package(["__AS3__", "vec"]);
         self.as3_vec_package.replace(Some(p.clone()));
+        p
+    }
+
+    pub fn flash_utils_package(&self) -> Thingy {
+        if let Some(p) = self.flash_utils_package.borrow().as_ref() {
+            return p.clone();
+        }
+        let p = self.factory().create_package(["flash", "utils"]);
+        self.flash_utils_package.replace(Some(p.clone()));
         p
     }
 
@@ -186,6 +214,39 @@ impl SemanticHost {
         } else {
             self.unresolved_thingy()
         }
+    }
+
+    /// Retrieves `flash.utils.Proxy`, a possibly unresolved thing.
+    pub fn proxy_type(&self) -> Thingy {
+        if let Some(r) = self.proxy_type.borrow().as_ref() {
+            return r.clone();
+        }
+        let pckg = self.flash_utils_package();
+        if let Some(r) = pckg.properties(self).get(&self.factory().create_qname(&pckg.public_ns().unwrap().into(), "Proxy".to_owned())) {
+            self.proxy_type.replace(Some(r.clone()));
+            r
+        } else {
+            self.unresolved_thingy()
+        }
+    }
+
+    /// Retrieves `flash.utils.Dictionary`, a possibly unresolved thing.
+    pub fn dictionary_type(&self) -> Thingy {
+        if let Some(r) = self.dictionary_type.borrow().as_ref() {
+            return r.clone();
+        }
+        let pckg = self.flash_utils_package();
+        if let Some(r) = pckg.properties(self).get(&self.factory().create_qname(&pckg.public_ns().unwrap().into(), "Dictionary".to_owned())) {
+            self.dictionary_type.replace(Some(r.clone()));
+            r
+        } else {
+            self.unresolved_thingy()
+        }
+    }
+
+    /// The `flash.utils.flash_proxy` namespace.
+    pub fn flash_proxy_ns(&self) -> Thingy {
+        self.flash_proxy_ns.borrow().as_ref().unwrap().clone()
     }
 
     /// Returns the set of primitive types that do not contain `null`,
