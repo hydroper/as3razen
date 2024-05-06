@@ -110,6 +110,8 @@ dependencies = [
  "conv",
  "dotenvy",
  "file_paths",
+ "late_format",
+ "lazy_static",
  "maplit",
  "num-derive",
  "num-traits",
