@@ -25,7 +25,7 @@ Do not forget to set source locations of entities such as classes and variables.
 
 ## Meta-data
 
-* [ ] Set meta-data proeprly, except for aliases.
+* [ ] Set meta-data properly, except for aliases.
 
 ### @copy
 
@@ -119,7 +119,7 @@ Open namespaces properly everywhere.
 ## Attributes
 
 * [ ] Restrict definitions at package block to be either `public` or `internal`.
-* [ ] Restrict definitions at top-level to be `internal`.
+* [ ] Restrict definitions at top-level to be `public` or `internal`. Search a bit to know exactly what this `public` has to be.
 * [ ] Restrict user-defined namespaces to be used only at the top-level of class definitions.
 
 ## Non nullable mode

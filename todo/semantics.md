@@ -17,7 +17,7 @@
   * [x] MethodSlotAfterSubstitution extends MethodSlot
   * [x] Scopes
   * [x] Values
-* [ ] Interface implementation
+* [x] Interface implementation
 * [ ] Method overriding
 * [x] Property lookup
 * [x] Type conversion
