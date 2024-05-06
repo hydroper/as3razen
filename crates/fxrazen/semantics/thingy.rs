@@ -723,7 +723,12 @@ smodel! {
     
         pub(crate) fn not_overriden_abstract_getter(&self, getter_from_base_class: &Thingy, subclass: &Thingy, host: &SemanticHost) -> bool {
             if getter_from_base_class.is_abstract() {
-                let prop2 = subclass.prototype(host).get(&getter_from_base_class.name());
+                let name = &getter_from_base_class.name();
+                let prop2 = if name.namespace().is::<SystemNamespace>() {
+                    subclass.prototype(host).get_in_system_ns_kind(name.namespace().system_ns_kind().unwrap(), &name.local_name()).ok().unwrap_or(None)
+                } else {
+                    subclass.prototype(host).get(name)
+                };
                 prop2.is_none() || !prop2.clone().unwrap().is::<VirtualSlot>() || prop2.unwrap().getter(host).is_none()
             } else {
                 false
@@ -732,7 +737,12 @@ smodel! {
     
         pub(crate) fn not_overriden_abstract_setter(&self, setter_from_base_class: &Thingy, subclass: &Thingy, host: &SemanticHost) -> bool {
             if setter_from_base_class.is_abstract() {
-                let prop2 = subclass.prototype(host).get(&setter_from_base_class.name());
+                let name = &setter_from_base_class.name();
+                let prop2 = if name.namespace().is::<SystemNamespace>() {
+                    subclass.prototype(host).get_in_system_ns_kind(name.namespace().system_ns_kind().unwrap(), &name.local_name()).ok().unwrap_or(None)
+                } else {
+                    subclass.prototype(host).get(name)
+                };
                 prop2.is_none() || !prop2.clone().unwrap().is::<VirtualSlot>() || prop2.unwrap().setter(host).is_none()
             } else {
                 false

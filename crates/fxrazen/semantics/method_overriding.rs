@@ -20,7 +20,11 @@ impl<'a> MethodOverriding<'a> {
             // Regular method
             if prop.is::<MethodSlot>() {
                 if prop.is_abstract() {
-                    let prop2 = class.prototype(self.0).get(name);
+                    let prop2 = if name.namespace().is::<SystemNamespace>() {
+                        class.prototype(self.0).get_in_system_ns_kind(name.namespace().system_ns_kind().unwrap(), &name.local_name()).ok().unwrap_or(None)
+                    } else {
+                        class.prototype(self.0).get(name)
+                    };
                     if prop2.is_none() || !prop2.unwrap().is::<MethodSlot>() {
                         r.push(prop.clone());
                     }
