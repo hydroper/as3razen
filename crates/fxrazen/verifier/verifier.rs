@@ -164,7 +164,7 @@ impl Subverifier {
         let result: Option<Thingy>;
         match exp.as_ref() {
             Expression::QualifiedIdentifier(id) => {
-                result = verify_qualified_identifier_as_exp(self, id, &context)?;
+                result = ExpressionSubverifier::verify_qualified_identifier_as_expr(self, id, &context)?;
             },
         }
 
