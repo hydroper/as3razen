@@ -6,7 +6,7 @@ MXML components are required to contain a `fx:Package` element indicating the pa
 
 ```xml
 <?xml version="1.0"?>
-<b:Application xmlns:fx="http://ns.hydroper.com/mxml/2024" xmlns:b="library://ns.hydroper.com/betax">
+<s:Application xmlns:fx="http://ns.hydroper.com/mxml/2024" xmlns:s="library://ns.hydroper.com/spark">
     <fx:Package>foo.bar</fx:Package>
-</b:Application>
+</s:Application>
 ```

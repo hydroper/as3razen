@@ -1,6 +1,6 @@
 use crate::ns::*;
 
-/// ActionScript 3 verifier.
+/// ActionScript 3 and MXML verifier.
 ///
 /// `Verifier` performs type checking and maps nodes to something in
 /// the semantic model.
