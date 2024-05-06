@@ -6,7 +6,7 @@ impl<'a> MethodOverriding<'a> {
     /// Returns a listing of abstract methods that were not overriden.
     /// The resulting list may include method slots which are getters or setters
     /// from a virtual slot.
-    pub fn abstract_methods_not_overriden(&mut self, class: &Thingy) -> Result<Vec<Thingy>, DeferError> {
+    pub fn abstract_methods_not_overriden(&mut self, class: &Thingy, ns_set: &SharedArray<Thingy>) -> Result<Vec<Thingy>, DeferError> {
         let base_class = class.extends_class(self.0);
         if base_class.is_none() {
             return Ok(vec![]);
@@ -21,7 +21,7 @@ impl<'a> MethodOverriding<'a> {
             if prop.is::<MethodSlot>() {
                 if prop.is_abstract() {
                     let prop2 = if name.namespace().is::<SystemNamespace>() {
-                        class.prototype(self.0).get_in_system_ns_kind(name.namespace().system_ns_kind().unwrap(), &name.local_name()).ok().unwrap_or(None)
+                        class.prototype(self.0).get_in_system_ns_kind_in_ns_set(ns_set, name.namespace().system_ns_kind().unwrap(), &name.local_name()).ok().unwrap_or(None)
                     } else {
                         class.prototype(self.0).get(name)
                     };
@@ -47,7 +47,7 @@ impl<'a> MethodOverriding<'a> {
         Ok(r)
     }
 
-    pub fn override_method(&mut self, method: &Thingy) -> Result<(), MethodOverridingError> {
+    pub fn override_method(&mut self, method: &Thingy, ns_set: &SharedArray<Thingy>) -> Result<(), MethodOverridingError> {
         let name = method.name();
         let class = method.parent().unwrap();
         assert!(class.is::<ClassType>() || class.is::<EnumType>());
@@ -57,7 +57,7 @@ impl<'a> MethodOverriding<'a> {
             return Err(MethodOverridingError::MustOverrideAMethod);
         }
         let base_type = base_type.unwrap();
-        let base_method = self.lookup_method(&name, &base_type)?;
+        let base_method = self.lookup_method(&name, &base_type, ns_set)?;
         if base_method.is_none() {
             return Err(MethodOverridingError::MustOverrideAMethod);
         }
@@ -108,13 +108,13 @@ impl<'a> MethodOverriding<'a> {
         Ok(())
     }
 
-    fn lookup_method(&mut self, name: &QName, base_type: &Thingy) -> Result<Option<Thingy>, MethodOverridingError> {
+    fn lookup_method(&mut self, name: &QName, base_type: &Thingy, ns_set: &SharedArray<Thingy>) -> Result<Option<Thingy>, MethodOverridingError> {
         for class in base_type.descending_class_hierarchy(self.0).collect::<Vec<_>>() {
             // Defer
             class.defer().map_err(|_| MethodOverridingError::Defer)?;
 
             let prop = if name.namespace().is::<SystemNamespace>() {
-                class.prototype(self.0).get_in_system_ns_kind(name.namespace().system_ns_kind().unwrap(), &name.local_name()).ok().unwrap_or(None)
+                class.prototype(self.0).get_in_system_ns_kind_in_ns_set(ns_set, name.namespace().system_ns_kind().unwrap(), &name.local_name()).ok().unwrap_or(None)
             } else {
                 class.prototype(self.0).get(name)
             };
