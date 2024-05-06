@@ -460,7 +460,11 @@ impl<'a> PropertyLookup<'a> {
             } else {
                 qual.clone()
             };
-            Ok(mapping.get(&self.0.factory().create_qname(&qual, local_name.to_owned())))
+            if let Some(k) = qual.system_ns_kind() {
+                mapping.get_in_system_ns_kind(k, local_name).map_err(|e| PropertyLookupError::AmbiguousReference(e.0))
+            } else {
+                Ok(mapping.get(&self.0.factory().create_qname(&qual, local_name.to_owned())))
+            }
         } else {
             mapping.get_in_ns_set_or_any_public_ns(open_ns_set, local_name).map_err(|e| PropertyLookupError::AmbiguousReference(e.0))
         }
