@@ -62,6 +62,11 @@ smodel! {
             panic!();
         }
 
+        /// Escapes out of a nullable type layer.
+        pub fn escape_of_nullable(&self) -> Thingy {
+            self.clone()
+        }
+
         /// Escapes out of a non nullable type layer.
         pub fn escape_of_non_nullable(&self) -> Thingy {
             self.clone()
@@ -209,6 +214,14 @@ smodel! {
 
         pub fn is_static_protected_ns(&self) -> bool {
             false
+        }
+
+        pub fn is_parameterized_type_or_type_after_sub(&self) -> bool {
+            if self.is::<ClassType>() || self.is::<InterfaceType>() {
+                self.type_params().is_some()
+            } else {
+                self.is::<TypeAfterSubstitution>()
+            }
         }
 
         pub fn number_value(&self) -> NumberVariant {
@@ -391,6 +404,20 @@ smodel! {
 
         pub fn type_after_sub_has_origin(&self, origin: &Thingy) -> bool {
             self.is::<TypeAfterSubstitution>() && &self.origin() == origin
+        }
+
+        pub fn is_type_or_type_after_sub_has_origin(&self, type_or_origin: &Thingy) -> bool {
+            self == type_or_origin || self.type_after_sub_has_origin(type_or_origin)
+        }
+
+        pub fn origin_or_parameterized_type_identity(&self) -> Option<Thingy> {
+            if self.is::<TypeAfterSubstitution>() {
+                Some(self.origin())
+            } else if self.type_params().is_some() {
+                Some(self.clone())
+            } else {
+                None
+            }
         }
 
         /// Iterator over a descending class hierarchy.
@@ -689,7 +716,7 @@ smodel! {
             } else if self.is::<FunctionType>() {
                 return vec![host.function_type()];
             } else if self.is::<TupleType>() {
-                return vec![host.object_type()];
+                return vec![host.array_type()];
             }
             return vec![];
         }
@@ -1786,6 +1813,11 @@ smodel! {
 
         pub override fn includes_null(&self) -> Result<bool, DeferError> {
             Ok(true)
+        }
+
+        #[inheritdoc]
+        pub override fn escape_of_nullable(&self) -> Thingy {
+            self.base()
         }
 
         pub override fn escape_of_nullable_or_non_nullable(&self) -> Thingy {

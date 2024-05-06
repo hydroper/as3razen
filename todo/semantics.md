@@ -20,10 +20,6 @@
 * [ ] Interface implementation
 * [ ] Method overriding
 * [x] Property lookup
-* [ ] Type conversion
-  * [ ] Explicit conversion from parameterized type to the same parameterized type except for `Vector`
-  * [ ] Implicit `Function` to `function(...): E` and vice-versa
-  * [ ] Convert from non `Vector` parameterized type to the same parameterized type with different type arguments
-  * [ ] Covariant `Vector`
+* [x] Type conversion
 * [x] Type substitution
 * [x] Type's default value

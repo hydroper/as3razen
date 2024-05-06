@@ -124,5 +124,7 @@ Open namespaces properly everywhere.
 
 ## Non nullable mode
 
+In non-nullable mode:
+
 * [ ] For every type expression that is not marked "nullable" and does not match a non-null primitive type, implicitly wrap the result into the non-nullable form.
 * [ ] Implicitly convert the result of a `T(v)` conversion to `T!` (non-nullable form).
