@@ -73,7 +73,7 @@ impl Verifier {
         }
         self.verifier.reset_state();
 
-        todo!();
+        todo_here();
     }
 
     /// Verifies an expression. Returns `None` if verification failed.
@@ -177,8 +177,11 @@ impl Subverifier {
             Expression::Paren(e) => {
                 result = self.verify_expression(&e.expression, context)?;
             },
-            _ => {
-                todo!();
+            Expression::BooleanLiteral(e) => {
+                result = Some(self.host.factory().create_boolean_constant(e.value, &self.host.boolean_type().defer()?));
+            },
+            Expression::Invalidated(_) => {
+                result = None;
             },
         }
 
@@ -282,9 +285,23 @@ mod tests {
 
     #[test]
     fn test_exp() {
+        // Prepare the host
         let host = Rc::new(SemanticHost::new(SemanticHostOptions::default()));
-        let cu = CompilationUnit::new(None, "foo::x".into());
+        host.config_constants().set("FOO::X".into(), "true".into());
+        
+        /*
+        let boolean_class = host.factory().create_class_type(
+            host.factory().create_qname(&host.top_level_package().public_ns().unwrap(), "Boolean".into()),
+            &host.top_level_package().public_ns().unwrap());
+        host.top_level_package().properties(&host).set(boolean_class.name(), boolean_class);
+        */
+
+        let cu = CompilationUnit::new(None, "FOO::X".into());
+
+        // Parsing
         let exp = ParserFacade(&cu, ParserOptions::default()).parse_expression();
+
+        // Verification
         let mut verifier = Verifier::new(&host);
         let scope = host.factory().create_scope();
         scope.import_list().push(host.factory().create_package_wildcard_import(&host.top_level_package(), None));
@@ -292,8 +309,15 @@ mod tests {
         let _ = verifier.verify_expression(&exp, &VerifierExpressionContext {
             ..default()
         });
+        /*
+        assert!(cv.is_some());
+        let Some(cv) = cv else { panic!(); };
+        assert!(cv.is::<BooleanConstant>());
+        assert!(cv.boolean_value());
+        */
         verifier.exit_scope();
 
+        // Report diagnostics
         cu.sort_diagnostics();
         for diag in cu.nested_diagnostics() {
             println!("{}", FxDiagnostic(&diag).format_english());

@@ -43,8 +43,13 @@ impl ExpSubverifier {
 
     // QualifiedIdentifier
     pub fn verify_qualified_identifier_as_expr(verifier: &mut Subverifier, id: &QualifiedIdentifier, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        // Check for inline constants
         if let Some(cdata) = Self::filter_inline_constant(verifier, id) {
-            return Self::verify_inline_constant(verifier, &id.location, cdata, context);
+            // Defer
+            verifier.host.string_type().defer()?;
+            verifier.host.non_null_primitive_types()?;
+
+            return Ok(Self::verify_inline_constant(verifier, &id.location, cdata, context));
         }
 
         let qn = Self::verify_qualified_identifier(verifier, id)?;
@@ -138,23 +143,23 @@ impl ExpSubverifier {
         None
     }
 
-    fn verify_inline_constant(verifier: &mut Subverifier, location: &Location, cdata: String, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+    fn verify_inline_constant(verifier: &mut Subverifier, location: &Location, cdata: String, context: &VerifierExpressionContext) -> Option<Thingy> {
         let cu = CompilationUnit::new(None, cdata);
         let exp = ParserFacade(&cu, ParserOptions::default()).parse_expression();
         if cu.invalidated() {
             verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
-            return Ok(None);
+            return None;
         }
         let Ok(cval) = verifier.verify_expression(&exp, context) else {
             verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
-            return Ok(None);
+            return None;
         };
         if let Some(cval) = cval.as_ref() {
             if !cval.is::<Constant>() {
                 verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
-                return Ok(None);
+                return None;
             }
         }
-        Ok(cval)
+        cval
     }
 }
