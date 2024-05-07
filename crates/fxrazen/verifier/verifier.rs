@@ -195,6 +195,12 @@ impl Subverifier {
             Expression::RegExpLiteral(e) => {
                 result = ExpSubverifier::verify_reg_exp_literal(self, e, context)?;
             },
+            Expression::Xml(e) => {
+                result = ExpSubverifier::verify_xml_exp(self, e, context)?;
+            },
+            Expression::XmlList(e) => {
+                result = ExpSubverifier::verify_xml_list_exp(self, e, context)?;
+            },
             Expression::Invalidated(_) => {
                 result = None;
             },

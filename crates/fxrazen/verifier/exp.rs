@@ -278,4 +278,65 @@ impl ExpSubverifier {
         }
         Ok(Some(verifier.host.factory().create_value(&verifier.host.reg_exp_type().defer()?)))
     }
+
+    pub fn verify_xml_exp(verifier: &mut Subverifier, exp: &XmlExpression, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        Self::verify_xml_elem(verifier, &exp.element)?;
+        if let Some(t) = context.context_type.as_ref() {
+            let t_esc = t.escape_of_nullable_or_non_nullable();
+            if [verifier.host.any_type(), verifier.host.object_type().defer()?, verifier.host.xml_type().defer()?].contains(&t_esc) {
+                return Ok(Some(verifier.host.factory().create_value(&t)));
+            }
+        }
+        Ok(Some(verifier.host.factory().create_value(&verifier.host.xml_type().defer()?)))
+    }
+
+    pub fn verify_xml_list_exp(verifier: &mut Subverifier, exp: &XmlListExpression, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        for content in exp.content.iter() {
+            Self::verify_xml_content(verifier, content)?;
+        }
+        if let Some(t) = context.context_type.as_ref() {
+            let t_esc = t.escape_of_nullable_or_non_nullable();
+            if [verifier.host.any_type(), verifier.host.object_type().defer()?, verifier.host.xml_list_type().defer()?].contains(&t_esc) {
+                return Ok(Some(verifier.host.factory().create_value(&t)));
+            }
+        }
+        Ok(Some(verifier.host.factory().create_value(&verifier.host.xml_list_type().defer()?)))
+    }
+
+    pub fn verify_xml_elem(verifier: &mut Subverifier, elem: &XmlElement) -> Result<(), DeferError> {
+        if let XmlTagName::Expression(exp) = &elem.name {
+            verifier.verify_expression(exp, &VerifierExpressionContext { ..default() })?;
+        }
+        for attr in &elem.attributes {
+            if let XmlAttributeValue::Expression(exp) = &attr.value {
+                verifier.verify_expression(exp, &VerifierExpressionContext { ..default() })?;
+            }
+        }
+        if let Some(exp) = &elem.attribute_expression {
+            verifier.verify_expression(exp, &VerifierExpressionContext { ..default() })?;
+        }
+        if let Some(content_list) = &elem.content {
+            for content in content_list {
+                Self::verify_xml_content(verifier, content)?;
+            }
+        }
+        if let Some(XmlTagName::Expression(exp)) = &elem.closing_name {
+            verifier.verify_expression(exp, &VerifierExpressionContext { ..default() })?;
+        }
+        Ok(())
+    }
+
+    pub fn verify_xml_content(verifier: &mut Subverifier, content: &Rc<XmlContent>) -> Result<(), DeferError> {
+        match content.as_ref() {
+            XmlContent::Element(elem) => {
+                Self::verify_xml_elem(verifier, elem)?;
+                Ok(())
+            },
+            XmlContent::Expression(exp) => {
+                verifier.verify_expression(exp, &VerifierExpressionContext { ..default() })?;
+                Ok(())
+            },
+            _ => Ok(()),
+        }
+    }
 }
