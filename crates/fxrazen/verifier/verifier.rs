@@ -172,10 +172,13 @@ impl Subverifier {
         let result: Option<Thingy>;
         match exp.as_ref() {
             Expression::QualifiedIdentifier(id) => {
-                result = ExpSubverifier::verify_qualified_identifier_as_expr(self, id, &context)?;
+                result = ExpSubverifier::verify_qualified_identifier_as_expr(self, id, context)?;
             },
             Expression::Paren(e) => {
                 result = self.verify_expression(&e.expression, context)?;
+            },
+            Expression::NullLiteral(e) => {
+                result = ExpSubverifier::verify_null_literal(self, e, context)?;
             },
             Expression::BooleanLiteral(e) => {
                 result = Some(self.host.factory().create_boolean_constant(e.value, &self.host.boolean_type().defer()?));

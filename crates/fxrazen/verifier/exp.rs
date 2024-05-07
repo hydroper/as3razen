@@ -185,4 +185,16 @@ impl ExpSubverifier {
         }
         cval
     }
+
+    pub fn verify_null_literal(verifier: &mut Subverifier, literal: &NullLiteral, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        if let Some(t) = context.context_type.as_ref() {
+            if t.includes_null(&verifier.host)? {
+                return Ok(Some(verifier.host.factory().create_null_constant(t)));
+            } else {
+                verifier.add_verify_error(&literal.location, FxDiagnosticKind::NullNotExpectedHere, diagarg![]);
+                return Ok(None);
+            }
+        }
+        Ok(Some(verifier.host.factory().create_null_constant(&verifier.host.any_type())))
+    }
 }
