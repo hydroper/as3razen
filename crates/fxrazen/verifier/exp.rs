@@ -231,4 +231,21 @@ impl ExpSubverifier {
             Ok(NumberVariant::Uint(literal.parse_uint()?))
         }
     }
+
+    pub fn verify_string_literal(verifier: &mut Subverifier, literal: &StringLiteral, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        if let Some(t) = context.context_type.as_ref() {
+            let t_esc = t.escape_of_nullable_or_non_nullable();
+            if t_esc.is::<EnumType>() {
+                let slot = t_esc.enum_member_slot_mapping().get(&literal.value);
+                if let Some(slot) = slot {
+                    let k = verifier.host.factory().create_static_reference_value(&t_esc, &slot)?;
+                    return Ok(TypeConversions(&verifier.host).implicit(&k, &t, false)?);
+                } else {
+                    verifier.add_verify_error(&literal.location, FxDiagnosticKind::NoMatchingEnumMember, diagarg![literal.value.clone(), t_esc]);
+                    return Ok(None);
+                }
+            }
+        }
+        return Ok(Some(verifier.host.factory().create_string_constant(literal.value.clone(), &verifier.host.string_type().defer()?)));
+    }
 }

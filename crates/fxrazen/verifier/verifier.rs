@@ -177,6 +177,9 @@ impl Subverifier {
             Expression::NumericLiteral(e) => {
                 result = ExpSubverifier::verify_numeric_literal(self, e, context)?;
             },
+            Expression::StringLiteral(e) => {
+                result = ExpSubverifier::verify_string_literal(self, e, context)?;
+            },
             Expression::Paren(e) => {
                 result = self.verify_expression(&e.expression, context)?;
             },

@@ -136,3 +136,8 @@ Open namespaces properly everywhere.
 ## Inline constants
 
 * [x] Expand inline constants
+
+## Enums
+
+* [ ] Define member slots with a `T!` non-null data type instead of `T` as-is.
+* [ ] Perform mapping from member String to Number and from String to member variable slot

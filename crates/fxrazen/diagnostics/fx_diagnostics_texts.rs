@@ -18,5 +18,7 @@ lazy_static! {
         FxDiagnosticKind::ReachedMaximumCycles.id() => "Reached maximum cycles.".into(),
         FxDiagnosticKind::NullNotExpectedHere.id() => "Null not expected here.".into(),
         FxDiagnosticKind::CouldNotParseNumber.id() => "Could not parse {1}.".into(),
+        FxDiagnosticKind::NoMatchingEnumMember.id() => "Found no member '{1}' in {2}.".into(),
+        // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

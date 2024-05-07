@@ -595,7 +595,11 @@ smodel! {
         pub fn set_type_params(&self, list: Option<SharedArray<Thingy>>) {
         }
 
-        pub fn enum_members(&self) -> SharedMap<String, NumberVariant> {
+        pub fn enum_member_number_mapping(&self) -> SharedMap<String, NumberVariant> {
+            panic!();
+        }
+
+        pub fn enum_member_slot_mapping(&self) -> SharedMap<String, Thingy> {
             panic!();
         }
 
@@ -1331,7 +1335,8 @@ smodel! {
         let ref m_private_ns: Option<Thingy> = None;
         let ref m_properties: NameMap = NameMap::new();
         let ref m_prototype: NameMap = NameMap::new();
-        let ref m_members: SharedMap<String, NumberVariant> = SharedMap::new();
+        let ref m_number_mapping: SharedMap<String, NumberVariant> = SharedMap::new();
+        let ref m_slot_mapping: SharedMap<String, Thingy> = SharedMap::new();
         let ref m_asdoc: Option<Rc<AsDoc>> = None;
         let ref m_metadata: SharedArray<Rc<Metadata>> = SharedArray::new();
         let ref m_location: Option<Location> = None;
@@ -1345,8 +1350,15 @@ smodel! {
             self.m_name().unwrap()
         }
 
-        pub override fn enum_members(&self) -> SharedMap<String, NumberVariant> {
-            self.m_members()
+        /// Mapping from member's String to Number.
+        pub override fn enum_member_number_mapping(&self) -> SharedMap<String, NumberVariant> {
+            self.m_number_mapping()
+        }
+
+        /// Mapping from member's String to the static variable slot
+        /// used in `properties()`.
+        pub override fn enum_member_slot_mapping(&self) -> SharedMap<String, Thingy> {
+            self.m_slot_mapping()
         }
 
         pub override fn location(&self) -> Option<Location> {

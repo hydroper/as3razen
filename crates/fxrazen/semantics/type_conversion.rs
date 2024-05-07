@@ -36,11 +36,6 @@ pub enum TypeConversionVariant {
     /// marked explicitly nullable.
     AsIsToNullable,
 
-    /// Implicit conversion from `T` to `T?` where `T` is a type
-    /// that includes `null` without having been
-    /// marked explicitly nullable.
-    NullableToAsIs,
-
     /// Implicit conversion from `T!` to `T` where `T` is a type
     /// that includes `null` without having been
     /// marked explicitly nullable.
@@ -209,10 +204,12 @@ impl<'a> TypeConversions<'a> {
             }
         }
 
+        /*
         // NullableToAsIs
         if from_type.is::<NullableType>() && target_type == &from_type.base() && target_type.includes_null(self.0)? {
             return Ok(Some(self.0.factory().create_conversion_value(value, TypeConversionVariant::NullableToAsIs, optional, target_type)?));
         }
+        */
 
         // NonNullableToAsIs
         if from_type.is::<NonNullableType>() && target_type == &from_type.base() {

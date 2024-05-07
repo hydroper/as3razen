@@ -14,6 +14,7 @@ pub enum FxDiagnosticKind {
     ReachedMaximumCycles = 2058,
     NullNotExpectedHere = 2059,
     CouldNotParseNumber = 2060,
+    NoMatchingEnumMember = 2061,
 }
 
 impl FxDiagnosticKind {
