@@ -200,7 +200,8 @@ impl ExpSubverifier {
 
     pub fn verify_boolean_literal(verifier: &mut Subverifier, literal: &BooleanLiteral, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
         if let Some(t) = context.context_type.as_ref() {
-            if [verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&t.escape_of_nullable_or_non_nullable()) {
+            let t_esc = t.escape_of_nullable_or_non_nullable();
+            if [verifier.host.any_type(), verifier.host.object_type().defer()?, verifier.host.boolean_type().defer()?].contains(&t_esc) {
                 return Ok(Some(verifier.host.factory().create_boolean_constant(literal.value, &t)));
             }
         }
@@ -266,5 +267,15 @@ impl ExpSubverifier {
             verifier.add_verify_error(&literal.location, FxDiagnosticKind::UnexpectedThis, diagarg![]);
             Ok(None)
         }
+    }
+
+    pub fn verify_reg_exp_literal(verifier: &mut Subverifier, _literal: &RegExpLiteral, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        if let Some(t) = context.context_type.as_ref() {
+            let t_esc = t.escape_of_nullable_or_non_nullable();
+            if [verifier.host.any_type(), verifier.host.object_type().defer()?, verifier.host.reg_exp_type().defer()?].contains(&t_esc) {
+                return Ok(Some(verifier.host.factory().create_value(&t)));
+            }
+        }
+        Ok(Some(verifier.host.factory().create_value(&verifier.host.reg_exp_type().defer()?)))
     }
 }

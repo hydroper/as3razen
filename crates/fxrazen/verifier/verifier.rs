@@ -192,6 +192,9 @@ impl Subverifier {
             Expression::ThisLiteral(e) => {
                 result = ExpSubverifier::verify_this_literal(self, e)?;
             },
+            Expression::RegExpLiteral(e) => {
+                result = ExpSubverifier::verify_reg_exp_literal(self, e, context)?;
+            },
             Expression::Invalidated(_) => {
                 result = None;
             },

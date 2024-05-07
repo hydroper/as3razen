@@ -145,3 +145,8 @@ Open namespaces properly everywhere.
 ## Activations
 
 * [ ] In most `FunctionCommon`, `this` is set to always be of the `*` data type.
+
+## Initial scope
+
+* [ ] The initial scope of a package opens the `AS3` namespace (when at AS3 mode) and imports the top-level package.
+* [ ] The initial scope of a program's directive sequence opens the `AS3` namespace (when at AS3 mode) and imports the top-level package.

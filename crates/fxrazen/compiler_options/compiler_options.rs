@@ -1,6 +1,6 @@
 #[derive(Clone)]
 pub struct CompilerOptions {
-    pub strict: bool,
+    pub as3: bool,
     pub infer_types: bool,
     /// Whether to use block scoped properties.
     /// If this is true:
@@ -24,7 +24,7 @@ pub struct CompilerWarningOptions {
 impl Default for CompilerOptions {
     fn default() -> Self {
         Self {
-            strict: true,
+            as3: true,
             infer_types: true,
             block_scope: true,
             asdoc_markdown: true,
