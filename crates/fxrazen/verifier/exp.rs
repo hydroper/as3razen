@@ -44,12 +44,12 @@ impl ExpSubverifier {
     // QualifiedIdentifier
     pub fn verify_qualified_identifier_as_expr(verifier: &mut Subverifier, id: &QualifiedIdentifier, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
         // Check for inline constants
-        if let Some(cdata) = Self::filter_inline_constant(verifier, id) {
+        if let Some((name, cdata)) = Self::filter_inline_constant(verifier, id) {
             // Defer
             verifier.host.string_type().defer()?;
             verifier.host.non_null_primitive_types()?;
 
-            return Ok(Self::verify_inline_constant(verifier, &id.location, cdata, context));
+            return Ok(Self::verify_inline_constant(verifier, &id.location, name, cdata, context));
         }
 
         let qn = Self::verify_qualified_identifier(verifier, id)?;
@@ -127,7 +127,7 @@ impl ExpSubverifier {
         Ok(Some(r))
     }
 
-    fn filter_inline_constant(verifier: &mut Subverifier, id: &QualifiedIdentifier) -> Option<String> {
+    fn filter_inline_constant(verifier: &mut Subverifier, id: &QualifiedIdentifier) -> Option<(String, String)> {
         let QualifiedIdentifier { qualifier, id, .. } = id;
 
         if let Some(qualifier) = qualifier {
@@ -136,15 +136,38 @@ impl ExpSubverifier {
             let inlinekln = if let QualifiedIdentifierIdentifier::Id((name, _)) = id { Some(name) } else { None };
             if let (Some(inlinekqid), Some(inlinekln)) = (inlinekqid, inlinekln) {
                 let inlinekid = format!("{}::{}", inlinekqid, inlinekln);
-                return verifier.host.config_constants().get(&inlinekid);
+                if let Some(cdata) = verifier.host.config_constants().get(&inlinekid) {
+                    return Some((inlinekid, cdata));
+                }
             }
         }
 
         None
     }
 
-    fn verify_inline_constant(verifier: &mut Subverifier, location: &Location, cdata: String, context: &VerifierExpressionContext) -> Option<Thingy> {
-        let cu = CompilationUnit::new(None, cdata);
+    fn verify_inline_constant(verifier: &mut Subverifier, location: &Location, name: String, mut cdata: String, context: &VerifierExpressionContext) -> Option<Thingy> {
+        cdata = cdata.trim().to_owned();
+
+        if ["true", "false"].contains(&cdata.as_str()) {
+            let boolean_type = verifier.host.boolean_type();
+            if boolean_type.is::<UnresolvedThingy>() {
+                verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
+                return None;
+            }
+            return Some(verifier.host.factory().create_boolean_constant(cdata == "true", &boolean_type));
+        }
+
+        // Cache compilation unit for less memory usage
+        let cu: Rc<CompilationUnit>;
+        if let Some(cu1) = verifier.host.config_constants_cu().get(&name) {
+            cu = cu1;
+        } else {
+            cu = CompilationUnit::new(None, cdata);
+            verifier.host.config_constants_cu().set(name, cu.clone());
+        }
+
+        // An expression is always built for the inline constant,
+        // which must be a compile-time constant.
         let exp = ParserFacade(&cu, ParserOptions::default()).parse_expression();
         if cu.invalidated() {
             verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);

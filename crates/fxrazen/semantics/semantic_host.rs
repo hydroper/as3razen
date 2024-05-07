@@ -5,6 +5,7 @@ pub struct SemanticHost {
     node_mapping: TreeSemantics<Thingy>,
     project_path: Option<String>,
     config_constants: SharedMap<String, String>,
+    config_constants_cu: SharedMap<String, Rc<CompilationUnit>>,
     env_cache: RefCell<Option<Rc<HashMap<String, String>>>>,
 
     unused_things: Rc<RefCell<Vec<Thingy>>>,
@@ -74,6 +75,7 @@ impl SemanticHost {
             node_mapping: TreeSemantics::new(),
             project_path: options.project_path.clone(),
             config_constants: SharedMap::new(),
+            config_constants_cu: SharedMap::new(),
             env_cache: RefCell::new(None),
 
             explicit_namespaces,
@@ -150,6 +152,11 @@ impl SemanticHost {
     #[inline(always)]
     pub fn config_constants(&self) -> SharedMap<String, String> {
         self.config_constants.clone()
+    }
+
+    #[inline(always)]
+    pub(crate) fn config_constants_cu(&self) -> SharedMap<String, Rc<CompilationUnit>> {
+        self.config_constants_cu.clone()
     }
 
     pub fn top_level_package(&self) -> Thingy {
