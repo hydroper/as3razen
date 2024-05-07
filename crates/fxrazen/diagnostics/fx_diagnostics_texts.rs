@@ -19,6 +19,7 @@ lazy_static! {
         FxDiagnosticKind::NullNotExpectedHere.id() => "Null not expected here.".into(),
         FxDiagnosticKind::CouldNotParseNumber.id() => "Could not parse {1}.".into(),
         FxDiagnosticKind::NoMatchingEnumMember.id() => "Found no member '{1}' in {2}.".into(),
+        FxDiagnosticKind::UnexpectedThis.id() => "Unexpected this.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

@@ -141,3 +141,7 @@ Open namespaces properly everywhere.
 
 * [ ] Define member slots with a `T!` non-null data type instead of `T` as-is.
 * [ ] Perform mapping from member String to Number and from String to member variable slot
+
+## Activations
+
+* [ ] In most `FunctionCommon`, `this` is set to always be of the `*` data type.

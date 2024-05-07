@@ -198,6 +198,15 @@ impl ExpSubverifier {
         Ok(Some(verifier.host.factory().create_null_constant(&verifier.host.any_type())))
     }
 
+    pub fn verify_boolean_literal(verifier: &mut Subverifier, literal: &BooleanLiteral, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        if let Some(t) = context.context_type.as_ref() {
+            if [verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&t.escape_of_nullable_or_non_nullable()) {
+                return Ok(Some(verifier.host.factory().create_boolean_constant(literal.value, &t)));
+            }
+        }
+        Ok(Some(verifier.host.factory().create_boolean_constant(literal.value, &verifier.host.boolean_type().defer()?)))
+    }
+
     pub fn verify_numeric_literal(verifier: &mut Subverifier, literal: &NumericLiteral, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
         if let Some(t) = context.context_type.as_ref() {
             let t_esc = t.escape_of_nullable_or_non_nullable();
@@ -247,5 +256,15 @@ impl ExpSubverifier {
             }
         }
         return Ok(Some(verifier.host.factory().create_string_constant(literal.value.clone(), &verifier.host.string_type().defer()?)));
+    }
+
+    pub fn verify_this_literal(verifier: &mut Subverifier, literal: &ThisLiteral) -> Result<Option<Thingy>, DeferError> {
+        let activation = verifier.scope().search_activation();
+        if activation.is_some() && activation.as_ref().unwrap().this().is_some() {
+            Ok(activation.clone().unwrap().this())
+        } else {
+            verifier.add_verify_error(&literal.location, FxDiagnosticKind::UnexpectedThis, diagarg![]);
+            Ok(None)
+        }
     }
 }

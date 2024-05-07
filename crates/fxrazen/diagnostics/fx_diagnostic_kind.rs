@@ -15,6 +15,7 @@ pub enum FxDiagnosticKind {
     NullNotExpectedHere = 2059,
     CouldNotParseNumber = 2060,
     NoMatchingEnumMember = 2061,
+    UnexpectedThis = 2062,
 }
 
 impl FxDiagnosticKind {

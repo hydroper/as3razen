@@ -187,7 +187,10 @@ impl Subverifier {
                 result = ExpSubverifier::verify_null_literal(self, e, context)?;
             },
             Expression::BooleanLiteral(e) => {
-                result = Some(self.host.factory().create_boolean_constant(e.value, &self.host.boolean_type().defer()?));
+                result = ExpSubverifier::verify_boolean_literal(self, e, context)?;
+            },
+            Expression::ThisLiteral(e) => {
+                result = ExpSubverifier::verify_this_literal(self, e)?;
             },
             Expression::Invalidated(_) => {
                 result = None;
