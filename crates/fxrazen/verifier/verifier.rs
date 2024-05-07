@@ -44,6 +44,8 @@ pub struct Verifier {
 }
 
 impl Verifier {
+    pub(crate) const MAX_CYCLES: usize = 512;
+
     pub fn new(host: &Rc<SemanticHost>) -> Self {
         Self {
             verifier: Subverifier {
@@ -51,7 +53,7 @@ impl Verifier {
                 deferred_directives: vec![],
                 deferred_function_commons: vec![],
                 invalidated: false,
-                deferred_counter: 0,
+                // deferred_counter: 0,
                 scope: None,
             },
         }
@@ -71,7 +73,7 @@ impl Verifier {
         }
         self.verifier.reset_state();
 
-        todo_here();
+        todo!();
     }
 
     /// Verifies an expression. Returns `None` if verification failed.
@@ -85,7 +87,13 @@ impl Verifier {
         }
         self.verifier.reset_state();
 
-        todo_here()
+        let v = self.verifier.verify_expression(exp, context);
+        if let Ok(v) = v {
+            return v;
+        }
+
+        self.verifier.add_verify_error(&exp.location(), FxDiagnosticKind::ReachedMaximumCycles, diagarg![]);
+        None
     }
 
     pub fn enter_scope(&mut self, scope: &Thingy) {
@@ -104,7 +112,7 @@ pub(crate) struct Subverifier {
     /// List of (phase, scope, common).
     pub deferred_function_commons: Vec<(usize, Thingy, Rc<FunctionCommon>)>,
     invalidated: bool,
-    pub deferred_counter: usize,
+    // pub deferred_counter: usize,
     pub scope: Option<Thingy>,
 }
 
@@ -121,7 +129,7 @@ impl Subverifier {
     }
 
     fn reset_state(&mut self) {
-        self.deferred_counter = 0;
+        // self.deferred_counter = 0;
         self.deferred_directives.clear();
         self.deferred_function_commons.clear();
     }
@@ -168,6 +176,9 @@ impl Subverifier {
             },
             Expression::Paren(e) => {
                 result = self.verify_expression(&e.expression, context)?;
+            },
+            _ => {
+                todo!();
             },
         }
 
@@ -261,6 +272,31 @@ impl Default for VerifierExpressionContext {
             followed_by_type_arguments: false,
             mode: VerifyMode::Read,
             preceded_by_negative: false,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::ns::*;
+
+    #[test]
+    fn test_exp() {
+        let host = Rc::new(SemanticHost::new(SemanticHostOptions::default()));
+        let cu = CompilationUnit::new(None, "foo::x".into());
+        let exp = ParserFacade(&cu, ParserOptions::default()).parse_expression();
+        let mut verifier = Verifier::new(&host);
+        let scope = host.factory().create_scope();
+        scope.import_list().push(host.factory().create_package_wildcard_import(&host.top_level_package(), None));
+        verifier.enter_scope(&scope);
+        let _ = verifier.verify_expression(&exp, &VerifierExpressionContext {
+            ..default()
+        });
+        verifier.exit_scope();
+
+        cu.sort_diagnostics();
+        for diag in cu.nested_diagnostics() {
+            println!("{}", FxDiagnostic(&diag).format_english());
         }
     }
 }

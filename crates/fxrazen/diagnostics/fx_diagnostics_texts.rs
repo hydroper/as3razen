@@ -15,5 +15,6 @@ lazy_static! {
         FxDiagnosticKind::AccessOfVoid.id() => "Accessing property of void.".into(),
         FxDiagnosticKind::AccessOfNullable.id() => "Accessing property of nullable data type.".into(),
         FxDiagnosticKind::CouldNotExpandInlineConstant.id() => "Could not expand inline constant.".into(),
+        FxDiagnosticKind::ReachedMaximumCycles.id() => "Reached maximum cycles.".into(),
     };
 }

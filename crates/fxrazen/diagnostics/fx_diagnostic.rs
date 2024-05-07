@@ -3,7 +3,7 @@ use crate::ns::*;
 #[path = "fx_diagnostics_texts.rs"]
 mod data;
 
-pub struct FxDiagnostic<'a>(&'a Diagnostic);
+pub struct FxDiagnostic<'a>(pub &'a Diagnostic);
 
 impl<'a> FxDiagnostic<'a> {
     pub fn new_syntax_error(location: &Location, kind: FxDiagnosticKind, arguments: Vec<Rc<dyn DiagnosticArgument>>) -> Diagnostic {
@@ -57,6 +57,21 @@ impl<'a> FxDiagnostic<'a> {
             return self.0.format_message_english();
         }
         self.format_message(&data::DATA)
+    }
+    
+    pub fn format_message(&self, messages: &HashMap<i32, String>) -> String {
+        let mut string_arguments: HashMap<String, String> = hashmap!{};
+        let mut i = 1;
+        for argument in &self.arguments() {
+            string_arguments.insert(i.to_string(), argument.to_string());
+            i += 1;
+        }
+        use late_format::LateFormat;
+        let Some(msg) = messages.get(&self.id()) else {
+            let id = self.id();
+            panic!("Message resource is missing for ID {id}");
+        };
+        msg.late_format(string_arguments)
     }
 }
 
