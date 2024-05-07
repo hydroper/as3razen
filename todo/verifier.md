@@ -26,6 +26,9 @@ Do not forget to set source locations of entities such as classes and variables.
 ## Meta-data
 
 * [ ] Set meta-data properly, except for aliases.
+* [ ] Handle Flex `[Bindable]`
+* [ ] Handle Flex `[Embed]`
+* [ ] Handle Flex `[Event]`
 
 ### @copy
 
