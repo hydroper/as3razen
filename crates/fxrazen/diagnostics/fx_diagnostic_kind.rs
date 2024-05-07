@@ -13,6 +13,7 @@ pub enum FxDiagnosticKind {
     CouldNotExpandInlineConstant = 2057,
     ReachedMaximumCycles = 2058,
     NullNotExpectedHere = 2059,
+    CouldNotParseNumber = 2060,
 }
 
 impl FxDiagnosticKind {

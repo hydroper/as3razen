@@ -17,5 +17,6 @@ lazy_static! {
         FxDiagnosticKind::CouldNotExpandInlineConstant.id() => "Could not expand inline constant.".into(),
         FxDiagnosticKind::ReachedMaximumCycles.id() => "Reached maximum cycles.".into(),
         FxDiagnosticKind::NullNotExpectedHere.id() => "Null not expected here.".into(),
+        FxDiagnosticKind::CouldNotParseNumber.id() => "Could not parse {1}.".into(),
     };
 }

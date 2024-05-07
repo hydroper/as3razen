@@ -197,4 +197,38 @@ impl ExpSubverifier {
         }
         Ok(Some(verifier.host.factory().create_null_constant(&verifier.host.any_type())))
     }
+
+    pub fn verify_numeric_literal(verifier: &mut Subverifier, literal: &NumericLiteral, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        if let Some(t) = context.context_type.as_ref() {
+            let t_esc = t.escape_of_nullable_or_non_nullable();
+            if verifier.host.numeric_types()?.contains(&t_esc) {
+                let n = Self::parse_number_as_data_type(&verifier.host, literal, &t_esc, context);
+                if n.is_err() {
+                    verifier.add_syntax_error(&literal.location, FxDiagnosticKind::CouldNotParseNumber, diagarg![t_esc]);
+                    return Ok(None);
+                }
+                return Ok(Some(verifier.host.factory().create_number_constant(n.unwrap(), t)));
+            }
+        }
+        let t = verifier.host.number_type().defer()?;
+        let n = Self::parse_number_as_data_type(&verifier.host, literal, &t, context);
+        if n.is_err() {
+            verifier.add_syntax_error(&literal.location, FxDiagnosticKind::CouldNotParseNumber, diagarg![t]);
+            return Ok(None);
+        }
+        return Ok(Some(verifier.host.factory().create_number_constant(n.unwrap(), &t)));
+    }
+
+    pub fn parse_number_as_data_type(host: &SemanticHost, literal: &NumericLiteral, data_type: &Thingy, context: &VerifierExpressionContext) -> Result<NumberVariant, ParserError> {
+        if data_type == &host.number_type() {
+            Ok(NumberVariant::Number(literal.parse_double(context.preceded_by_negative)?))
+        } else if data_type == &host.float_type() {
+            Ok(NumberVariant::Float(literal.parse_float(context.preceded_by_negative)?))
+        } else if data_type == &host.int_type() {
+            Ok(NumberVariant::Int(literal.parse_int(context.preceded_by_negative)?))
+        } else {
+            assert!(data_type == &host.uint_type());
+            Ok(NumberVariant::Uint(literal.parse_uint()?))
+        }
+    }
 }

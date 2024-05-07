@@ -174,6 +174,9 @@ impl Subverifier {
             Expression::QualifiedIdentifier(id) => {
                 result = ExpSubverifier::verify_qualified_identifier_as_expr(self, id, context)?;
             },
+            Expression::NumericLiteral(e) => {
+                result = ExpSubverifier::verify_numeric_literal(self, e, context)?;
+            },
             Expression::Paren(e) => {
                 result = self.verify_expression(&e.expression, context)?;
             },
