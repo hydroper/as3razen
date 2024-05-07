@@ -6,17 +6,24 @@ The `includeSources` option of a FXRazen package includes sources recursively.
 
 ## excludeSources
 
-The `excludeSources` option of a FXRazen package excludes sources recursively, useful for excluding `include "file.as"` directive's files.
+The `excludeSources` option of a FXRazen package excludes sources recursively, useful for excluding `include "file.as";` directive's files.
 
-## fx:Package
+## sourcePath
 
-Because there is no notion of source paths in the compiler unlike in Apache Flex, users are required to enter the `<fx:Package>` tag in their MXML components to indicate a package.
+The `sourcePath` option, different from Flex, must be used alongside `includeSources` and is used as the base directory of the top-level package for MXML files. `sourcePath` is not an array unlike in Flex.
 
-```xml
-<?xml version="1.0"?>
-<s:Application
-    xmlns:fx="http://ns.hydroper.com/fxrazen"
-    xmlns:s="library://ns.hydroper.com/fxrazen/spark">
-    <fx:Package>foo.bar</fx:Package>
-</s:Application>
+MXML files have their package determined based in the `sourcePath` directory, using the directory hierarchy.
+
+Usually, `includeSources` and `sourcePath` may be set to point to the same directory.
+
+For example:
+
+```plain
+src/
+    com/
+        foo/
+            bar/
+                CompA.mxml
 ```
+
+Given `includeSources` is `["src"]` and `sourcePath` is `"src"`, the ActionScript 3 package of the `CompA.mxml` file is equivalent to `com.foo.bar`.

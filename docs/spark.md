@@ -7,6 +7,5 @@ Spark is not to be confused with the Apache Flex's Spark component set. Spark is
 <s:Application
     xmlns:fx="http://ns.hydroper.com/fxrazen"
     xmlns:s="library://ns.hydroper.com/fxrazen/spark">
-    <fx:Package>foo.bar</fx:Package>
 </s:Application>
 ```
