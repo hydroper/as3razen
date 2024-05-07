@@ -98,6 +98,11 @@ impl<'a> TypeConversions<'a> {
         if &from_type == target_type {
             return Ok(Some(value.clone()));
         }
+
+        if value.is::<InvalidationThingy>() || target_type.is::<InvalidationThingy>() {
+            return Ok(Some(self.0.invalidation_thingy()));
+        }
+
         if !value.is::<Constant>() {
             return Ok(None);
         }

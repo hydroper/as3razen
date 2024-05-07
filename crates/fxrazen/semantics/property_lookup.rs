@@ -86,6 +86,9 @@ fn mark_used(host: &SemanticHost, property: &Thingy) {
 
 impl<'a> PropertyLookup<'a> {
     pub fn lookup_in_object(&self, base: &Thingy, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
+        if base.is::<InvalidationThingy>() {
+            return Ok(Some(base.clone()));
+        }
         let local_name = key.local_name();
         let double_key = map_defer_error(key.double_value(self.0))?;
 

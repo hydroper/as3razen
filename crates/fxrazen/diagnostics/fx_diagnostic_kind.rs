@@ -16,6 +16,10 @@ pub enum FxDiagnosticKind {
     CouldNotParseNumber = 2060,
     NoMatchingEnumMember = 2061,
     UnexpectedThis = 2062,
+    ArrayLengthNotEqualsTupleLength = 2063,
+    UnexpectedElision = 2064,
+    UnexpectedArray = 2065,
+    UnexpectedRest = 2066,
 }
 
 impl FxDiagnosticKind {

@@ -737,6 +737,8 @@ smodel! {
                 return vec![host.function_type()];
             } else if self.is::<TupleType>() {
                 return vec![host.array_type()];
+            } else if self.is::<InvalidationThingy>() {
+                return vec![];
             }
             return vec![];
         }
@@ -816,7 +818,15 @@ smodel! {
 
         #[inheritdoc]
         pub override fn property_static_type(&self, host: &SemanticHost) -> Thingy {
-            host.any_type()
+            self.clone().into()
+        }
+
+        pub override fn static_type(&self, host: &SemanticHost) -> Thingy {
+            self.clone().into()
+        }
+
+        override fn to_string_1(&self) -> String {
+            "[unknown]".into()
         }
     }
 

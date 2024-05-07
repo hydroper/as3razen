@@ -20,6 +20,10 @@ lazy_static! {
         FxDiagnosticKind::CouldNotParseNumber.id() => "Could not parse {1}.".into(),
         FxDiagnosticKind::NoMatchingEnumMember.id() => "Found no member '{1}' in {2}.".into(),
         FxDiagnosticKind::UnexpectedThis.id() => "Unexpected this.".into(),
+        FxDiagnosticKind::ArrayLengthNotEqualsTupleLength.id() => "Array length is not equals length of tuple {1}.".into(),
+        FxDiagnosticKind::UnexpectedElision.id() => "Unexpected elision.".into(),
+        FxDiagnosticKind::UnexpectedArray.id() => "Unexpected array.".into(),
+        FxDiagnosticKind::UnexpectedRest.id() => "Unexpected rest.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }
