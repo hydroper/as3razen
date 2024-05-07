@@ -870,6 +870,7 @@ smodel! {
         }
     }
 
+    /// In the AVM2, this is equivalent to a `CONSTANT_Namespace` namespace.
     pub struct UserNamespace: Namespace {
         let ref m_uri: String = "".into();
 
@@ -887,6 +888,7 @@ smodel! {
         }
     }
 
+    /// In the AVM2, this is equivalent to a `CONSTANT_ExplicitNamespace` namespace.
     pub struct ExplicitNamespace: Namespace {
         let ref m_uri: String = "".into();
 

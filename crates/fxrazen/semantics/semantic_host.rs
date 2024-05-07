@@ -38,6 +38,7 @@ pub struct SemanticHost {
     proxy_type: RefCell<Option<Thingy>>,
     dictionary_type: RefCell<Option<Thingy>>,
     flash_proxy_ns: RefCell<Option<Thingy>>,
+    as3_ns: RefCell<Option<Thingy>>,
 
     meta_prop: Thingy,
     meta_env_prop: Thingy,
@@ -111,6 +112,7 @@ impl SemanticHost {
             proxy_type: RefCell::new(None),
             dictionary_type: RefCell::new(None),
             flash_proxy_ns: RefCell::new(None),
+            as3_ns: RefCell::new(None),
 
             non_null_primitive_types: RefCell::new(None),
             numeric_types: RefCell::new(None),
@@ -132,6 +134,9 @@ impl SemanticHost {
 
         // Initialize "flash_proxy" namespace
         host.flash_proxy_ns.replace(Some(host.factory().create_user_ns("http://www.adobe.com/2006/actionscript/flash/proxy".into())));
+
+        // Initialize the "AS3" namespace
+        host.as3_ns.replace(Some(host.factory().create_user_ns("http://adobe.com/AS3/2006/builtin".into())));
 
         host
     }
@@ -264,6 +269,11 @@ impl SemanticHost {
     /// The `flash.utils.flash_proxy` namespace.
     pub fn flash_proxy_ns(&self) -> Thingy {
         self.flash_proxy_ns.borrow().as_ref().unwrap().clone()
+    }
+
+    /// The `AS3` namespace.
+    pub fn as3_ns(&self) -> Thingy {
+        self.as3_ns.borrow().as_ref().unwrap().clone()
     }
 
     /// Returns the set of primitive types that do not contain `null`,

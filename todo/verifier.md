@@ -42,7 +42,8 @@ Do not forget to set source locations of entities such as classes and variables.
 
 * [ ] Combining the `static protected` modifiers in an annotatable directive indicates a `SystemNamespaceKind::StaticProtected` system namespace.
 * [ ] Set ASDoc comments properly for explicit or user namespaces.
-* [ ] `namespace ns1;` creates an `internal` system namespace, rather than an explicit or user namespace.
+* [ ] `namespace ns1;` creates an `internal` system namespace belonging to a hardcoded package created in the fly, rather than an `UserNamespace`.
+* [ ] `namespace ns1 = "...";` creates an user namespace (`UserNamespace`; not `ExplicitNamespace`).
 
 ## Packages
 
