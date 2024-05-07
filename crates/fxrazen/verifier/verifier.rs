@@ -201,6 +201,9 @@ impl Subverifier {
             Expression::XmlList(e) => {
                 result = ExpSubverifier::verify_xml_list_exp(self, e, context)?;
             },
+            Expression::ArrayLiteral(e) => {
+                result = ArraySubverifier::verify_array_literal(self, e, context)?;
+            },
             Expression::Invalidated(_) => {
                 result = None;
             },
