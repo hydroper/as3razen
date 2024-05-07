@@ -311,6 +311,12 @@ impl<'a> PropertyLookup<'a> {
             p = p1.parent();
         }
 
+        // If the key is computed, always return dynamic
+        if matches!(key, PropertyLookupKey::Computed(_)) {
+            let k = map_defer_error(key.computed_or_local_name(self.0))?;
+            return Ok(Some(self.0.factory().create_dynamic_scope_reference_value(scope, qual, &k)));
+        }
+
         // If it's a "with" scope
         if scope.is::<WithScope>() {
             let obj = scope.object();
@@ -335,7 +341,7 @@ impl<'a> PropertyLookup<'a> {
 
         let local_name = key.local_name();
         let has_known_ns = qual.as_ref().map(|q| q.is_namespace_or_ns_reference()).unwrap_or(true);
-        
+
         if let Some(qual) = qual.as_ref() {
             if qual.is::<PackageWildcardImport>() {
                 let Some(local_name) = local_name else {
