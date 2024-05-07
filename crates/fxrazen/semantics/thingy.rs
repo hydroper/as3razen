@@ -783,6 +783,10 @@ smodel! {
             }
         }
 
+        pub fn control_flow_graph(&self) -> ControlFlowGraph {
+            panic!();
+        }
+
         /// Lookups property in an object.
         pub fn lookup_in_object(&self, host: &SemanticHost, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
             PropertyLookup(host).lookup_in_object(self, open_ns_set, qual, key)
@@ -2847,6 +2851,10 @@ smodel! {
             } else if value {
                 self.set_m_property_has_capture(Some(shared_array![property.clone()]));
             }
+        }
+
+        pub override fn control_flow_graph(&self) -> ControlFlowGraph {
+            self.m_cfg()
         }
     }
 
