@@ -10,9 +10,9 @@ The `excludeSources` option of a FXRazen package excludes sources recursively, u
 
 ## sourcePath
 
-The `sourcePath` option, different from Flex, must be used alongside `includeSources` and is used as the base directory of the top-level package for MXML files. `sourcePath` is not an array unlike in Flex.
+The `sourcePath` option, different from Flex, must be used alongside `includeSources` and is used as the base directory of the top-level package for MXML files.
 
-MXML files have their package determined based in the `sourcePath` directory, using the directory hierarchy.
+MXML files have their package determined based in one of the `sourcePath` directories, using the directory hierarchy.
 
 Usually, `includeSources` and `sourcePath` may be set to point to the same directory.
 
@@ -26,4 +26,4 @@ src/
                 CompA.mxml
 ```
 
-Given `includeSources` is `["src"]` and `sourcePath` is `"src"`, the ActionScript 3 package of the `CompA.mxml` file is equivalent to `com.foo.bar`.
+Given `includeSources` is `["src"]` and `sourcePath` is `["src"]`, the ActionScript 3 package of the `CompA.mxml` file is equivalent to `com.foo.bar`.

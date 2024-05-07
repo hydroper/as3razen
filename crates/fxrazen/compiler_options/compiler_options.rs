@@ -12,7 +12,7 @@ pub struct CompilerOptions {
     pub asdoc_markdown: bool,
     pub warnings: CompilerWarningOptions,
     /// Used for identifying the AS3 package in a MXML source tree.
-    pub source_path: Option<String>,
+    pub source_path: Vec<String>,
 }
 
 #[derive(Clone)]
@@ -29,7 +29,7 @@ impl Default for CompilerOptions {
             block_scope: true,
             asdoc_markdown: true,
             warnings: Default::default(),
-            source_path: None,
+            source_path: vec![],
         }
     }
 }
