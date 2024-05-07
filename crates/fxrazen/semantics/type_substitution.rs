@@ -17,7 +17,7 @@ pub struct TypeSubstitution<'a>(pub &'a SemanticHost);
 
 impl<'a> TypeSubstitution<'a> {
     pub fn exec(&mut self, thing: &Thingy, type_params: &SharedArray<Thingy>, substitute_types: &SharedArray<Thingy>) -> Thingy {
-        if thing.is::<UnresolvedThingy>() {
+        if thing.is::<UnresolvedThingy>() || thing.is::<InvalidationThingy>() {
             return thing.clone();
         } else if thing.is::<Type>() {
             if thing.is::<FunctionType>() {
