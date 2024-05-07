@@ -40,6 +40,7 @@ Do not forget to set source locations of entities such as classes and variables.
 
 ## Namespaces
 
+* [ ] Throw a verify error if the namespace's local name conflicts with that of a configuration namespace in `host.config_constants()`.
 * [ ] Combining the `static protected` modifiers in an annotatable directive indicates a `SystemNamespaceKind::StaticProtected` system namespace.
 * [ ] Set ASDoc comments properly for explicit or user namespaces.
 * [ ] `namespace ns1;` creates an `internal` system namespace belonging to a hardcoded package created in the fly, rather than an `UserNamespace`.
