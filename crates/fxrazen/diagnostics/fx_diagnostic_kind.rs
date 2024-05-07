@@ -10,6 +10,7 @@ pub enum FxDiagnosticKind {
     AmbiguousReference = 2054,
     AccessOfVoid = 2055,
     AccessOfNullable = 2056,
+    CouldNotExpandInlineConstant = 2057,
 }
 
 impl FxDiagnosticKind {

@@ -164,7 +164,10 @@ impl Subverifier {
         let result: Option<Thingy>;
         match exp.as_ref() {
             Expression::QualifiedIdentifier(id) => {
-                result = ExpressionSubverifier::verify_qualified_identifier_as_expr(self, id, &context)?;
+                result = ExpSubverifier::verify_qualified_identifier_as_expr(self, id, &context)?;
+            },
+            Expression::Paren(e) => {
+                result = self.verify_expression(&e.expression, context)?;
             },
         }
 
@@ -214,7 +217,7 @@ impl Subverifier {
     }
 
     /// Implicitly coerce expression to a type.
-    pub fn imp_coerce_expr(&mut self, exp: &Rc<Expression>, target_type: &Thingy) -> Result<Option<Thingy>, DeferError> {
+    pub fn imp_coerce_exp(&mut self, exp: &Rc<Expression>, target_type: &Thingy) -> Result<Option<Thingy>, DeferError> {
         let v = self.verify_expression(exp, &VerifierExpressionContext {
             context_type: Some(target_type.clone()),
             ..default()

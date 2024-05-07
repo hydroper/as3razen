@@ -131,3 +131,7 @@ Open namespaces properly everywhere.
 ## Getters and setters
 
 * [ ] Invoke `set_of_virtual_slot()` properly.
+
+## Inline constants
+
+* [x] Expand inline constants

@@ -1,22 +1,18 @@
 use crate::ns::*;
 
-pub(crate) struct ExpressionSubverifier;
+pub(crate) struct ExpSubverifier;
 
-impl ExpressionSubverifier {
+impl ExpSubverifier {
     // QualifiedIdentifier - returns (ns, local name)
     pub fn verify_qualified_identifier(verifier: &mut Subverifier, id: &QualifiedIdentifier) -> Result<Option<(Option<Thingy>, PropertyLookupKey)>, DeferError> {
-        let QualifiedIdentifier {
-            qualifier,
-            id,
-            ..
-        } = id;
+        let QualifiedIdentifier { qualifier, id, .. } = id;
 
         let mut failed = false;
 
         let mut result_qual: Option<Thingy> = None;
 
         if let Some(qualifier) = qualifier {
-            result_qual = verifier.imp_coerce_expr(qualifier, &verifier.host.namespace_type())?;
+            result_qual = verifier.imp_coerce_exp(qualifier, &verifier.host.namespace_type())?;
             if result_qual.is_none() {
                 failed = true;
             }
@@ -29,7 +25,7 @@ impl ExpressionSubverifier {
                 result_key = Some(PropertyLookupKey::LocalName(id.clone()));
             },
             QualifiedIdentifierIdentifier::Brackets(exp) => {
-                let v = verifier.imp_coerce_expr(exp, &verifier.host.string_type())?;
+                let v = verifier.imp_coerce_exp(exp, &verifier.host.string_type())?;
                 if let Some(v) = v {
                     result_key = Some(PropertyLookupKey::Computed(v));
                 } else {
@@ -47,11 +43,21 @@ impl ExpressionSubverifier {
 
     // QualifiedIdentifier
     pub fn verify_qualified_identifier_as_expr(verifier: &mut Subverifier, id: &QualifiedIdentifier, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        if let Some(cdata) = Self::filter_inline_constant(verifier, id) {
+            return Self::verify_inline_constant(verifier, &id.location, cdata, context);
+        }
+
         let qn = Self::verify_qualified_identifier(verifier, id)?;
         if qn.is_none() {
             return Ok(None);
         }
         let (qual, key) = qn.unwrap();
+
+        // Attribute
+        if id.attribute {
+            return Ok(Some(verifier.host.factory().create_dynamic_scope_reference_value(&verifier.scope(), qual, &key.computed_or_local_name(&verifier.host)?)));
+        }
+
         let r = verifier.scope().lookup_in_scope_chain(&verifier.host, qual, &key);
         if r.is_err() {
             match r.unwrap_err() {
@@ -114,5 +120,41 @@ impl ExpressionSubverifier {
         }
 
         Ok(Some(r))
+    }
+
+    fn filter_inline_constant(verifier: &mut Subverifier, id: &QualifiedIdentifier) -> Option<String> {
+        let QualifiedIdentifier { qualifier, id, .. } = id;
+
+        if let Some(qualifier) = qualifier {
+            // Detect any inline constant
+            let inlinekqid = qualifier.to_identifier_name().map(|name| name.0);
+            let inlinekln = if let QualifiedIdentifierIdentifier::Id((name, _)) = id { Some(name) } else { None };
+            if let (Some(inlinekqid), Some(inlinekln)) = (inlinekqid, inlinekln) {
+                let inlinekid = format!("{}::{}", inlinekqid, inlinekln);
+                return verifier.host.config_constants().get(&inlinekid);
+            }
+        }
+
+        None
+    }
+
+    fn verify_inline_constant(verifier: &mut Subverifier, location: &Location, cdata: String, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        let cu = CompilationUnit::new(None, cdata);
+        let exp = ParserFacade(&cu, ParserOptions::default()).parse_expression();
+        if cu.invalidated() {
+            verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
+            return Ok(None);
+        }
+        let Ok(cval) = verifier.verify_expression(&exp, context) else {
+            verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
+            return Ok(None);
+        };
+        if let Some(cval) = cval.as_ref() {
+            if !cval.is::<Constant>() {
+                verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
+                return Ok(None);
+            }
+        }
+        Ok(cval)
     }
 }

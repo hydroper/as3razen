@@ -3139,6 +3139,7 @@ smodel! {
         }
     }
 
+    /// Possibly uses attribute.
     pub struct XmlReferenceValue: ReferenceValue {
         let ref m_base: Option<Thingy> = None;
         let ref m_qual: Option<Thingy> = None;
@@ -3176,6 +3177,7 @@ smodel! {
         }
     }
 
+    /// Possibly uses attribute.
     pub struct DynamicReferenceValue: ReferenceValue {
         let ref m_base: Option<Thingy> = None;
         let ref m_qual: Option<Thingy> = None;
@@ -3376,6 +3378,7 @@ smodel! {
         }
     }
 
+    /// Possibly uses attribute.
     pub struct DynamicScopeReferenceValue: ReferenceValue {
         let ref m_base: Option<Thingy> = None;
         let ref m_qual: Option<Thingy> = None;

@@ -14,5 +14,6 @@ lazy_static! {
         FxDiagnosticKind::AmbiguousReference.id() => "Ambiguous reference to '{1}'.".into(),
         FxDiagnosticKind::AccessOfVoid.id() => "Accessing property of void.".into(),
         FxDiagnosticKind::AccessOfNullable.id() => "Accessing property of nullable data type.".into(),
+        FxDiagnosticKind::CouldNotExpandInlineConstant.id() => "Could not expand inline constant.".into(),
     };
 }
