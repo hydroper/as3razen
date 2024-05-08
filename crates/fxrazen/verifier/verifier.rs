@@ -214,6 +214,9 @@ impl Subverifier {
             Expression::Invalidated(_) => {
                 result = None;
             },
+            Expression::ImportMeta(_) => {
+                result = Some(self.host.meta_property());
+            },
         }
 
         self.host.node_mapping().set(exp, result.clone());
