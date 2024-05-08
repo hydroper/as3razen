@@ -198,36 +198,10 @@ impl ObjectLiteralSubverifier {
         }
 
         // Mark local capture
-        if r.is::<ScopeReferenceValue>() {
-            let r_act = r.base().search_activation();
-            let cur_act = verifier.scope().search_activation();
-            if let (Some(r_act), Some(cur_act)) = (r_act, cur_act) {
-                if r_act != cur_act {
-                    r_act.set_property_has_capture(&r.property(), true);
-                }
-            }
-        }
+        verifier.detect_local_capture(&r);
 
-        if r.is::<ReferenceValue>() && (r.is::<StaticReferenceValue>() || r.is::<InstanceReferenceValue>() || r.is::<ScopeReferenceValue>() || r.is::<PackageReferenceValue>()) {
-            let p = r.property();
-
-            // Auto apply parameterized types
-            if (p.is::<ClassType>() || p.is::<InterfaceType>()) && p.type_params().is_some() {
-                let mut subst = SharedArray::<Thingy>::new();
-                for _ in 0..p.type_params().unwrap().length() {
-                    subst.push(verifier.host.any_type());
-                }
-                return Ok(Some(verifier.host.factory().create_type_after_substitution(&p, &subst)));
-            }
-
-            // Compile-time constant
-            if p.is::<OriginalVariableSlot>() && p.read_only(&verifier.host) && p.var_constant().is_some() {
-                let r = p.var_constant().unwrap();
-                return Ok(Some(r));
-            }
-        }
-
-        Ok(Some(r))
+        // Post-processing
+        verifier.reference_post_processing(r, &default())
     }
 
     fn resolve_instance_variable(verifier: &mut Subverifier, class: &Thingy, id: &QualifiedIdentifier) -> Result<Option<Thingy>, DeferError> {

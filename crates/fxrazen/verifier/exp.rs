@@ -90,41 +90,11 @@ impl ExpSubverifier {
         }
         let r = r.unwrap();
 
-        if r.is::<InvalidationThingy>() {
-            return Ok(None);
-        }
-
         // Mark local capture
-        if r.is::<ScopeReferenceValue>() {
-            let r_act = r.base().search_activation();
-            let cur_act = verifier.scope().search_activation();
-            if let (Some(r_act), Some(cur_act)) = (r_act, cur_act) {
-                if r_act != cur_act {
-                    r_act.set_property_has_capture(&r.property(), true);
-                }
-            }
-        }
+        verifier.detect_local_capture(&r);
 
-        if r.is::<ReferenceValue>() && (r.is::<StaticReferenceValue>() || r.is::<InstanceReferenceValue>() || r.is::<ScopeReferenceValue>() || r.is::<PackageReferenceValue>()) {
-            let p = r.property();
-
-            // Auto apply parameterized types
-            if (p.is::<ClassType>() || p.is::<InterfaceType>()) && p.type_params().is_some() && !context.followed_by_type_arguments {
-                let mut subst = SharedArray::<Thingy>::new();
-                for _ in 0..p.type_params().unwrap().length() {
-                    subst.push(verifier.host.any_type());
-                }
-                return Ok(Some(verifier.host.factory().create_type_after_substitution(&p, &subst)));
-            }
-
-            // Compile-time constant
-            if p.is::<OriginalVariableSlot>() && p.read_only(&verifier.host) && p.var_constant().is_some() {
-                let r = p.var_constant().unwrap();
-                return Ok(Some(r));
-            }
-        }
-
-        Ok(Some(r))
+        // Post-processing
+        verifier.reference_post_processing(r, context)
     }
 
     fn filter_inline_constant(verifier: &mut Subverifier, id: &QualifiedIdentifier) -> Option<(String, String)> {
@@ -412,29 +382,86 @@ impl ExpSubverifier {
 
     pub fn verify_member_expr(verifier: &mut Subverifier, exp: &Rc<Expression>, member_exp: &MemberExpression, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
         // Shadowing package names
-        let dot_seq = Self::dot_delimited_id_sequence(exp);
-        if let Some(dot_seq) = dot_seq {
-            let mut scope = Some(verifier.scope());
-            while let Some(scope1) = scope {
-                let open_ns_set = scope1.concat_open_ns_set_of_scope_chain();
-                let mut r: Option<Thingy> = None;
-                for import in scope1.import_list().iter() {
-                    if let Some(r1) = Self::import_shadowing_package_name(verifier, &open_ns_set, &dot_seq, &import, &member_exp.identifier.location)? {
-                        if r.is_some() && r.as_ref().unwrap() != &r1 {
-                            verifier.add_verify_error(&member_exp.identifier.location, FxDiagnosticKind::AmbiguousReference, diagarg![dot_seq.last().unwrap().clone()]);
-                            return Ok(None);
-                        }
-                        r = Some(r1);
-                    }
-                }
-                if let Some(r) = r {
-                    return Ok(Some(r));
-                }
-                scope = scope1.parent();
-            }
+        if let Some(r) = Self::verify_member_expr_pre_package_names(verifier, exp, member_exp)? {
+            return Ok(Some(r));
         }
 
-        todo();
+        let id = &member_exp.identifier;
+
+        let Some(base) = verifier.verify_expression(&member_exp.base, &default())? else {
+            Self::verify_qualified_identifier(verifier, id)?;
+            return Ok(None);
+        };
+
+        let qn = Self::verify_qualified_identifier(verifier, id)?;
+        if qn.is_none() {
+            return Ok(None);
+        }
+        let (qual, key) = qn.unwrap();
+
+        // Attribute
+        if id.attribute {
+            return Ok(Some(verifier.host.factory().create_dynamic_scope_reference_value(&verifier.scope(), qual, &key.computed_or_local_name(&verifier.host)?)));
+        }
+
+        let open_ns_set = verifier.scope().concat_open_ns_set_of_scope_chain();
+        let r = PropertyLookup(&verifier.host).lookup_in_object(&base, &open_ns_set, qual, &key);
+        if r.is_err() {
+            match r.unwrap_err() {
+                PropertyLookupError::AmbiguousReference(name) => {
+                    verifier.add_verify_error(&id.location, FxDiagnosticKind::AmbiguousReference, diagarg![name.clone()]);
+                    return Ok(None);
+                },
+                PropertyLookupError::Defer => {
+                    return Err(DeferError());
+                },
+                PropertyLookupError::VoidBase => {
+                    verifier.add_verify_error(&id.location, FxDiagnosticKind::AccessOfVoid, diagarg![]);
+                    return Ok(None);
+                },
+                PropertyLookupError::NullableObject { .. } => {
+                    verifier.add_verify_error(&id.location, FxDiagnosticKind::AccessOfNullable, diagarg![]);
+                    return Ok(None);
+                },
+            }
+        }
+        let r = r.unwrap();
+        if r.is_none() {
+            verifier.add_verify_error(&id.location, FxDiagnosticKind::UndefinedPropertyWithStaticType, diagarg![key.local_name().unwrap(), base.static_type(&verifier.host)]);
+            return Ok(None);
+        }
+        let r = r.unwrap();
+
+        // No need to mark local capture for the member operator.
+        // verifier.detect_local_capture(&r);
+
+        // Post-processing
+        verifier.reference_post_processing(r, context)
+    }
+
+    fn verify_member_expr_pre_package_names(verifier: &mut Subverifier, exp: &Rc<Expression>, member_exp: &MemberExpression) -> Result<Option<Thingy>, DeferError> {
+        let Some(dot_seq) = Self::dot_delimited_id_sequence(exp) else {
+            return Ok(None);
+        };
+        let mut scope = Some(verifier.scope());
+        while let Some(scope1) = scope {
+            let open_ns_set = scope1.concat_open_ns_set_of_scope_chain();
+            let mut r: Option<Thingy> = None;
+            for import in scope1.import_list().iter() {
+                if let Some(r1) = Self::import_shadowing_package_name(verifier, &open_ns_set, &dot_seq, &import, &member_exp.identifier.location)? {
+                    if r.is_some() && r.as_ref().unwrap() != &r1 {
+                        verifier.add_verify_error(&member_exp.identifier.location, FxDiagnosticKind::AmbiguousReference, diagarg![dot_seq.last().unwrap().clone()]);
+                        return Ok(None);
+                    }
+                    r = Some(r1);
+                }
+            }
+            if let Some(r) = r {
+                return Ok(Some(r));
+            }
+            scope = scope1.parent();
+        }
+        Ok(None)
     }
 
     fn import_shadowing_package_name(verifier: &mut Subverifier, open_ns_set: &SharedArray<Thingy>, dot_seq: &Vec<String>, import: &Thingy, location: &Location) -> Result<Option<Thingy>, DeferError> {
@@ -452,7 +479,7 @@ impl ExpSubverifier {
                 },
                 Err(PropertyLookupError::AmbiguousReference(name)) => {
                     verifier.add_verify_error(&location, FxDiagnosticKind::AmbiguousReference, diagarg![name.clone()]);
-                    return Ok(None);
+                    return Ok(Some(verifier.host.invalidation_thingy()));
                 },
                 Err(PropertyLookupError::Defer) => {
                     return Err(DeferError());
@@ -475,7 +502,7 @@ impl ExpSubverifier {
                 },
                 Err(PropertyLookupError::AmbiguousReference(name)) => {
                     verifier.add_verify_error(&location, FxDiagnosticKind::AmbiguousReference, diagarg![name.clone()]);
-                    return Ok(None);
+                    return Ok(Some(verifier.host.invalidation_thingy()));
                 },
                 Err(PropertyLookupError::Defer) => {
                     return Err(DeferError());

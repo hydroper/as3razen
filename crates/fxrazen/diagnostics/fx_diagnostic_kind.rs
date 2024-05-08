@@ -28,6 +28,7 @@ pub enum FxDiagnosticKind {
     UnexpectedNewBase = 2072,
     IncorrectNumArguments = 2073,
     IncorrectNumArgumentsNoMoreThan = 2074,
+    UndefinedPropertyWithStaticType = 2075,
 }
 
 impl FxDiagnosticKind {

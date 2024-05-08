@@ -315,6 +315,42 @@ impl Subverifier {
         self.host.node_mapping().set(exp, Some(v.clone()));
         Ok(Some(v))
     }
+    
+    pub fn detect_local_capture(&self, reference: &Thingy) {
+        if reference.is::<ScopeReferenceValue>() {
+            let r_act = reference.base().search_activation();
+            let cur_act = self.scope().search_activation();
+            if let (Some(r_act), Some(cur_act)) = (r_act, cur_act) {
+                if r_act != cur_act {
+                    r_act.set_property_has_capture(&reference.property(), true);
+                }
+            }
+        }
+    }
+
+    /// Post-processes an already resolved reference. Auto applies
+    /// type parameters and auto expands constant.
+    pub fn reference_post_processing(&mut self, r: Thingy, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        if r.is::<ReferenceValue>() && (r.is::<StaticReferenceValue>() || r.is::<InstanceReferenceValue>() || r.is::<ScopeReferenceValue>() || r.is::<PackageReferenceValue>()) {
+            let p = r.property();
+
+            // Auto apply parameterized types
+            if (p.is::<ClassType>() || p.is::<InterfaceType>()) && p.type_params().is_some() && !context.followed_by_type_arguments {
+                let mut subst = SharedArray::<Thingy>::new();
+                for _ in 0..p.type_params().unwrap().length() {
+                    subst.push(self.host.any_type());
+                }
+                return Ok(Some(self.host.factory().create_type_after_substitution(&p, &subst)));
+            }
+
+            // Compile-time constant
+            if p.is::<OriginalVariableSlot>() && p.read_only(&self.host) && p.var_constant().is_some() {
+                let r = p.var_constant().unwrap();
+                return Ok(Some(r));
+            }
+        }
+        Ok(Some(r))
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
