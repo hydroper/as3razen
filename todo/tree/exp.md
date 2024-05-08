@@ -1,6 +1,5 @@
 # Expressions
 
-* [ ] `Descendants`
 * [ ] `Filter`
 * [ ] `Super`
 * [ ] `Call`
