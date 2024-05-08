@@ -21,7 +21,7 @@ impl ObjectLiteralSubverifier {
             Self::verify_object_initializer_for_options_class(verifier, initializer, &context_type_esc)?;
         } else {
             if !context_type_esc.is::<InvalidationThingy>() {
-                verifier.add_syntax_error(&initializer.location, FxDiagnosticKind::UnexpectedObject, diagarg![]);
+                verifier.add_verify_error(&initializer.location, FxDiagnosticKind::UnexpectedObject, diagarg![]);
             }
             // Same as for * and Object; duplicating the call for now.
             Self::verify_object_initializer_for_ecma_object(verifier, initializer)?;

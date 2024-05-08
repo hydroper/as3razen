@@ -29,6 +29,8 @@ pub enum FxDiagnosticKind {
     IncorrectNumArguments = 2073,
     IncorrectNumArgumentsNoMoreThan = 2074,
     UndefinedPropertyWithStaticType = 2075,
+    InapplicableFilter = 2076,
+    InapplicableDescendants = 2077,
 }
 
 impl FxDiagnosticKind {

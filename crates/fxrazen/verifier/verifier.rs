@@ -183,13 +183,13 @@ impl Subverifier {
         let mut result: Option<Thingy>;
         match exp.as_ref() {
             Expression::QualifiedIdentifier(id) => {
-                result = ExpSubverifier::verify_qualified_identifier_as_expr(self, id, context)?;
+                result = ExpSubverifier::verify_qualified_identifier_as_exp(self, id, context)?;
             },
             Expression::Member(e) => {
-                result = ExpSubverifier::verify_member_expr(self, exp, e, context)?;
+                result = ExpSubverifier::verify_member_exp(self, exp, e, context)?;
             },
             Expression::ComputedMember(e) => {
-                result = ExpSubverifier::verify_computed_member_expr(self, e, context)?;
+                result = ExpSubverifier::verify_computed_member_exp(self, e, context)?;
             },
             Expression::NumericLiteral(e) => {
                 result = ExpSubverifier::verify_numeric_literal(self, e, context)?;
@@ -235,6 +235,9 @@ impl Subverifier {
             },
             Expression::New(e) => {
                 result = ExpSubverifier::verify_new_exp(self, e)?;
+            },
+            Expression::Descendants(e) => {
+                result = ExpSubverifier::verify_descendants_exp(self, e)?;
             },
         }
 

@@ -42,7 +42,7 @@ impl ExpSubverifier {
     }
 
     // QualifiedIdentifier
-    pub fn verify_qualified_identifier_as_expr(verifier: &mut Subverifier, id: &QualifiedIdentifier, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+    pub fn verify_qualified_identifier_as_exp(verifier: &mut Subverifier, id: &QualifiedIdentifier, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
         // Check for inline constants
         if let Some((name, cdata)) = Self::filter_inline_constant(verifier, id) {
             // Defer
@@ -138,12 +138,12 @@ impl ExpSubverifier {
 
         // An expression is always built for the inline constant,
         // which must be a compile-time constant.
-        let exp = ParserFacade(&cu, ParserOptions::default()).parse_expression();
+        let exp = ParserFacade(&cu, ParserOptions::default()).parse_expession();
         if cu.invalidated() {
             verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
             return None;
         }
-        let Ok(cval) = verifier.verify_expression(&exp, context) else {
+        let Ok(cval) = verifier.verify_expession(&exp, context) else {
             verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
             return None;
         };
@@ -184,7 +184,7 @@ impl ExpSubverifier {
             if verifier.host.numeric_types()?.contains(&t_esc) {
                 let n = Self::parse_number_as_data_type(&verifier.host, literal, &t_esc, context);
                 if n.is_err() {
-                    verifier.add_syntax_error(&literal.location, FxDiagnosticKind::CouldNotParseNumber, diagarg![t_esc]);
+                    verifier.add_verify_error(&literal.location, FxDiagnosticKind::CouldNotParseNumber, diagarg![t_esc]);
                     return Ok(None);
                 }
                 return Ok(Some(verifier.host.factory().create_number_constant(n.unwrap(), t)));
@@ -193,7 +193,7 @@ impl ExpSubverifier {
         let t = verifier.host.number_type().defer()?;
         let n = Self::parse_number_as_data_type(&verifier.host, literal, &t, context);
         if n.is_err() {
-            verifier.add_syntax_error(&literal.location, FxDiagnosticKind::CouldNotParseNumber, diagarg![t]);
+            verifier.add_verify_error(&literal.location, FxDiagnosticKind::CouldNotParseNumber, diagarg![t]);
             return Ok(None);
         }
         return Ok(Some(verifier.host.factory().create_number_constant(n.unwrap(), &t)));
@@ -275,15 +275,15 @@ impl ExpSubverifier {
 
     pub fn verify_xml_elem(verifier: &mut Subverifier, elem: &XmlElement) -> Result<(), DeferError> {
         if let XmlTagName::Expression(exp) = &elem.name {
-            verifier.verify_expression(exp, &VerifierExpressionContext { ..default() })?;
+            verifier.verify_expession(exp, &VerifierExpressionContext { ..default() })?;
         }
         for attr in &elem.attributes {
             if let XmlAttributeValue::Expression(exp) = &attr.value {
-                verifier.verify_expression(exp, &VerifierExpressionContext { ..default() })?;
+                verifier.verify_expession(exp, &VerifierExpressionContext { ..default() })?;
             }
         }
-        if let Some(exp) = &elem.attribute_expression {
-            verifier.verify_expression(exp, &VerifierExpressionContext { ..default() })?;
+        if let Some(exp) = &elem.attribute_expession {
+            verifier.verify_expession(exp, &VerifierExpressionContext { ..default() })?;
         }
         if let Some(content_list) = &elem.content {
             for content in content_list {
@@ -291,7 +291,7 @@ impl ExpSubverifier {
             }
         }
         if let Some(XmlTagName::Expression(exp)) = &elem.closing_name {
-            verifier.verify_expression(exp, &VerifierExpressionContext { ..default() })?;
+            verifier.verify_expession(exp, &VerifierExpressionContext { ..default() })?;
         }
         Ok(())
     }
@@ -303,7 +303,7 @@ impl ExpSubverifier {
                 Ok(())
             },
             XmlContent::Expression(exp) => {
-                verifier.verify_expression(exp, &VerifierExpressionContext { ..default() })?;
+                verifier.verify_expession(exp, &VerifierExpressionContext { ..default() })?;
                 Ok(())
             },
             _ => Ok(()),
@@ -311,10 +311,10 @@ impl ExpSubverifier {
     }
 
     pub fn verify_new_exp(verifier: &mut Subverifier, exp: &NewExpression) -> Result<Option<Thingy>, DeferError> {
-        let Some(base) = verifier.verify_expression(&exp.base, &default())? else {
+        let Some(base) = verifier.verify_expession(&exp.base, &default())? else {
             if let Some(arguments) = &exp.arguments {
                 for arg in arguments.iter() {
-                    verifier.verify_expression(arg, &default())?;
+                    verifier.verify_expession(arg, &default())?;
                 }
             }
             return Ok(None);
@@ -326,7 +326,7 @@ impl ExpSubverifier {
 
                 if let Some(arguments) = &exp.arguments {
                     for arg in arguments.iter() {
-                        verifier.verify_expression(arg, &default())?;
+                        verifier.verify_expession(arg, &default())?;
                     }
                 }
 
@@ -356,7 +356,7 @@ impl ExpSubverifier {
                         verifier.add_verify_error(&exp.base.location(), FxDiagnosticKind::IncorrectNumArgumentsNoMoreThan, diagarg!["0".to_string()]);
                     }
                     for arg in arguments.iter() {
-                        verifier.verify_expression(arg, &default())?;
+                        verifier.verify_expession(arg, &default())?;
                     }
                 }
             }
@@ -373,22 +373,22 @@ impl ExpSubverifier {
 
         if let Some(arguments) = &exp.arguments {
             for arg in arguments.iter() {
-                verifier.verify_expression(arg, &default())?;
+                verifier.verify_expession(arg, &default())?;
             }
         }
 
         return Ok(Some(verifier.host.factory().create_value(&verifier.host.any_type())));
     }
 
-    pub fn verify_member_expr(verifier: &mut Subverifier, exp: &Rc<Expression>, member_exp: &MemberExpression, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+    pub fn verify_member_exp(verifier: &mut Subverifier, exp: &Rc<Expression>, member_exp: &MemberExpression, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
         // Shadowing package names
-        if let Some(r) = Self::verify_member_expr_pre_package_names(verifier, exp, member_exp)? {
+        if let Some(r) = Self::verify_member_exp_pre_package_names(verifier, exp, member_exp)? {
             return Ok(Some(r));
         }
 
         let id = &member_exp.identifier;
 
-        let Some(base) = verifier.verify_expression(&member_exp.base, &default())? else {
+        let Some(base) = verifier.verify_expession(&member_exp.base, &default())? else {
             Self::verify_qualified_identifier(verifier, id)?;
             return Ok(None);
         };
@@ -439,7 +439,7 @@ impl ExpSubverifier {
         verifier.reference_post_processing(r, context)
     }
 
-    fn verify_member_expr_pre_package_names(verifier: &mut Subverifier, exp: &Rc<Expression>, member_exp: &MemberExpression) -> Result<Option<Thingy>, DeferError> {
+    fn verify_member_exp_pre_package_names(verifier: &mut Subverifier, exp: &Rc<Expression>, member_exp: &MemberExpression) -> Result<Option<Thingy>, DeferError> {
         let Some(dot_seq) = Self::dot_delimited_id_sequence(exp) else {
             return Ok(None);
         };
@@ -537,13 +537,13 @@ impl ExpSubverifier {
         }
     }
 
-    pub fn verify_computed_member_expr(verifier: &mut Subverifier, member_exp: &ComputedMemberExpression, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
-        let Some(base) = verifier.verify_expression(&member_exp.base, &default())? else {
-            verifier.verify_expression(&member_exp.key, &default())?;
+    pub fn verify_computed_member_exp(verifier: &mut Subverifier, member_exp: &ComputedMemberExpression, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        let Some(base) = verifier.verify_expession(&member_exp.base, &default())? else {
+            verifier.verify_expession(&member_exp.key, &default())?;
             return Ok(None);
         };
 
-        let Some(key) = verifier.verify_expression(&member_exp.key, &default())? else {
+        let Some(key) = verifier.verify_expession(&member_exp.key, &default())? else {
             return Ok(None);
         };
 
@@ -578,5 +578,31 @@ impl ExpSubverifier {
 
         // Post-processing
         verifier.reference_post_processing(r, context)
+    }
+
+    pub fn verify_descendants_exp(verifier: &mut Subverifier, desc_exp: &DescendantsExpression) -> Result<Option<Thingy>, DeferError> {
+        let Some(base) = verifier.verify_expession(&desc_exp.base, &default())? else {
+            Self::verify_qualified_identifier(verifier, &desc_exp.identifier)?;
+            return Ok(None);
+        };
+
+        Self::verify_qualified_identifier(verifier, &desc_exp.identifier)?;
+
+        let base_st = base.static_type(&verifier.host);
+        let base_st_esc = base_st.escape_of_non_nullable();
+
+        if ![verifier.host.any_type(),
+            verifier.host.object_type().defer()?,
+            verifier.host.xml_type().defer()?,
+            verifier.host.xml_list_type().defer()?].contains(&base_st_esc) {
+            verifier.add_verify_error(&desc_exp.identifier.location, FxDiagnosticKind::InapplicableDescendants, diagarg![base_st]);
+            return Ok(None);
+        }
+
+        if [verifier.host.any_type(), verifier.host.object_type()].contains(&base_st_esc) {
+            return Ok(Some(verifier.host.factory().create_value(&verifier.host.any_type())));
+        }
+
+        Ok(Some(verifier.host.factory().create_value(&verifier.host.xml_list_type())))
     }
 }

@@ -28,7 +28,7 @@ impl ArraySubverifier {
             let mut i: usize = 0;
             let tuple_type = context_type_esc.clone();
             if literal.elements.len() != tuple_type.element_types().length() {
-                verifier.add_syntax_error(&literal.location, FxDiagnosticKind::ArrayLengthNotEqualsTupleLength, diagarg![tuple_type.clone()]);
+                verifier.add_verify_error(&literal.location, FxDiagnosticKind::ArrayLengthNotEqualsTupleLength, diagarg![tuple_type.clone()]);
             }
             for elem in &literal.elements {
                 match elem {
@@ -37,7 +37,7 @@ impl ArraySubverifier {
                     },
                     Element::Rest((exp, loc)) => {
                         verifier.verify_expression(exp, &default())?;
-                        verifier.add_syntax_error(loc, FxDiagnosticKind::UnexpectedRest, diagarg![]);
+                        verifier.add_verify_error(loc, FxDiagnosticKind::UnexpectedRest, diagarg![]);
                     },
                     Element::Expression(exp) => {
                         let element_type = tuple_type.element_types().get(i);
@@ -51,7 +51,7 @@ impl ArraySubverifier {
                 i += 1;
             }
             if elision_found {
-                verifier.add_syntax_error(&literal.location, FxDiagnosticKind::UnexpectedElision, diagarg![]);
+                verifier.add_verify_error(&literal.location, FxDiagnosticKind::UnexpectedElision, diagarg![]);
             }
         } else {
             let element_type = context_type_esc.array_element_type(&verifier.host)?;
@@ -69,7 +69,7 @@ impl ArraySubverifier {
                 }
             } else {
                 if !context_type_esc.is::<InvalidationThingy>() {
-                    verifier.add_syntax_error(&literal.location, FxDiagnosticKind::UnexpectedArray, diagarg![]);
+                    verifier.add_verify_error(&literal.location, FxDiagnosticKind::UnexpectedArray, diagarg![]);
                 }
                 for elem in &literal.elements {
                     match elem {

@@ -33,6 +33,8 @@ lazy_static! {
         FxDiagnosticKind::IncorrectNumArguments.id() => "Incorrect number of arguments. Expected {1}".into(),
         FxDiagnosticKind::IncorrectNumArgumentsNoMoreThan.id() => "Incorrect number of arguments. Expected no more than {1}".into(),
         FxDiagnosticKind::UndefinedPropertyWithStaticType.id() => "Access of possibly undefined property {1} through a reference with static type {2}.".into(),
+        FxDiagnosticKind::InapplicableFilter.id() => "Attempt to filter through a reference with static type {1}.".into(),
+        FxDiagnosticKind::InapplicableDescendants.id() => "Attempt to search descendants through a reference with static type {1}.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }
