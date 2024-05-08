@@ -14,7 +14,11 @@ The FXRazen infrastructure is implemented in Rust.
 
 [![](https://img.shields.io/badge/See-References-blue)](https://github.com/hydroper/as3parser/wiki/References)
 
+<!--
+
 [![](https://img.shields.io/badge/See-Old%20Codebase-blue)](https://github.com/hydroper-jet/privcompiler/tree/master/src/compiler)
+
+-->
 
 ## License
 
