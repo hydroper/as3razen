@@ -162,3 +162,7 @@ Open namespaces properly everywhere.
 * [ ] Mark them implicitly final.
 * [ ] Restrict them to extend only Object.
 * [ ] Restrain all fields to be writable.
+
+## Constructors
+
+* [ ] Require a non default constructor (a constructor with a non-empty parameter list) to be invoked from descending constructors.
