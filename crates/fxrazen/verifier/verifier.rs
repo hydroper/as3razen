@@ -170,7 +170,7 @@ impl Subverifier {
             return Ok(self.host.node_mapping().get(exp));
         }
 
-        let result: Option<Thingy>;
+        let mut result: Option<Thingy>;
         match exp.as_ref() {
             Expression::QualifiedIdentifier(id) => {
                 result = ExpSubverifier::verify_qualified_identifier_as_expr(self, id, context)?;
@@ -217,6 +217,13 @@ impl Subverifier {
             Expression::ImportMeta(_) => {
                 result = Some(self.host.meta_property());
             },
+            Expression::New(e) => {
+                result = ExpSubverifier::verify_new_exp(self, e, context)?;
+            },
+        }
+
+        if result.is_some() && result.as_ref().unwrap().is::<InvalidationThingy>() {
+            result = None;
         }
 
         self.host.node_mapping().set(exp, result.clone());

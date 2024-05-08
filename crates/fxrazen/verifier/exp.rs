@@ -339,4 +339,17 @@ impl ExpSubverifier {
             _ => Ok(()),
         }
     }
+
+    pub fn verify_new_exp(verifier: &mut Subverifier, exp: &NewExpression, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        let Some(base) = verifier.verify_expression(&exp.base, &default())? else {
+            if let Some(arguments) = &exp.arguments {
+                for arg in arguments.iter() {
+                    verifier.verify_expression(arg, &default())?;
+                }
+            }
+            return Ok(None);
+        };
+
+        todo();
+    }
 }

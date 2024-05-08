@@ -94,7 +94,7 @@ impl ArraySubverifier {
 
     pub fn verify_vector_literal(verifier: &mut Subverifier, literal: &VectorLiteral, _context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
         let element_type = verifier.verify_type_expression(&literal.element_type)?;
-        let vector_type = if element_type.is_none() || element_type.as_ref().unwrap().is::<InvalidationThingy>() {
+        let vector_type = if element_type.is_none() {
             verifier.host.invalidation_thingy()
         } else {
             verifier.host.vector_type().defer()?.type_substitution(&verifier.host, &verifier.host.vector_type().defer()?.type_params().unwrap(), &shared_array![element_type.clone().unwrap()])
