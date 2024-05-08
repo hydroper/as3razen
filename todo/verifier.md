@@ -52,6 +52,8 @@ Do not forget to set source locations of entities such as classes and variables.
 
 * [ ] Besides the pre packages pass, another pass, specifically for the AS3 language built-ins (the top-level package and `__AS3__.vec` are taken into consideration, for efficiency), is ideal for optimization: "predefine" classes partially and cache them at the class definition, which is important for primitive types used in name lookups (such as `String` and `Number`).
 
+* [ ] The topmost scope of a package is an activation with `set_is_package_initialization(true)`, from which the package scope is subsequent.
+
 ## Import
 
 ### Name import
@@ -166,3 +168,21 @@ Open namespaces properly everywhere.
 ## Constructors
 
 * [ ] Require a non default constructor (a constructor with a non-empty parameter list) to be invoked from descending constructors.
+
+## Hoisting
+
+* [ ] If block-scoping is on, variables do not hoist to the activation (but functions still do).
+
+## Return statement
+
+* [ ] Report the following errors for the `return` statement used in global or package initialization code. To detect this:
+  * [ ] Make sure to place either `set_is_global_initialization(true)` or `set_is_package_initialization(true)` in the activation.
+
+```plain
+Error: The return statement cannot be used in global initialization code.
+Error: The return statement cannot be used in package initialization code.
+```
+
+## Top level
+
+* [ ] The topmost scope of top level code is an activation with `set_is_global_initialization(true)`.

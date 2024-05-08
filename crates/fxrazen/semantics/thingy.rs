@@ -267,6 +267,24 @@ smodel! {
             }
         }
 
+
+
+        pub fn is_global_initialization(&self) -> bool {
+            panic!();
+        }
+
+        pub fn set_is_global_initialization(&self, value: bool) {
+            panic!();
+        }
+
+        pub fn is_package_initialization(&self) -> bool {
+            panic!();
+        }
+
+        pub fn set_is_package_initialization(&self, value: bool) {
+            panic!();
+        }
+
         pub fn number_value(&self) -> NumberVariant {
             panic!();
         }
@@ -2849,6 +2867,7 @@ smodel! {
     }
 
     pub struct Activation: Scope {
+        let m_kind: u8 = DEFAULT_ACTIVATION;
         let ref m_method: Option<Thingy> = None;
         let ref m_this: Option<Thingy> = None;
         let ref m_property_has_capture: Option<SharedArray<Thingy>> = None;
@@ -2903,6 +2922,22 @@ smodel! {
 
         pub override fn control_flow_graph(&self) -> ControlFlowGraph {
             self.m_cfg()
+        }
+
+        pub override fn is_global_initialization(&self) -> bool {
+            self.m_kind() == GLOBAL_INIT_ACTIVATION
+        }
+
+        pub override fn set_is_global_initialization(&self, value: bool) {
+            self.set_m_kind(if value { GLOBAL_INIT_ACTIVATION } else { DEFAULT_ACTIVATION });
+        }
+
+        pub override fn is_package_initialization(&self) -> bool {
+            self.m_kind() == PACKAGE_INIT_ACTIVATION
+        }
+
+        pub override fn set_is_package_initialization(&self, value: bool) {
+            self.set_m_kind(if value { PACKAGE_INIT_ACTIVATION } else { DEFAULT_ACTIVATION });
         }
     }
 
@@ -3939,3 +3974,7 @@ impl Iterator for DescendingDefinitionHierarchy {
         }
     }
 }
+
+const DEFAULT_ACTIVATION: u8 = 0;
+const PACKAGE_INIT_ACTIVATION: u8 = 1;
+const GLOBAL_INIT_ACTIVATION: u8 = 2;

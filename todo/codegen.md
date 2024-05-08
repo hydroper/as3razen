@@ -31,3 +31,11 @@ No notes as of yet.
 ## Conversions
 
 * [ ] Visit conversion values in the node mapping carefully and travel until the topmost value of the conversion and pass it as a parameter to the node visitor rather than just directly taking the semantic thing from the node's mapping.
+
+## Package initialization
+
+* [ ] Omit package initialization code if it is empty.
+
+## Global initialization
+
+* [ ] Omit global initialization code if it is empty.
