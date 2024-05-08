@@ -306,13 +306,7 @@ impl<'a> PropertyLookup<'a> {
     }
 
     pub fn lookup_in_scope_chain(&self, scope: &Thingy, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
-        let mut open_ns_set = SharedArray::new();
-        open_ns_set.extend(scope.open_ns_set().iter());
-        let mut p = scope.parent();
-        while let Some(p1) = p {
-            open_ns_set.extend(p1.open_ns_set().iter());
-            p = p1.parent();
-        }
+        let open_ns_set = scope.concat_open_ns_set_of_scope_chain();
 
         // If the key is computed, always return dynamic
         if matches!(key, PropertyLookupKey::Computed(_)) {
@@ -463,7 +457,7 @@ impl<'a> PropertyLookup<'a> {
     }
 
     /// Qualifier is assumed to be a compile-time namespace.
-    fn get_qname_in_ns_set_or_any_public_ns(&self, mapping: &NameMap, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, local_name: &str) -> Result<Option<Thingy>, PropertyLookupError> {
+    pub fn get_qname_in_ns_set_or_any_public_ns(&self, mapping: &NameMap, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, local_name: &str) -> Result<Option<Thingy>, PropertyLookupError> {
         if let Some(qual) = qual {
             if qual.is::<PackageWildcardImport>() || qual.is::<PackageRecursiveImport>() {
                 return Ok(None);

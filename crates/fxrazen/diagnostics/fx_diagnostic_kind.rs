@@ -20,6 +20,11 @@ pub enum FxDiagnosticKind {
     UnexpectedElision = 2064,
     UnexpectedArray = 2065,
     UnexpectedRest = 2066,
+    UnexpectedObject = 2067,
+    DynamicOptionNotSupported = 2068,
+    UnknownOptionForClass = 2069,
+    MustSpecifyOption = 2070,
+    UnexpectedFieldName = 2071,
 }
 
 impl FxDiagnosticKind {

@@ -156,6 +156,18 @@ impl SemanticHost {
         &self.node_mapping
     }
 
+    pub fn lazy_node_mapping<T>(&self, node: &Rc<T>, init: impl Fn() -> Thingy) -> Thingy
+        where TreeSemantics<Thingy>: TreeSemanticsAccessor<T, Thingy>
+    {
+        if let Some(m) = self.node_mapping().get(node) {
+            m
+        } else {
+            let thingy = init();
+            self.node_mapping().set(node, Some(thingy.clone()));
+            thingy
+        }
+    }
+
     /// The mapping of configuration constants used for
     /// conditional compilation.
     #[inline(always)]

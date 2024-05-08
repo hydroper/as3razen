@@ -569,4 +569,8 @@ impl<'a> ThingyFactory<'a> {
     pub fn create_lambda_object(&self, activation: &Thingy) -> Result<Thingy, DeferError> {
         Ok(LambdaObject::new(&self.0.arena, activation, &self.0.function_type().defer()?).into())
     }
+
+    pub fn create_field_resolution(&self) -> Thingy {
+        FieldResolution::new(&self.0.arena).into()
+    }
 }

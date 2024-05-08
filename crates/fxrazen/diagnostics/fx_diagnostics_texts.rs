@@ -24,6 +24,11 @@ lazy_static! {
         FxDiagnosticKind::UnexpectedElision.id() => "Unexpected elision.".into(),
         FxDiagnosticKind::UnexpectedArray.id() => "Unexpected array.".into(),
         FxDiagnosticKind::UnexpectedRest.id() => "Unexpected rest.".into(),
+        FxDiagnosticKind::UnexpectedObject.id() => "Unexpected object.".into(),
+        FxDiagnosticKind::DynamicOptionNotSupported.id() => "Dynamic option name is not supported.".into(),
+        FxDiagnosticKind::UnknownOptionForClass.id() => "Unknown option '{1}' for {2}.".into(),
+        FxDiagnosticKind::MustSpecifyOption.id() => "Must specify option {1}.".into(),
+        FxDiagnosticKind::UnexpectedFieldName.id() => "Unexpected field name.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

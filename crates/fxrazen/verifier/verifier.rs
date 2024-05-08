@@ -165,10 +165,11 @@ impl Subverifier {
     }
 
     pub fn verify_expression(&mut self, exp: &Rc<Expression>, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
-        let pre_result = self.host.node_mapping().get(exp);
-        if let Some(pre_result) = pre_result {
-            return Ok(Some(pre_result));
+        // Cache-result - prevents diagnostic duplication
+        if self.host.node_mapping().has(exp) {
+            return Ok(self.host.node_mapping().get(exp));
         }
+
         let result: Option<Thingy>;
         match exp.as_ref() {
             Expression::QualifiedIdentifier(id) => {
@@ -207,6 +208,9 @@ impl Subverifier {
             Expression::VectorLiteral(e) => {
                 result = ArraySubverifier::verify_vector_literal(self, e, context)?;
             },
+            Expression::ObjectInitializer(e) => {
+                result = ObjectLiteralSubverifier::verify_object_initializer(self, e, context)?;
+            },
             Expression::Invalidated(_) => {
                 result = None;
             },
@@ -241,9 +245,9 @@ impl Subverifier {
     }
 
     pub fn verify_type_expression(&mut self, exp: &Rc<Expression>) -> Result<Option<Thingy>, DeferError> {
-        let pre_result = self.host.node_mapping().get(exp);
-        if let Some(pre_result) = pre_result {
-            return Ok(Some(pre_result));
+        // Cache-result - prevents diagnostic duplication
+        if self.host.node_mapping().has(exp) {
+            return Ok(self.host.node_mapping().get(exp));
         }
 
         let v = self.verify_expression(exp, &VerifierExpressionContext { ..default() })?;
@@ -264,6 +268,11 @@ impl Subverifier {
 
     /// Implicitly coerce expression to a type.
     pub fn imp_coerce_exp(&mut self, exp: &Rc<Expression>, target_type: &Thingy) -> Result<Option<Thingy>, DeferError> {
+        // Cache-result - prevents diagnostic duplication
+        if self.host.node_mapping().has(exp) {
+            return Ok(self.host.node_mapping().get(exp));
+        }
+
         let v = self.verify_expression(exp, &VerifierExpressionContext {
             context_type: Some(target_type.clone()),
             ..default()

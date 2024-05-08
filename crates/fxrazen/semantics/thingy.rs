@@ -62,6 +62,13 @@ smodel! {
             panic!();
         }
 
+        /// Indicates whether a variable slot is optional for an object initializer
+        /// applied to an `[Options]` class.
+        pub fn is_opt_variable_for_options_class(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            let st = self.static_type(host).defer()?;
+            Ok(st.includes_null(host)? || st.includes_undefined(host)?)
+        }
+
         /// Escapes out of a nullable type layer.
         pub fn escape_of_nullable(&self) -> Thingy {
             self.clone()
@@ -145,11 +152,38 @@ smodel! {
             panic!();
         }
 
+        pub fn concat_open_ns_set_of_scope_chain(&self) -> SharedArray<Thingy> {
+            let mut open_ns_set = SharedArray::new();
+            open_ns_set.extend(self.open_ns_set().iter());
+            let mut p = self.parent();
+            while let Some(p1) = p {
+                open_ns_set.extend(p1.open_ns_set().iter());
+                p = p1.parent();
+            }
+            open_ns_set
+        }
+
         pub fn referenced_type(&self) -> Thingy {
             panic!();
         }
 
         pub fn referenced_ns(&self) -> Thingy {
+            panic!();
+        }
+
+        pub fn shorthand_resolution(&self) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn set_shorthand_resolution(&self, value: Option<Thingy>) {
+            panic!();
+        }
+
+        pub fn field_slot(&self) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn set_field_slot(&self, value: Option<Thingy>) {
             panic!();
         }
 
@@ -3593,6 +3627,33 @@ smodel! {
         // Returns a `Some(activation)` value.
         pub override fn activation(&self) -> Option<Thingy> {
             self.m_activation()
+        }
+    }
+
+    /// Resolutions of a field in an object initializer, including shorthand resolution
+    /// and the field slot. This is only assigned to a field where applicable.
+    pub struct FieldResolution: Thingy {
+        let ref m_shorthand_resolution: Option<Thingy> = None;
+        let ref m_field_slot: Option<Thingy> = None;
+
+        pub(crate) fn FieldResolution() {
+            super();
+        }
+
+        pub override fn shorthand_resolution(&self) -> Option<Thingy> {
+            self.m_shorthand_resolution()
+        }
+
+        pub override fn set_shorthand_resolution(&self, value: Option<Thingy>) {
+            self.set_m_shorthand_resolution(value);
+        }
+
+        pub override fn field_slot(&self) -> Option<Thingy> {
+            self.m_field_slot()
+        }
+
+        pub override fn set_field_slot(&self, value: Option<Thingy>) {
+            self.set_m_field_slot(value);
         }
     }
 }
