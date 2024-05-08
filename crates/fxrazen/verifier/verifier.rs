@@ -261,6 +261,9 @@ impl Subverifier {
             Expression::WithTypeArguments(e) => {
                 result = ExpSubverifier::verify_apply_types_exp(self, e)?;
             },
+            Expression::Unary(e) => {
+                result = ExpSubverifier::verify_unary_exp(self, e)?;
+            },
         }
 
         if result.is_some() && result.as_ref().unwrap().is::<InvalidationThingy>() {

@@ -1,8 +1,22 @@
 # Expressions
 
 * [ ] `Unary`
-  * For negation
+  * [ ] PostIncrement
+  * [ ] PostDecrement
+  * [ ] PreIncrement
+  * [ ] PreDecrement
+  * [ ] NonNull
+  * [ ] Delete
+  * [ ] Void
+  * [ ] Typeof
+  * [ ] Await
+  * [ ] Yield
+    * [ ] Error out indicating that yield is not supported.
+  * [ ] Positive
+  * [ ] Negative
     * [ ] Pass `context.preceded_by_negative = true` to base
+  * [ ] BitwiseNot
+  * [ ] LogicalNot
 * [ ] `OptionalChaining`
 * [ ] `OptionalChainingPlaceholder`
 * [ ] `Binary`

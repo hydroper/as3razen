@@ -845,4 +845,15 @@ impl ExpSubverifier {
 
         Ok(Some(verifier.host.factory().create_type_after_substitution(&base, &resolvee_args).wrap_property_reference(&verifier.host)?))
     }
+
+    pub fn verify_unary_exp(verifier: &mut Subverifier, exp: &UnaryExpression) -> Result<Option<Thingy>, DeferError> {
+        let Some(value) = verifier.verify_expression(&exp.expression, &VerifierExpressionContext {
+            preceded_by_negative: true,
+            ..default()
+        })? else {
+            return Ok(None);
+        };
+
+        todo()
+    }
 }
