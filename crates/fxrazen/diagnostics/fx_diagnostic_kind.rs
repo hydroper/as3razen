@@ -25,6 +25,9 @@ pub enum FxDiagnosticKind {
     UnknownOptionForClass = 2069,
     MustSpecifyOption = 2070,
     UnexpectedFieldName = 2071,
+    UnexpectedNewBase = 2072,
+    IncorrectNumArguments = 2073,
+    IncorrectNumArgumentsNoMoreThan = 2074,
 }
 
 impl FxDiagnosticKind {

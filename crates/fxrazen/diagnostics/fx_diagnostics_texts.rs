@@ -29,6 +29,9 @@ lazy_static! {
         FxDiagnosticKind::UnknownOptionForClass.id() => "Unknown option '{1}' for {2}.".into(),
         FxDiagnosticKind::MustSpecifyOption.id() => "Must specify option {1}.".into(),
         FxDiagnosticKind::UnexpectedFieldName.id() => "Unexpected field name.".into(),
+        FxDiagnosticKind::UnexpectedNewBase.id() => "Unexpected new base.".into(),
+        FxDiagnosticKind::IncorrectNumArguments.id() => "Incorrect number of arguments. Expected {1}".into(),
+        FxDiagnosticKind::IncorrectNumArgumentsNoMoreThan.id() => "Incorrect number of arguments. Expected no more than {1}".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

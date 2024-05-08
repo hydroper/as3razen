@@ -806,17 +806,21 @@ smodel! {
         }
 
         pub fn expect_type(&self) -> Result<Thingy, TypeExpectError> {
-            if self.is::<TypeAsReferenceValue>() {
-                return Ok(self.referenced_type());
-            }
-            if self.is::<PackageReferenceValue>() || self.is::<ScopeReferenceValue>() {
-                return self.property().expect_type();
-            }
-            if self.is::<Type>() {
-                Ok(self.clone())
+            if let Some(t) = self.as_type() {
+                Ok(t)
             } else {
                 Err(TypeExpectError())
             }
+        }
+
+        pub fn as_type(&self) -> Option<Thingy> {
+            if self.is::<TypeAsReferenceValue>() {
+                return Some(self.referenced_type());
+            }
+            if self.is::<PackageReferenceValue>() || self.is::<ScopeReferenceValue>() {
+                return self.property().as_type();
+            }
+            if self.is::<Type>() { Some(self.clone()) } else { None }
         }
 
         pub fn control_flow_graph(&self) -> ControlFlowGraph {

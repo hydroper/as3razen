@@ -147,6 +147,11 @@ Open namespaces properly everywhere.
 
 * [ ] In most `FunctionCommon`, `this` is set to always be of the `*` data type.
 
+## Signatures
+
+* [ ] Restrict the rest parameter to be `Array.<T>`. If it is untyped, it defaults to `[*]`.
+* [ ] Restrict the rest parameter's data type to not be a non-nullable layer over `Array.<T>`.
+
 ## Initial scope
 
 * [ ] The initial scope of a package opens the `AS3` namespace (when at AS3 mode) and imports the top-level package.

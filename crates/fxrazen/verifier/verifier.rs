@@ -53,6 +53,7 @@ impl Verifier {
                 deferred_directives: vec![],
                 deferred_function_commons: vec![],
                 invalidated: false,
+                external: false,
                 // deferred_counter: 0,
                 scope: None,
             },
@@ -103,6 +104,14 @@ impl Verifier {
     pub fn exit_scope(&mut self) {
         self.verifier.exit_scope();
     }
+
+    pub fn external(&self) -> bool {
+        self.verifier.external
+    }
+
+    pub fn set_external(&mut self, value: bool) {
+        self.verifier.external = value;
+    }
 }
 
 pub(crate) struct Subverifier {
@@ -114,6 +123,7 @@ pub(crate) struct Subverifier {
     invalidated: bool,
     // pub deferred_counter: usize,
     pub scope: Option<Thingy>,
+    pub external: bool,
 }
 
 impl Subverifier {
@@ -218,7 +228,7 @@ impl Subverifier {
                 result = Some(self.host.meta_property());
             },
             Expression::New(e) => {
-                result = ExpSubverifier::verify_new_exp(self, e, context)?;
+                result = ExpSubverifier::verify_new_exp(self, e)?;
             },
         }
 

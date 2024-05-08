@@ -1,6 +1,5 @@
 # Expressions
 
-* [ ] `New`
 * [ ] `Member`
 * [ ] `ComputedMember`
 * [ ] `Descendants`

@@ -340,7 +340,7 @@ impl ExpSubverifier {
         }
     }
 
-    pub fn verify_new_exp(verifier: &mut Subverifier, exp: &NewExpression, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+    pub fn verify_new_exp(verifier: &mut Subverifier, exp: &NewExpression) -> Result<Option<Thingy>, DeferError> {
         let Some(base) = verifier.verify_expression(&exp.base, &default())? else {
             if let Some(arguments) = &exp.arguments {
                 for arg in arguments.iter() {
@@ -350,6 +350,63 @@ impl ExpSubverifier {
             return Ok(None);
         };
 
-        todo();
+        if let Some(t) = base.as_type() {
+            if !(t.is_class_type_possibly_after_sub() && !t.is_static() && !t.is_abstract()) {
+                verifier.add_verify_error(&exp.base.location(), FxDiagnosticKind::UnexpectedNewBase, diagarg![]);
+
+                if let Some(arguments) = &exp.arguments {
+                    for arg in arguments.iter() {
+                        verifier.verify_expression(arg, &default())?;
+                    }
+                }
+
+                return Ok(Some(verifier.host.factory().create_value(&verifier.host.any_type())));
+            }
+
+            // In AS3, the constructor is not inherited unlike in other languages.
+            let ctor = t.constructor_method(&verifier.host);
+
+            if let Some(ctor) = ctor {
+                let sig = ctor.signature(&verifier.host).defer()?;
+                match ArgumentsSubverifier::verify(verifier, exp.arguments.as_ref().unwrap_or(&vec![]), &sig) {
+                    Ok(_) => {},
+                    Err(VerifierArgumentsError::Defer) => {
+                        return Err(DeferError());
+                    },
+                    Err(VerifierArgumentsError::Expected(n)) => {
+                        verifier.add_verify_error(&exp.base.location(), FxDiagnosticKind::IncorrectNumArguments, diagarg![n.to_string()]);
+                    },
+                    Err(VerifierArgumentsError::ExpectedNoMoreThan(n)) => {
+                        verifier.add_verify_error(&exp.base.location(), FxDiagnosticKind::IncorrectNumArgumentsNoMoreThan, diagarg![n.to_string()]);
+                    },
+                }
+            } else {
+                if let Some(arguments) = &exp.arguments {
+                    if !arguments.is_empty() {
+                        verifier.add_verify_error(&exp.base.location(), FxDiagnosticKind::IncorrectNumArgumentsNoMoreThan, diagarg!["0".to_string()]);
+                    }
+                    for arg in arguments.iter() {
+                        verifier.verify_expression(arg, &default())?;
+                    }
+                }
+            }
+
+            return Ok(Some(verifier.host.factory().create_value(&t)));
+        }
+
+        let base_st = base.static_type(&verifier.host);
+        let base_st_esc = base_st.escape_of_non_nullable();
+
+        if ![verifier.host.any_type(), verifier.host.class_type().defer()?].contains(&base_st_esc) {
+            verifier.add_verify_error(&exp.base.location(), FxDiagnosticKind::UnexpectedNewBase, diagarg![]);
+        }
+
+        if let Some(arguments) = &exp.arguments {
+            for arg in arguments.iter() {
+                verifier.verify_expression(arg, &default())?;
+            }
+        }
+
+        return Ok(Some(verifier.host.factory().create_value(&verifier.host.any_type())));
     }
 }
