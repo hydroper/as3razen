@@ -38,6 +38,7 @@ lazy_static! {
         FxDiagnosticKind::ASuperExpCanBeUsedOnlyIn.id() => "A super expression can be used only in class instance methods.".into(),
         FxDiagnosticKind::ASuperExpCanOnlyBeUsedInSubclasses.id() => "A super expression can be used only in subclasses of Object.".into(),
         FxDiagnosticKind::CallOnArrayType.id() => "A call on the Array type is equivalent to a new expression.".into(),
+        FxDiagnosticKind::CallOnNonFunction.id() => "Call on non Function object.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

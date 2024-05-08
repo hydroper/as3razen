@@ -739,6 +739,52 @@ impl ExpSubverifier {
             }
         }
 
-        todo()
+        if base.is::<FixtureReferenceValue>() && base.property().is::<MethodSlot>() {
+            let sig = base.property().signature(&verifier.host).defer()?;
+            match ArgumentsSubverifier::verify(verifier, &call_exp.arguments, &sig) {
+                Ok(_) => {},
+                Err(VerifierArgumentsError::Defer) => {
+                    return Err(DeferError());
+                },
+                Err(VerifierArgumentsError::Expected(n)) => {
+                    verifier.add_verify_error(&call_exp.base.location(), FxDiagnosticKind::IncorrectNumArguments, diagarg![n.to_string()]);
+                },
+                Err(VerifierArgumentsError::ExpectedNoMoreThan(n)) => {
+                    verifier.add_verify_error(&call_exp.base.location(), FxDiagnosticKind::IncorrectNumArgumentsNoMoreThan, diagarg![n.to_string()]);
+                },
+            }
+            return Ok(Some(verifier.host.factory().create_value(&sig.result_type())));
+        }
+
+        let base_st = base.static_type(&verifier.host);
+        let base_st_esc = base_st.escape_of_non_nullable();
+
+        if base_st_esc.is::<FunctionType>() {
+            let sig = base_st_esc;
+            match ArgumentsSubverifier::verify(verifier, &call_exp.arguments, &sig) {
+                Ok(_) => {},
+                Err(VerifierArgumentsError::Defer) => {
+                    return Err(DeferError());
+                },
+                Err(VerifierArgumentsError::Expected(n)) => {
+                    verifier.add_verify_error(&call_exp.base.location(), FxDiagnosticKind::IncorrectNumArguments, diagarg![n.to_string()]);
+                },
+                Err(VerifierArgumentsError::ExpectedNoMoreThan(n)) => {
+                    verifier.add_verify_error(&call_exp.base.location(), FxDiagnosticKind::IncorrectNumArgumentsNoMoreThan, diagarg![n.to_string()]);
+                },
+            }
+            return Ok(Some(verifier.host.factory().create_value(&sig.result_type())));
+        }
+
+        for arg in &call_exp.arguments {
+            verifier.verify_expression(arg, &default())?;
+        }
+
+        if ![verifier.host.any_type(), verifier.host.object_type().defer()?, verifier.host.function_type().defer()?].contains(&base_st_esc) {
+            verifier.add_verify_error(&call_exp.base.location(), FxDiagnosticKind::CallOnNonFunction, diagarg![]);
+            return Ok(None);
+        }
+
+        Ok(Some(verifier.host.factory().create_value(&verifier.host.any_type())))
     }
 }

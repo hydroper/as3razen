@@ -1,12 +1,5 @@
 # Expressions
 
-* [ ] `Call`
-  * [x] Perform cast when base is a type, except for Array
-  * [x] Calling Array is equivalent to `new Array(...)` and generates a warning
-  * [ ] Call Function otherwise
-    * [ ] If base is a method reference in a FixtureReferenceValue
-      * [ ] Call with type checking (`ArgumentsSubverifier::verify`) using the property's signature.
-    * [ ] If base is a reference with a function type, do type checking (`ArgumentsSubverifier::verify`).
 * [ ] `WithTypeArguments`
   * [ ] Pass `context.followed_by_type_arguments = true` to base
 * [ ] `Unary`
