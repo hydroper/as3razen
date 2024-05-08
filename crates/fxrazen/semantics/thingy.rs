@@ -835,7 +835,7 @@ smodel! {
             if self.is::<TypeAsReferenceValue>() {
                 return Some(self.referenced_type());
             }
-            if self.is::<PackageReferenceValue>() || self.is::<ScopeReferenceValue>() {
+            if self.is::<FixtureReferenceValue>() {
                 return self.property().as_type();
             }
             if self.is::<Type>() { Some(self.clone()) } else { None }
@@ -3320,11 +3320,11 @@ smodel! {
         }
     }
 
-    pub struct StaticReferenceValue: ReferenceValue {
+    pub struct FixtureReferenceValue: ReferenceValue {
         let ref m_base: Option<Thingy> = None;
         let ref m_property: Option<Thingy> = None;
 
-        pub(crate) fn StaticReferenceValue(base: &Thingy, property: &Thingy, static_type: &Thingy) {
+        pub(crate) fn FixtureReferenceValue(base: &Thingy, property: &Thingy, static_type: &Thingy) {
             super(static_type);
             self.set_m_base(Some(base.clone()));
             self.set_m_property(Some(property.clone()));
@@ -3348,6 +3348,12 @@ smodel! {
 
         pub override fn deletable(&self, host: &SemanticHost) -> bool {
             false
+        }
+    }
+
+    pub struct StaticReferenceValue: FixtureReferenceValue {
+        pub(crate) fn StaticReferenceValue(base: &Thingy, property: &Thingy, static_type: &Thingy) {
+            super(base, property, static_type);
         }
     }
 
@@ -3389,34 +3395,9 @@ smodel! {
     }
 
     /// Instance reference value in a possibly non nullable base.
-    pub struct InstanceReferenceValue: ReferenceValue {
-        let ref m_base: Option<Thingy> = None;
-        let ref m_property: Option<Thingy> = None;
-
+    pub struct InstanceReferenceValue: FixtureReferenceValue {
         pub(crate) fn InstanceReferenceValue(base: &Thingy, property: &Thingy, static_type: &Thingy) {
-            super(static_type);
-            self.set_m_base(Some(base.clone()));
-            self.set_m_property(Some(property.clone()));
-        }
-
-        pub override fn base(&self) -> Thingy {
-            self.m_base().unwrap()
-        }
-
-        pub override fn property(&self) -> Thingy {
-            self.m_property().unwrap()
-        }
-
-        pub override fn read_only(&self, host: &SemanticHost) -> bool {
-            self.property().read_only(host)
-        }
-
-        pub override fn write_only(&self, host: &SemanticHost) -> bool {
-            self.property().write_only(host)
-        }
-
-        pub override fn deletable(&self, host: &SemanticHost) -> bool {
-            false
+            super(base, property, static_type);
         }
     }
 
@@ -3452,34 +3433,9 @@ smodel! {
         }
     }
 
-    pub struct ScopeReferenceValue: ReferenceValue {
-        let ref m_base: Option<Thingy> = None;
-        let ref m_property: Option<Thingy> = None;
-
+    pub struct ScopeReferenceValue: FixtureReferenceValue {
         pub(crate) fn ScopeReferenceValue(base: &Thingy, property: &Thingy, static_type: &Thingy) {
-            super(static_type);
-            self.set_m_base(Some(base.clone()));
-            self.set_m_property(Some(property.clone()));
-        }
-
-        pub override fn base(&self) -> Thingy {
-            self.m_base().unwrap()
-        }
-
-        pub override fn property(&self) -> Thingy {
-            self.m_property().unwrap()
-        }
-
-        pub override fn read_only(&self, host: &SemanticHost) -> bool {
-            self.property().read_only(host)
-        }
-
-        pub override fn write_only(&self, host: &SemanticHost) -> bool {
-            self.property().write_only(host)
-        }
-
-        pub override fn deletable(&self, host: &SemanticHost) -> bool {
-            false
+            super(base, property, static_type);
         }
     }
 
@@ -3521,34 +3477,9 @@ smodel! {
         }
     }
 
-    pub struct PackageReferenceValue: ReferenceValue {
-        let ref m_base: Option<Thingy> = None;
-        let ref m_property: Option<Thingy> = None;
-
+    pub struct PackageReferenceValue: FixtureReferenceValue {
         pub(crate) fn PackageReferenceValue(base: &Thingy, property: &Thingy, static_type: &Thingy) {
-            super(static_type);
-            self.set_m_base(Some(base.clone()));
-            self.set_m_property(Some(property.clone()));
-        }
-
-        pub override fn base(&self) -> Thingy {
-            self.m_base().unwrap()
-        }
-
-        pub override fn property(&self) -> Thingy {
-            self.m_property().unwrap()
-        }
-
-        pub override fn read_only(&self, host: &SemanticHost) -> bool {
-            self.property().read_only(host)
-        }
-
-        pub override fn write_only(&self, host: &SemanticHost) -> bool {
-            self.property().write_only(host)
-        }
-
-        pub override fn deletable(&self, host: &SemanticHost) -> bool {
-            false
+            super(base, property, static_type);
         }
     }
 

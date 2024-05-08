@@ -353,7 +353,7 @@ impl Subverifier {
     /// Post-processes an already resolved reference. Auto applies
     /// type parameters and auto expands constant.
     pub fn reference_post_processing(&mut self, r: Thingy, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
-        if r.is::<ReferenceValue>() && (r.is::<StaticReferenceValue>() || r.is::<InstanceReferenceValue>() || r.is::<ScopeReferenceValue>() || r.is::<PackageReferenceValue>()) {
+        if r.is::<FixtureReferenceValue>() {
             let p = r.property();
 
             // Auto apply parameterized types
