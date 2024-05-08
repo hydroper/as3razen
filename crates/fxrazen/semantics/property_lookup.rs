@@ -74,16 +74,6 @@ fn map_defer_error<T>(result: Result<T, DeferError>) -> Result<T, PropertyLookup
     result.map_err(|_| PropertyLookupError::Defer)
 }
 
-fn mark_used(host: &SemanticHost, property: &Thingy) {
-    if property.is::<InvalidationThingy>() {
-        return;
-    }
-    let qn = property.name();
-    if !qn.in_public_or_protected_ns() {
-        host.remove_unused_thing(property);
-    }
-}
-
 impl<'a> PropertyLookup<'a> {
     pub fn lookup_in_object(&self, base: &Thingy, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, key: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
         if base.is::<InvalidationThingy>() {
@@ -111,7 +101,7 @@ impl<'a> PropertyLookup<'a> {
 
                 let r = self.get_qname_in_ns_set_or_any_public_ns(&class.properties(self.0), open_ns_set, qual.clone(), &local_name)?;
                 if let Some(r) = r {
-                    mark_used(self.0, &r);
+                    Unused(self.0).mark_used(&r);
 
                     let r = r.resolve_alias();
 
@@ -226,7 +216,7 @@ impl<'a> PropertyLookup<'a> {
                     let prop = self.get_qname_in_ns_set_or_any_public_ns(&class.prototype(self.0), open_ns_set, qual.clone(), &local_name)?;
 
                     if let Some(prop) = prop {
-                        mark_used(self.0, &prop);
+                        Unused(self.0).mark_used(&prop);
 
                         let prop = prop.resolve_alias();
 
@@ -248,7 +238,7 @@ impl<'a> PropertyLookup<'a> {
                     let prop = self.get_qname_in_ns_set_or_any_public_ns(&itrfc.prototype(self.0), open_ns_set, qual.clone(), &local_name)?;
 
                     if let Some(prop) = prop {
-                        mark_used(self.0, &prop);
+                        Unused(self.0).mark_used(&prop);
 
                         // Defer if unresolved
                         defer(&prop.property_static_type(self.0))?;
@@ -277,7 +267,7 @@ impl<'a> PropertyLookup<'a> {
             let prop = self.get_qname_in_ns_set_or_any_public_ns(&base.properties(self.0), open_ns_set, qual.clone(), &local_name)?;
 
             if let Some(prop) = prop {
-                mark_used(self.0, &prop);
+                Unused(self.0).mark_used(&prop);
 
                 let prop = prop.resolve_alias();
 
@@ -363,7 +353,7 @@ impl<'a> PropertyLookup<'a> {
         }
 
         if let Some(r1) = r.as_ref() {
-            mark_used(self.0, r1);
+            Unused(self.0).mark_used(&r1);
 
             let r1 = r1.resolve_alias();
 
@@ -411,7 +401,7 @@ impl<'a> PropertyLookup<'a> {
                     if import.is::<PackageWildcardImport>() {
                         amb = self.lookup_in_object(&import.package(), &open_ns_set, qual.clone(), key)?;
                         if let Some(amb) = amb {
-                            mark_used(self.0, &import);
+                            Unused(self.0).mark_used(&import);
                             if r.is_some() {
                                 return Err(PropertyLookupError::AmbiguousReference(local_name));
                             }
@@ -420,7 +410,7 @@ impl<'a> PropertyLookup<'a> {
                     } else if import.is::<PackageRecursiveImport>() {
                         amb = self.lookup_in_package_recursive(&import.package(), &open_ns_set, qual.clone(), key)?;
                         if let Some(amb) = amb {
-                            mark_used(self.0, &import);
+                            Unused(self.0).mark_used(&import);
                             if r.is_some() {
                                 return Err(PropertyLookupError::AmbiguousReference(local_name));
                             }
@@ -430,7 +420,7 @@ impl<'a> PropertyLookup<'a> {
                         assert!(import.is::<PackagePropertyImport>());
                         let prop = import.property();
                         if prop.name().matches_in_ns_set_or_any_public_ns(&open_ns_set, &local_name) {
-                            mark_used(self.0, &import);
+                            Unused(self.0).mark_used(&import);
 
                             if r.is_some() {
                                 return Err(PropertyLookupError::AmbiguousReference(local_name));
@@ -481,7 +471,7 @@ impl<'a> PropertyLookup<'a> {
         }
     }
 
-    fn lookup_in_package_recursive(&self, package: &Thingy, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, local_name: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
+    pub fn lookup_in_package_recursive(&self, package: &Thingy, open_ns_set: &SharedArray<Thingy>, qual: Option<Thingy>, local_name: &PropertyLookupKey) -> Result<Option<Thingy>, PropertyLookupError> {
         let mut r = self.lookup_in_object(&package, &open_ns_set, qual.clone(), local_name)?;
 
         for (_, subpackage) in package.subpackages().borrow().iter() {

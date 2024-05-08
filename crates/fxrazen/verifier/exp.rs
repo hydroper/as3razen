@@ -409,4 +409,104 @@ impl ExpSubverifier {
 
         return Ok(Some(verifier.host.factory().create_value(&verifier.host.any_type())));
     }
+
+    pub fn verify_member_expr(verifier: &mut Subverifier, exp: &Rc<Expression>, member_exp: &MemberExpression, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        // Shadowing package names
+        let dot_seq = Self::dot_delimited_id_sequence(exp);
+        if let Some(dot_seq) = dot_seq {
+            let mut scope = Some(verifier.scope());
+            while let Some(scope1) = scope {
+                let open_ns_set = scope1.concat_open_ns_set_of_scope_chain();
+                let mut r: Option<Thingy> = None;
+                for import in scope1.import_list().iter() {
+                    if let Some(r1) = Self::import_shadowing_package_name(verifier, &open_ns_set, &dot_seq, &import, &member_exp.identifier.location)? {
+                        if r.is_some() && r.as_ref().unwrap() != &r1 {
+                            verifier.add_verify_error(&member_exp.identifier.location, FxDiagnosticKind::AmbiguousReference, diagarg![dot_seq.last().unwrap().clone()]);
+                            return Ok(None);
+                        }
+                        r = Some(r1);
+                    }
+                }
+                if let Some(r) = r {
+                    return Ok(Some(r));
+                }
+                scope = scope1.parent();
+            }
+        }
+
+        todo();
+    }
+
+    fn import_shadowing_package_name(verifier: &mut Subverifier, open_ns_set: &SharedArray<Thingy>, dot_seq: &Vec<String>, import: &Thingy, location: &Location) -> Result<Option<Thingy>, DeferError> {
+        if import.is::<PackageWildcardImport>() {
+            if &dot_seq[0..(dot_seq.len() - 1)] != &import.package().fully_qualified_name_list() {
+                return Ok(None);
+            }
+            match PropertyLookup(&verifier.host).lookup_in_object(&import.package(), &open_ns_set, None, &PropertyLookupKey::LocalName(dot_seq.last().unwrap().clone())) {
+                Ok(Some(r)) => {
+                    Unused(&verifier.host).mark_used(import);
+                    return Ok(Some(r));
+                },
+                Ok(None) => {
+                    return Ok(None);
+                },
+                Err(PropertyLookupError::AmbiguousReference(name)) => {
+                    verifier.add_verify_error(&location, FxDiagnosticKind::AmbiguousReference, diagarg![name.clone()]);
+                    return Ok(None);
+                },
+                Err(PropertyLookupError::Defer) => {
+                    return Err(DeferError());
+                },
+                Err(_) => {
+                    panic!();
+                },
+            }
+        } else if import.is::<PackageRecursiveImport>() {
+            if &dot_seq[0..(dot_seq.len() - 1)] != &import.package().fully_qualified_name_list() {
+                return Ok(None);
+            }
+            match PropertyLookup(&verifier.host).lookup_in_package_recursive(&import.package(), &open_ns_set, None, &PropertyLookupKey::LocalName(dot_seq.last().unwrap().clone())) {
+                Ok(Some(r)) => {
+                    Unused(&verifier.host).mark_used(import);
+                    return Ok(Some(r));
+                },
+                Ok(None) => {
+                    return Ok(None);
+                },
+                Err(PropertyLookupError::AmbiguousReference(name)) => {
+                    verifier.add_verify_error(&location, FxDiagnosticKind::AmbiguousReference, diagarg![name.clone()]);
+                    return Ok(None);
+                },
+                Err(PropertyLookupError::Defer) => {
+                    return Err(DeferError());
+                },
+                Err(_) => {
+                    panic!();
+                },
+            }
+        } else {
+            assert!(import.is::<PackagePropertyImport>());
+            if &dot_seq[0..(dot_seq.len() - 1)] != &import.property().parent().unwrap().fully_qualified_name_list()
+            || dot_seq.last().unwrap() != &import.property().name().local_name()
+            {
+                return Ok(None);
+            }
+            Unused(&verifier.host).mark_used(import);
+            Ok(Some(import.property().resolve_alias().wrap_property_reference(&verifier.host)?))
+        }
+    }
+
+    fn dot_delimited_id_sequence(exp: &Rc<Expression>) -> Option<Vec<String>> {
+        match exp.as_ref() {
+            Expression::QualifiedIdentifier(id) => {
+                id.to_identifier_name().map(|name| vec![name.0.clone()])
+            },
+            Expression::Member(m) => {
+                let mut seq = Self::dot_delimited_id_sequence(&m.base)?;
+                seq.push(m.identifier.to_identifier_name()?.0.clone());
+                Some(seq)
+            },
+            _ => None,
+        }
+    }
 }
