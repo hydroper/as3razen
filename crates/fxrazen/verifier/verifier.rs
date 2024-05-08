@@ -97,8 +97,14 @@ impl Verifier {
         None
     }
 
-    pub fn enter_scope(&mut self, scope: &Thingy) {
-        self.verifier.enter_scope(scope);
+    #[inline(always)]
+    pub fn set_scope(&mut self, scope: &Thingy) {
+        self.verifier.set_scope(scope);
+    }
+
+    #[inline(always)]
+    pub fn inherit_and_enter_scope(&mut self, scope: &Thingy) {
+        self.verifier.inherit_and_enter_scope(scope);
     }
 
     pub fn exit_scope(&mut self) {
@@ -158,7 +164,11 @@ impl Subverifier {
         location.compilation_unit().add_diagnostic(FxDiagnostic::new_warning(location, kind, arguments));
     }
 
-    pub fn enter_scope(&mut self, scope: &Thingy) {
+    pub fn set_scope(&mut self, scope: &Thingy) {
+        self.scope = Some(scope.clone());
+    }
+
+    pub fn inherit_and_enter_scope(&mut self, scope: &Thingy) {
         let k = self.scope.clone();
         self.scope = Some(scope.clone());
         if scope.parent().is_none() {
@@ -238,6 +248,9 @@ impl Subverifier {
             },
             Expression::Descendants(e) => {
                 result = ExpSubverifier::verify_descendants_exp(self, e)?;
+            },
+            Expression::Filter(e) => {
+                result = ExpSubverifier::verify_filter_exp(self, e)?;
             },
         }
 
@@ -411,7 +424,7 @@ mod tests {
         let mut verifier = Verifier::new(&host);
         let scope = host.factory().create_scope();
         scope.import_list().push(host.factory().create_package_wildcard_import(&host.top_level_package(), None));
-        verifier.enter_scope(&scope);
+        verifier.set_scope(&scope);
         let _ = verifier.verify_expression(&exp, &VerifierExpressionContext {
             ..default()
         });
@@ -421,7 +434,6 @@ mod tests {
         assert!(cv.is::<BooleanConstant>());
         assert!(cv.boolean_value());
         */
-        verifier.exit_scope();
 
         // Report diagnostics
         cu.sort_diagnostics();

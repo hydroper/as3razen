@@ -1,6 +1,5 @@
 # Expressions
 
-* [ ] `Filter`
 * [ ] `Super`
 * [ ] `Call`
 * [ ] `WithTypeArguments`

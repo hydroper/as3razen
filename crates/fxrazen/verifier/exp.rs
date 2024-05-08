@@ -605,4 +605,37 @@ impl ExpSubverifier {
 
         Ok(Some(verifier.host.factory().create_value(&verifier.host.xml_list_type())))
     }
+
+    pub fn verify_filter_exp(verifier: &mut Subverifier, filter_exp: &FilterExpression) -> Result<Option<Thingy>, DeferError> {
+        let Some(base) = verifier.verify_expression(&filter_exp.base, &default())? else {
+            let scope = verifier.host.factory().create_filter_scope(&verifier.host.invalidation_thingy());
+            verifier.inherit_and_enter_scope(&scope);
+            verifier.verify_expression(&filter_exp.test, &default())?;
+            verifier.exit_scope();
+
+            return Ok(None);
+        };
+
+        let scope = verifier.host.factory().create_filter_scope(&base);
+        verifier.inherit_and_enter_scope(&scope);
+        verifier.verify_expression(&filter_exp.test, &default())?;
+        verifier.exit_scope();
+
+        let base_st = base.static_type(&verifier.host);
+        let base_st_esc = base_st.escape_of_non_nullable();
+
+        if ![verifier.host.any_type(),
+            verifier.host.object_type().defer()?,
+            verifier.host.xml_type().defer()?,
+            verifier.host.xml_list_type().defer()?].contains(&base_st_esc) {
+            verifier.add_verify_error(&filter_exp.test.location(), FxDiagnosticKind::InapplicableFilter, diagarg![base_st]);
+            return Ok(None);
+        }
+
+        if [verifier.host.any_type(), verifier.host.object_type()].contains(&base_st_esc) {
+            return Ok(Some(verifier.host.factory().create_value(&verifier.host.any_type())));
+        }
+
+        Ok(Some(verifier.host.factory().create_value(&verifier.host.xml_list_type())))
+    }
 }
