@@ -204,6 +204,9 @@ impl Subverifier {
             Expression::ArrayLiteral(e) => {
                 result = ArraySubverifier::verify_array_literal(self, e, context)?;
             },
+            Expression::VectorLiteral(e) => {
+                result = ArraySubverifier::verify_vector_literal(self, e, context)?;
+            },
             Expression::Invalidated(_) => {
                 result = None;
             },
@@ -238,6 +241,11 @@ impl Subverifier {
     }
 
     pub fn verify_type_expression(&mut self, exp: &Rc<Expression>) -> Result<Option<Thingy>, DeferError> {
+        let pre_result = self.host.node_mapping().get(exp);
+        if let Some(pre_result) = pre_result {
+            return Ok(Some(pre_result));
+        }
+
         let v = self.verify_expression(exp, &VerifierExpressionContext { ..default() })?;
         if v.is_none() {
             return Ok(None);

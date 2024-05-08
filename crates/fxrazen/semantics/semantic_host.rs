@@ -240,6 +240,11 @@ impl SemanticHost {
         Ok(self.factory().create_type_after_substitution(&origin, &shared_array![self.any_type()]))
     }
 
+    pub fn vector_type_of_any(&self) -> Result<Thingy, DeferError> {
+        let origin = self.vector_type().defer()?;
+        Ok(self.factory().create_type_after_substitution(&origin, &shared_array![self.any_type()]))
+    }
+
     /// Retrieves `__AS3__.vec.Vector`, a possibly unresolved thing.
     pub fn vector_type(&self) -> Thingy {
         if let Some(r) = self.vector_type.borrow().as_ref() {

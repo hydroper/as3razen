@@ -91,4 +91,50 @@ impl ArraySubverifier {
 
         Ok(Some(verifier.host.factory().create_value(&context_type)))
     }
+
+    pub fn verify_vector_literal(verifier: &mut Subverifier, literal: &VectorLiteral, _context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        let element_type = verifier.verify_type_expression(&literal.element_type)?;
+        let vector_type = if element_type.is_none() || element_type.as_ref().unwrap().is::<InvalidationThingy>() {
+            verifier.host.invalidation_thingy()
+        } else {
+            verifier.host.vector_type().defer()?.type_substitution(&verifier.host, &verifier.host.vector_type().defer()?.type_params().unwrap(), &shared_array![element_type.clone().unwrap()])
+        };
+
+        if !vector_type.is::<InvalidationThingy>() {
+            let element_type = element_type.unwrap();
+            for elem in &literal.elements {
+                match elem {
+                    Element::Elision => {
+                        panic!();
+                    },
+                    Element::Rest((exp, _)) => {
+                        verifier.imp_coerce_exp(exp, &vector_type)?;
+                    },
+                    Element::Expression(exp) => {
+                        verifier.imp_coerce_exp(exp, &element_type)?;
+                    },
+                }
+            }
+        } else {
+            for elem in &literal.elements {
+                match elem {
+                    Element::Elision => {
+                        panic!();
+                    },
+                    Element::Rest((exp, _)) => {
+                        verifier.verify_expression(exp, &default())?;
+                    },
+                    Element::Expression(exp) => {
+                        verifier.verify_expression(exp, &default())?;
+                    },
+                }
+            }
+        }
+
+        if vector_type.is::<InvalidationThingy>() {
+            return Ok(Some(verifier.host.invalidation_thingy()));
+        }
+
+        Ok(Some(verifier.host.factory().create_value(&vector_type)))
+    }
 }
