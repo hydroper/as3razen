@@ -188,6 +188,9 @@ impl Subverifier {
             Expression::Member(e) => {
                 result = ExpSubverifier::verify_member_expr(self, exp, e, context)?;
             },
+            Expression::ComputedMember(e) => {
+                result = ExpSubverifier::verify_computed_member_expr(self, e, context)?;
+            },
             Expression::NumericLiteral(e) => {
                 result = ExpSubverifier::verify_numeric_literal(self, e, context)?;
             },

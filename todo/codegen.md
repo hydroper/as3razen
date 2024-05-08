@@ -23,3 +23,11 @@ See the [To Do List](flex.md) for Flex for the `[Bindable]` meta-data.
 * [ ] Implement `[Bindable(...)]` at class definitions
 * [ ] Implement `[Bindable(...)]` at variable definitions
 * [ ] Implement `[Bindable(...)]` at setter definitions
+
+## Embed
+
+No notes as of yet.
+
+## Conversions
+
+* [ ] Visit conversion values in the node mapping carefully and travel until the topmost value of the conversion and pass it as a parameter to the node visitor rather than just directly taking the semantic thing from the node's mapping.

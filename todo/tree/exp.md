@@ -1,6 +1,5 @@
 # Expressions
 
-* [ ] `ComputedMember`
 * [ ] `Descendants`
 * [ ] `Filter`
 * [ ] `Super`

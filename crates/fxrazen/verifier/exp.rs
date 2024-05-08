@@ -401,7 +401,7 @@ impl ExpSubverifier {
 
         // Attribute
         if id.attribute {
-            return Ok(Some(verifier.host.factory().create_dynamic_scope_reference_value(&verifier.scope(), qual, &key.computed_or_local_name(&verifier.host)?)));
+            return Ok(Some(verifier.host.factory().create_dynamic_reference_value(&base, qual, &key.computed_or_local_name(&verifier.host)?)));
         }
 
         let open_ns_set = verifier.scope().concat_open_ns_set_of_scope_chain();
@@ -432,7 +432,7 @@ impl ExpSubverifier {
         }
         let r = r.unwrap();
 
-        // No need to mark local capture for the member operator.
+        // No need to mark local capture for the property operator.
         // verifier.detect_local_capture(&r);
 
         // Post-processing
@@ -535,5 +535,48 @@ impl ExpSubverifier {
             },
             _ => None,
         }
+    }
+
+    pub fn verify_computed_member_expr(verifier: &mut Subverifier, member_exp: &ComputedMemberExpression, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        let Some(base) = verifier.verify_expression(&member_exp.base, &default())? else {
+            verifier.verify_expression(&member_exp.key, &default())?;
+            return Ok(None);
+        };
+
+        let Some(key) = verifier.verify_expression(&member_exp.key, &default())? else {
+            return Ok(None);
+        };
+
+        let open_ns_set = verifier.scope().concat_open_ns_set_of_scope_chain();
+        let r = PropertyLookup(&verifier.host).lookup_in_object(&base, &open_ns_set, None, &PropertyLookupKey::Computed(key.clone()));
+        if r.is_err() {
+            match r.unwrap_err() {
+                PropertyLookupError::AmbiguousReference(_) => {
+                    panic!();
+                },
+                PropertyLookupError::Defer => {
+                    return Err(DeferError());
+                },
+                PropertyLookupError::VoidBase => {
+                    verifier.add_verify_error(&member_exp.key.location(), FxDiagnosticKind::AccessOfVoid, diagarg![]);
+                    return Ok(None);
+                },
+                PropertyLookupError::NullableObject { .. } => {
+                    verifier.add_verify_error(&member_exp.key.location(), FxDiagnosticKind::AccessOfNullable, diagarg![]);
+                    return Ok(None);
+                },
+            }
+        }
+        let r = r.unwrap();
+        if r.is_none() {
+            panic!();
+        }
+        let r = r.unwrap();
+
+        // No need to mark local capture for the property operator.
+        // verifier.detect_local_capture(&r);
+
+        // Post-processing
+        verifier.reference_post_processing(r, context)
     }
 }
