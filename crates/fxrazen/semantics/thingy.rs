@@ -504,7 +504,14 @@ smodel! {
             if self.is::<Value>() {
                 return Ok(self.clone());
             }
-            if self.is::<Type>() && (self.is::<VoidType>() || self.is::<AnyType>() || self.is::<FunctionType>() || self.is::<TupleType>() || self.is::<NullableType>() || self.is::<NonNullableType>()) {
+            if self.is::<Type>() && (
+                self.is::<VoidType>() ||
+                self.is::<AnyType>() ||
+                self.is::<FunctionType>() ||
+                self.is::<TupleType>() ||
+                self.is::<NullableType>() ||
+                self.is::<NonNullableType>() ||
+                self.is::<TypeAfterSubstitution>()) {
                 return host.factory().create_type_as_reference_value(self);
             }
             if self.is::<Namespace>() {

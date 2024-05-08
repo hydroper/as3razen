@@ -35,6 +35,7 @@ pub enum FxDiagnosticKind {
     ASuperExpCanOnlyBeUsedInSubclasses = 2079,
     CallOnArrayType = 2080,
     CallOnNonFunction = 2081,
+    NonParameterizedType = 2082,
 }
 
 impl FxDiagnosticKind {

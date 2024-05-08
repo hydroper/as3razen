@@ -255,6 +255,12 @@ impl Subverifier {
             Expression::Super(e) => {
                 result = ExpSubverifier::verify_super_exp(self, e)?;
             },
+            Expression::Call(e) => {
+                result = ExpSubverifier::verify_call_exp(self, e)?;
+            },
+            Expression::WithTypeArguments(e) => {
+                result = ExpSubverifier::verify_apply_types_exp(self, e)?;
+            },
         }
 
         if result.is_some() && result.as_ref().unwrap().is::<InvalidationThingy>() {
