@@ -39,3 +39,7 @@ No notes as of yet.
 ## Global initialization
 
 * [ ] Omit global initialization code if it is empty.
+
+## Call operator
+
+* [ ] Calling `Array(...)` behaves the same as `new Array(...)`.

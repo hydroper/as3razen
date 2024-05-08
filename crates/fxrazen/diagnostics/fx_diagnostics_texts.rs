@@ -37,6 +37,7 @@ lazy_static! {
         FxDiagnosticKind::InapplicableDescendants.id() => "Attempt to search descendants through a reference with static type {1}.".into(),
         FxDiagnosticKind::ASuperExpCanBeUsedOnlyIn.id() => "A super expression can be used only in class instance methods.".into(),
         FxDiagnosticKind::ASuperExpCanOnlyBeUsedInSubclasses.id() => "A super expression can be used only in subclasses of Object.".into(),
+        FxDiagnosticKind::CallOnArrayType.id() => "A call on the Array type is equivalent to a new expression.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

@@ -1,7 +1,8 @@
 # Expressions
 
 * [ ] `Call`
-  * [ ] Perform cast when base is a type
+  * [x] Perform cast when base is a type, except for Array
+  * [x] Calling Array is equivalent to `new Array(...)` and generates a warning
   * [ ] Call Function otherwise
     * [ ] If base is a method reference in a FixtureReferenceValue
       * [ ] Call with type checking (`ArgumentsSubverifier::verify`) using the property's signature.

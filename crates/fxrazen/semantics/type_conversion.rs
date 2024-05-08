@@ -88,6 +88,40 @@ pub enum TypeConversionVariant {
     /// Involved types are each either a parameterized type without applied types
     /// or an application of a parameterized type.
     ParameterizedTypeAlter,
+
+    /// Explicit type conversion.
+    ToString,
+
+    /// Explicit type conversion.
+    ToBoolean,
+
+    /// Explicit type conversion.
+    ToNumber,
+
+    /// Explicit type conversion.
+    ToFloat,
+
+    /// Explicit type conversion.
+    ToUint,
+
+    /// Explicit type conversion.
+    ToInt,
+}
+
+impl TypeConversionVariant {
+    pub fn is_implicit(&self) -> bool {
+        [
+            Self::FromAny,
+            Self::ToAny,
+            Self::BetweenNumber,
+            Self::ToCovariant,
+            Self::ItrfcToObject,
+            Self::NonNullableToNullable,
+            Self::AsIsToNullable,
+            Self::NonNullableToAsIs,
+            Self::FunctionToStructuralFunction,
+        ].contains(self)
+    }
 }
 
 pub struct TypeConversions<'a>(pub &'a SemanticHost);
@@ -302,6 +336,38 @@ impl<'a> TypeConversions<'a> {
         // NumberToEnum
         if from_type == number_type && target_type.escape_of_non_nullable().is::<EnumType>() {
             return Ok(Some(self.0.factory().create_conversion_value(value, TypeConversionVariant::NumberToEnum, optional, target_type)?));
+        }
+
+        if target_type == &string_type {
+            return Ok(Some(self.0.factory().create_conversion_value(value, TypeConversionVariant::ToString, optional, target_type)?));
+        }
+
+        if target_type == &number_type {
+            return Ok(Some(self.0.factory().create_conversion_value(value, TypeConversionVariant::ToNumber, optional, target_type)?));
+        }
+
+        let float_type = self.0.float_type().defer()?;
+
+        if target_type == &float_type {
+            return Ok(Some(self.0.factory().create_conversion_value(value, TypeConversionVariant::ToFloat, optional, target_type)?));
+        }
+
+        let uint_type = self.0.uint_type().defer()?;
+
+        if target_type == &uint_type {
+            return Ok(Some(self.0.factory().create_conversion_value(value, TypeConversionVariant::ToUint, optional, target_type)?));
+        }
+
+        let int_type = self.0.int_type().defer()?;
+
+        if target_type == &int_type {
+            return Ok(Some(self.0.factory().create_conversion_value(value, TypeConversionVariant::ToInt, optional, target_type)?));
+        }
+
+        let boolean_type = self.0.boolean_type().defer()?;
+
+        if target_type == &boolean_type {
+            return Ok(Some(self.0.factory().create_conversion_value(value, TypeConversionVariant::ToBoolean, optional, target_type)?));
         }
 
         // FromTypeParameter

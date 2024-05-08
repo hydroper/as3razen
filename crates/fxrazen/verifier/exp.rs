@@ -697,4 +697,48 @@ impl ExpSubverifier {
 
         Ok(Some(verifier.host.factory().create_value(&limit)))
     }
+
+    pub fn verify_call_exp(verifier: &mut Subverifier, call_exp: &CallExpression) -> Result<Option<Thingy>, DeferError> {
+        let Some(base) = verifier.verify_expression(&call_exp.base, &default())? else {
+            for arg in &call_exp.arguments {
+                verifier.verify_expression(arg, &default())?;
+            }
+            return Ok(None);
+        };
+
+        // Type cast or new Array
+        if let Some(base_type) = base.as_type() {
+            let array_type = verifier.host.array_type().defer()?;
+            // new Array
+            if base_type == array_type || base_type.type_after_sub_has_origin(&array_type) {
+                for arg in &call_exp.arguments {
+                    verifier.verify_expression(arg, &default())?;
+                }
+                verifier.add_warning(&call_exp.base.location(), FxDiagnosticKind::CallOnArrayType, diagarg![]);
+                return Ok(Some(verifier.host.factory().create_value(&array_type)));
+            // Type cast
+            } else {
+                let mut first = true;
+                for arg in &call_exp.arguments {
+                    if first {
+                        verifier.verify_expression(arg, &VerifierExpressionContext {
+                            context_type: Some(base_type.clone()),
+                            ..default()
+                        })?;
+                    } else {
+                        verifier.verify_expression(arg, &default())?;
+                    }
+                    first = false;
+                }
+                if call_exp.arguments.len() < 1 {
+                    verifier.add_verify_error(&call_exp.base.location(), FxDiagnosticKind::IncorrectNumArguments, diagarg!["1".to_string()]);
+                } else if call_exp.arguments.len() > 1 {
+                    verifier.add_verify_error(&call_exp.base.location(), FxDiagnosticKind::IncorrectNumArgumentsNoMoreThan, diagarg!["1".to_string()]);
+                }
+                return Ok(Some(verifier.host.factory().create_value(&base_type)));
+            }
+        }
+
+        todo()
+    }
 }

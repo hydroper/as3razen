@@ -33,6 +33,7 @@ pub enum FxDiagnosticKind {
     InapplicableDescendants = 2077,
     ASuperExpCanBeUsedOnlyIn = 2078,
     ASuperExpCanOnlyBeUsedInSubclasses = 2079,
+    CallOnArrayType = 2080,
 }
 
 impl FxDiagnosticKind {
