@@ -576,7 +576,7 @@ smodel! {
 
         /// Possibly unresolved.
         pub fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
-            panic!();
+            None
         }
 
         pub fn set_extends_class(&self, entity: Option<Thingy>) {

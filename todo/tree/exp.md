@@ -1,7 +1,10 @@
 # Expressions
 
-* [ ] `Super`
 * [ ] `Call`
+  * [ ] Perform cast when base is a type
+  * [ ] Call Function otherwise
+    * [ ] If base is a method reference in one of few reference values (StaticReferenceValue, InstanceReferenceValue, PackageReferenceValue, ScopeReferenceValue)
+    * [ ] If base is a reference with a function type, do type checking.
 * [ ] `WithTypeArguments`
   * [ ] Pass `context.followed_by_type_arguments = true` to base
 * [ ] `Unary`

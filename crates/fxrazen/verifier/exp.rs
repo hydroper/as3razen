@@ -638,4 +638,63 @@ impl ExpSubverifier {
 
         Ok(Some(verifier.host.factory().create_value(&verifier.host.xml_list_type())))
     }
+
+    pub fn verify_super_exp(verifier: &mut Subverifier, super_exp: &SuperExpression) -> Result<Option<Thingy>, DeferError> {
+        let Some(act) = verifier.scope().search_activation() else {
+            if let Some(object) = super_exp.object.as_ref() {
+                for obj in object {
+                    verifier.verify_expression(obj, &default())?;
+                }
+            }
+            verifier.add_verify_error(&super_exp.location, FxDiagnosticKind::ASuperExpCanBeUsedOnlyIn, diagarg![]);
+            return Ok(None);
+        };
+
+        let Some(this) = act.this() else {
+            if let Some(object) = super_exp.object.as_ref() {
+                for obj in object {
+                    verifier.verify_expression(obj, &default())?;
+                }
+            }
+            verifier.add_verify_error(&super_exp.location, FxDiagnosticKind::ASuperExpCanBeUsedOnlyIn, diagarg![]);
+            return Ok(None);
+        };
+
+        // In the future, provided interface methods could be supported, so
+        // come with a pre-check.
+        let this_st = this.static_type(&verifier.host);
+        if this_st.is_interface_type_possibly_after_sub() {
+            if let Some(object) = super_exp.object.as_ref() {
+                for obj in object {
+                    verifier.verify_expression(obj, &default())?;
+                }
+            }
+            verifier.add_verify_error(&super_exp.location, FxDiagnosticKind::ASuperExpCanBeUsedOnlyIn, diagarg![]);
+            return Ok(None);
+        }
+
+
+        let Some(limit) = this_st.extends_class(&verifier.host) else {
+            if let Some(object) = super_exp.object.as_ref() {
+                for obj in object {
+                    verifier.verify_expression(obj, &default())?;
+                }
+            }
+            verifier.add_verify_error(&super_exp.location, FxDiagnosticKind::ASuperExpCanOnlyBeUsedInSubclasses, diagarg![]);
+            return Ok(None);
+        };
+
+        limit.defer()?;
+
+        if let Some(object) = super_exp.object.as_ref() {
+            if !object.is_empty() {
+                for obj in &object[..(object.len() - 1)] {
+                    verifier.verify_expression(obj, &default())?;
+                }
+                verifier.imp_coerce_exp(object.last().unwrap(), &limit)?;
+            }
+        }
+
+        Ok(Some(verifier.host.factory().create_value(&limit)))
+    }
 }

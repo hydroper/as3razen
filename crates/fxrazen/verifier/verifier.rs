@@ -252,6 +252,9 @@ impl Subverifier {
             Expression::Filter(e) => {
                 result = ExpSubverifier::verify_filter_exp(self, e)?;
             },
+            Expression::Super(e) => {
+                result = ExpSubverifier::verify_super_exp(self, e)?;
+            },
         }
 
         if result.is_some() && result.as_ref().unwrap().is::<InvalidationThingy>() {

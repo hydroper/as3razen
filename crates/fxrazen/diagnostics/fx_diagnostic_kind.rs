@@ -31,6 +31,8 @@ pub enum FxDiagnosticKind {
     UndefinedPropertyWithStaticType = 2075,
     InapplicableFilter = 2076,
     InapplicableDescendants = 2077,
+    ASuperExpCanBeUsedOnlyIn = 2078,
+    ASuperExpCanOnlyBeUsedInSubclasses = 2079,
 }
 
 impl FxDiagnosticKind {

@@ -35,6 +35,8 @@ lazy_static! {
         FxDiagnosticKind::UndefinedPropertyWithStaticType.id() => "Access of possibly undefined property {1} through a reference with static type {2}.".into(),
         FxDiagnosticKind::InapplicableFilter.id() => "Attempt to filter through a reference with static type {1}.".into(),
         FxDiagnosticKind::InapplicableDescendants.id() => "Attempt to search descendants through a reference with static type {1}.".into(),
+        FxDiagnosticKind::ASuperExpCanBeUsedOnlyIn.id() => "A super expression can be used only in class instance methods.".into(),
+        FxDiagnosticKind::ASuperExpCanOnlyBeUsedInSubclasses.id() => "A super expression can be used only in subclasses of Object.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }
