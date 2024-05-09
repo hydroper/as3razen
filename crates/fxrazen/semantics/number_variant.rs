@@ -7,7 +7,7 @@ use std::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Rem, Shl, Shr, Sub};
 
 /// Represents a numeric value represented as one of the data types
 /// `Number`, `float`, `uint`, or `int`.
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, PartialOrd)]
 pub enum NumberVariant {
     Number(f64),
     Float(f32),

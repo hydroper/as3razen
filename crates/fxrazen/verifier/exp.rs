@@ -1017,6 +1017,330 @@ impl ExpSubverifier {
     }
 
     pub fn verify_binary_exp(verifier: &mut Subverifier, exp: &BinaryExpression) -> Result<Option<Thingy>, DeferError> {
-        //
+        let Some(left) = verifier.verify_expression(&exp.left, &default())? else {
+            verifier.verify_expression(&exp.right, &default());
+            return Ok(None);
+        };
+
+        let left_st = left.static_type(&verifier.host);
+        let left_st_esc = left_st.escape_of_non_nullable();
+
+        match exp.operator {
+            Operator::Add => {
+                let Some(right) = verifier.verify_expression(&exp.right, &VerifierExpressionContext {
+                    context_type: Some(left_st.clone()),
+                    ..default()
+                })? else {
+                    return Ok(None);
+                };
+                let right_st = right.static_type(&verifier.host);
+                let object_type = verifier.host.object_type().defer()?;
+                let numeric_types = verifier.host.numeric_types()?;
+
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                    return Ok(Some(verifier.host.factory().create_number_constant(left.number_value() + right.number_value(), &left_st)));
+                }
+                if left.is::<StringConstant>() && right.is::<StringConstant>() {
+                    return Ok(Some(verifier.host.factory().create_string_constant(left.string_value() + &right.string_value(), &left_st)));
+                }
+                if numeric_types.contains(&left_st) || left_st.escape_of_non_nullable() == object_type {
+                    return Ok(Some(verifier.host.factory().create_value(&left_st)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&verifier.host.any_type())))
+            },
+            Operator::Subtract => {
+                let Some(right) = verifier.imp_coerce_exp(&exp.right, &left_st)? else {
+                    return Ok(None);
+                };
+                if ![verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&left_st_esc)
+                && !verifier.host.numeric_types()?.contains(&left_st_esc)
+                {
+                    verifier.add_verify_error(&exp.location, FxDiagnosticKind::UnrelatedMathOperation, diagarg![left_st]);
+                    return Ok(None);
+                }
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
+                    return Ok(Some(verifier.host.factory().create_number_constant(left.number_value() - right.number_value(), &left_st)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&left_st)))
+            },
+            Operator::Multiply => {
+                let Some(right) = verifier.imp_coerce_exp(&exp.right, &left_st)? else {
+                    return Ok(None);
+                };
+                if ![verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&left_st_esc)
+                && !verifier.host.numeric_types()?.contains(&left_st_esc)
+                {
+                    verifier.add_verify_error(&exp.location, FxDiagnosticKind::UnrelatedMathOperation, diagarg![left_st]);
+                    return Ok(None);
+                }
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
+                    return Ok(Some(verifier.host.factory().create_number_constant(left.number_value() * right.number_value(), &left_st)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&left_st)))
+            },
+            Operator::Divide => {
+                let Some(right) = verifier.imp_coerce_exp(&exp.right, &left_st)? else {
+                    return Ok(None);
+                };
+                if ![verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&left_st_esc)
+                && !verifier.host.numeric_types()?.contains(&left_st_esc)
+                {
+                    verifier.add_verify_error(&exp.location, FxDiagnosticKind::UnrelatedMathOperation, diagarg![left_st]);
+                    return Ok(None);
+                }
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
+                    return Ok(Some(verifier.host.factory().create_number_constant(left.number_value() / right.number_value(), &left_st)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&left_st)))
+            },
+            Operator::Remainder => {
+                let Some(right) = verifier.imp_coerce_exp(&exp.right, &left_st)? else {
+                    return Ok(None);
+                };
+                if ![verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&left_st_esc)
+                && !verifier.host.numeric_types()?.contains(&left_st_esc)
+                {
+                    verifier.add_verify_error(&exp.location, FxDiagnosticKind::UnrelatedMathOperation, diagarg![left_st]);
+                    return Ok(None);
+                }
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
+                    return Ok(Some(verifier.host.factory().create_number_constant(left.number_value() % right.number_value(), &left_st)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&left_st)))
+            },
+            Operator::Power => {
+                let Some(_) = verifier.imp_coerce_exp(&exp.right, &left_st)? else {
+                    return Ok(None);
+                };
+                if ![verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&left_st_esc)
+                && !verifier.host.numeric_types()?.contains(&left_st_esc)
+                {
+                    verifier.add_verify_error(&exp.location, FxDiagnosticKind::UnrelatedMathOperation, diagarg![left_st]);
+                    return Ok(None);
+                }
+                Ok(Some(verifier.host.factory().create_value(&left_st)))
+            },
+            Operator::BitwiseAnd => {
+                let Some(right) = verifier.imp_coerce_exp(&exp.right, &left_st)? else {
+                    return Ok(None);
+                };
+                if ![verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&left_st_esc)
+                && !verifier.host.numeric_types()?.contains(&left_st_esc)
+                {
+                    verifier.add_verify_error(&exp.location, FxDiagnosticKind::UnrelatedMathOperation, diagarg![left_st]);
+                    return Ok(None);
+                }
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
+                    return Ok(Some(verifier.host.factory().create_number_constant(left.number_value() & right.number_value(), &left_st)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&left_st)))
+            },
+            Operator::BitwiseXor => {
+                let Some(right) = verifier.imp_coerce_exp(&exp.right, &left_st)? else {
+                    return Ok(None);
+                };
+                if ![verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&left_st_esc)
+                && !verifier.host.numeric_types()?.contains(&left_st_esc)
+                {
+                    verifier.add_verify_error(&exp.location, FxDiagnosticKind::UnrelatedMathOperation, diagarg![left_st]);
+                    return Ok(None);
+                }
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
+                    return Ok(Some(verifier.host.factory().create_number_constant(left.number_value() ^  right.number_value(), &left_st)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&left_st)))
+            },
+            Operator::BitwiseOr => {
+                let Some(right) = verifier.imp_coerce_exp(&exp.right, &left_st)? else {
+                    return Ok(None);
+                };
+                if ![verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&left_st_esc)
+                && !verifier.host.numeric_types()?.contains(&left_st_esc)
+                {
+                    verifier.add_verify_error(&exp.location, FxDiagnosticKind::UnrelatedMathOperation, diagarg![left_st]);
+                    return Ok(None);
+                }
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
+                    return Ok(Some(verifier.host.factory().create_number_constant(left.number_value() | right.number_value(), &left_st)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&left_st)))
+            },
+            Operator::ShiftLeft => {
+                let Some(right) = verifier.imp_coerce_exp(&exp.right, &left_st)? else {
+                    return Ok(None);
+                };
+                if ![verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&left_st_esc)
+                && !verifier.host.numeric_types()?.contains(&left_st_esc)
+                {
+                    verifier.add_verify_error(&exp.location, FxDiagnosticKind::UnrelatedMathOperation, diagarg![left_st]);
+                    return Ok(None);
+                }
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
+                    return Ok(Some(verifier.host.factory().create_number_constant(left.number_value() << right.number_value(), &left_st)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&left_st)))
+            },
+            Operator::ShiftRight => {
+                let Some(right) = verifier.imp_coerce_exp(&exp.right, &left_st)? else {
+                    return Ok(None);
+                };
+                if ![verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&left_st_esc)
+                && !verifier.host.numeric_types()?.contains(&left_st_esc)
+                {
+                    verifier.add_verify_error(&exp.location, FxDiagnosticKind::UnrelatedMathOperation, diagarg![left_st]);
+                    return Ok(None);
+                }
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
+                    return Ok(Some(verifier.host.factory().create_number_constant(left.number_value() >> right.number_value(), &left_st)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&left_st)))
+            },
+            Operator::ShiftRightUnsigned => {
+                let Some(right) = verifier.imp_coerce_exp(&exp.right, &left_st)? else {
+                    return Ok(None);
+                };
+                if ![verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&left_st_esc)
+                && !verifier.host.numeric_types()?.contains(&left_st_esc)
+                {
+                    verifier.add_verify_error(&exp.location, FxDiagnosticKind::UnrelatedMathOperation, diagarg![left_st]);
+                    return Ok(None);
+                }
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
+                    return Ok(Some(verifier.host.factory().create_number_constant(left.number_value().shift_right_unsigned(&right.number_value()), &left_st)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&left_st)))
+            },
+            Operator::Equals | Operator::StrictEquals => {
+                let Some(right) = verifier.verify_expression(&exp.right, &default())? else {
+                    return Ok(None);
+                };
+                let right_st = right.static_type(&verifier.host);
+                let boolean_type = verifier.host.boolean_type().defer()?;
+
+                // Generate warning for unrelated types
+                if left.is_comparison_between_unrelated_types(&right, &verifier.host)? {
+                    verifier.add_warning(&exp.location, FxDiagnosticKind::ComparisonBetweenUnrelatedTypes, diagarg![left_st.clone(), right_st.clone()]);
+                }
+
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                    return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() == right.number_value(), &boolean_type)));
+                }
+                if left.is::<StringConstant>() && right.is::<StringConstant>() {
+                    return Ok(Some(verifier.host.factory().create_boolean_constant(left.string_value() == right.string_value(), &boolean_type)));
+                }
+                if left.is::<BooleanConstant>() && right.is::<BooleanConstant>() {
+                    return Ok(Some(verifier.host.factory().create_boolean_constant(left.boolean_value() == right.boolean_value(), &boolean_type)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&boolean_type)))
+            },
+            Operator::NotEquals | Operator::StrictNotEquals => {
+                let Some(right) = verifier.verify_expression(&exp.right, &default())? else {
+                    return Ok(None);
+                };
+                let right_st = right.static_type(&verifier.host);
+                let boolean_type = verifier.host.boolean_type().defer()?;
+
+                // Generate warning for unrelated types
+                if left.is_comparison_between_unrelated_types(&right, &verifier.host)? {
+                    verifier.add_warning(&exp.location, FxDiagnosticKind::ComparisonBetweenUnrelatedTypes, diagarg![left_st.clone(), right_st.clone()]);
+                }
+
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                    return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() != right.number_value(), &boolean_type)));
+                }
+                if left.is::<StringConstant>() && right.is::<StringConstant>() {
+                    return Ok(Some(verifier.host.factory().create_boolean_constant(left.string_value() != right.string_value(), &boolean_type)));
+                }
+                if left.is::<BooleanConstant>() && right.is::<BooleanConstant>() {
+                    return Ok(Some(verifier.host.factory().create_boolean_constant(left.boolean_value() != right.boolean_value(), &boolean_type)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&boolean_type)))
+            },
+            Operator::Lt => {
+                let Some(right) = verifier.verify_expression(&exp.right, &VerifierExpressionContext {
+                    context_type: Some(left_st.clone()),
+                    ..default()
+                })? else {
+                    return Ok(None);
+                };
+
+                let right_st = right.static_type(&verifier.host);
+                let boolean_type = verifier.host.boolean_type().defer()?;
+
+                // Generate warning for unrelated types
+                if left.is_comparison_between_unrelated_types(&right, &verifier.host)? {
+                    verifier.add_warning(&exp.location, FxDiagnosticKind::ComparisonBetweenUnrelatedTypes, diagarg![left_st.clone(), right_st.clone()]);
+                }
+
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                    return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() < right.number_value(), &boolean_type)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&boolean_type)))
+            },
+            Operator::Gt => {
+                let Some(right) = verifier.verify_expression(&exp.right, &VerifierExpressionContext {
+                    context_type: Some(left_st.clone()),
+                    ..default()
+                })? else {
+                    return Ok(None);
+                };
+
+                let right_st = right.static_type(&verifier.host);
+                let boolean_type = verifier.host.boolean_type().defer()?;
+
+                // Generate warning for unrelated types
+                if left.is_comparison_between_unrelated_types(&right, &verifier.host)? {
+                    verifier.add_warning(&exp.location, FxDiagnosticKind::ComparisonBetweenUnrelatedTypes, diagarg![left_st.clone(), right_st.clone()]);
+                }
+
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                    return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() > right.number_value(), &boolean_type)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&boolean_type)))
+            },
+            Operator::Le => {
+                let Some(right) = verifier.verify_expression(&exp.right, &VerifierExpressionContext {
+                    context_type: Some(left_st.clone()),
+                    ..default()
+                })? else {
+                    return Ok(None);
+                };
+
+                let right_st = right.static_type(&verifier.host);
+                let boolean_type = verifier.host.boolean_type().defer()?;
+
+                // Generate warning for unrelated types
+                if left.is_comparison_between_unrelated_types(&right, &verifier.host)? {
+                    verifier.add_warning(&exp.location, FxDiagnosticKind::ComparisonBetweenUnrelatedTypes, diagarg![left_st.clone(), right_st.clone()]);
+                }
+
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                    return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() <= right.number_value(), &boolean_type)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&boolean_type)))
+            },
+            Operator::Ge => {
+                let Some(right) = verifier.verify_expression(&exp.right, &VerifierExpressionContext {
+                    context_type: Some(left_st.clone()),
+                    ..default()
+                })? else {
+                    return Ok(None);
+                };
+
+                let right_st = right.static_type(&verifier.host);
+                let boolean_type = verifier.host.boolean_type().defer()?;
+
+                // Generate warning for unrelated types
+                if left.is_comparison_between_unrelated_types(&right, &verifier.host)? {
+                    verifier.add_warning(&exp.location, FxDiagnosticKind::ComparisonBetweenUnrelatedTypes, diagarg![left_st.clone(), right_st.clone()]);
+                }
+
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                    return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() >= right.number_value(), &boolean_type)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&boolean_type)))
+            },
+            _ => panic!(),
+        }
     }
 }

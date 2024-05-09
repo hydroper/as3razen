@@ -40,6 +40,8 @@ pub enum FxDiagnosticKind {
     OperandMustBeNumber = 2084,
     ReferenceIsAlreadyNonNullable = 2085,
     YieldIsNotSupported = 2086,
+    UnrelatedMathOperation = 2087,
+    ComparisonBetweenUnrelatedTypes = 2088,
 }
 
 impl FxDiagnosticKind {

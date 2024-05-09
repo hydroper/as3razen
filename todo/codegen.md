@@ -32,6 +32,10 @@ No notes as of yet.
 
 * [ ] Visit conversion values in the node mapping carefully and travel until the topmost value of the conversion and pass it as a parameter to the node visitor rather than just directly taking the semantic thing from the node's mapping.
 
+## Constant values
+
+* [ ] Visit constant values in the node mapping before generating code for an expression. Constant values should yield a cheap AVM2 constant value.
+
 ## Package initialization
 
 * [ ] Omit package initialization code if it is empty.

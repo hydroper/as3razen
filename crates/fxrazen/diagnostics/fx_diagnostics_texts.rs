@@ -44,6 +44,8 @@ lazy_static! {
         FxDiagnosticKind::OperandMustBeNumber.id() => "Operand must be a Number.".into(),
         FxDiagnosticKind::ReferenceIsAlreadyNonNullable.id() => "Reference is already non nullable.".into(),
         FxDiagnosticKind::YieldIsNotSupported.id() => "Yield operator is currently not supported.".into(),
+        FxDiagnosticKind::UnrelatedMathOperation.id() => "Unrelated mathematical operation using type {1}.".into(),
+        FxDiagnosticKind::ComparisonBetweenUnrelatedTypes.id() => "Comparison between a value of type {1} and an unrelated type {2}.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

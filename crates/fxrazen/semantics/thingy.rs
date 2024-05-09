@@ -843,6 +843,27 @@ smodel! {
             }
         }
 
+        pub fn is_comparison_between_unrelated_types(&self, other: &Thingy, host: &SemanticHost) -> Result<bool, DeferError> {
+            let left = self.escape_of_nullable_or_non_nullable();
+            let right = other.escape_of_nullable_or_non_nullable();
+
+            if left == right || [left.clone(), right.clone()].contains(&host.any_type()) {
+                return Ok(false);
+            }
+
+            let primitive_types = host.primitive_types()?;
+
+            if primitive_types.contains(&left) || primitive_types.contains(&right) {
+                return Ok(false);
+            }
+
+            if !(left.is_ascending_type_of(&right, host)? || left.is_subtype_of(&right, host)?) {
+                return Ok(true);
+            }
+
+            Ok(false)
+        }
+
         pub fn expect_type(&self) -> Result<Thingy, TypeExpectError> {
             if let Some(t) = self.as_type() {
                 Ok(t)

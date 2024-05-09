@@ -45,6 +45,7 @@ pub struct SemanticHost {
     meta_prop: Thingy,
     meta_env_prop: Thingy,
 
+    primitive_types: RefCell<Option<Rc<Vec<Thingy>>>>,
     non_null_primitive_types: RefCell<Option<Rc<Vec<Thingy>>>>,
     numeric_types: RefCell<Option<Rc<Vec<Thingy>>>>,
     floating_point_types: RefCell<Option<Rc<Vec<Thingy>>>>,
@@ -118,6 +119,7 @@ impl SemanticHost {
             flash_proxy_ns: RefCell::new(None),
             as3_ns: RefCell::new(None),
 
+            primitive_types: RefCell::new(None),
             non_null_primitive_types: RefCell::new(None),
             numeric_types: RefCell::new(None),
             floating_point_types: RefCell::new(None),
@@ -309,10 +311,25 @@ impl SemanticHost {
         self.as3_ns.borrow().as_ref().unwrap().clone()
     }
 
-    /// Returns the set of primitive types that do not contain `null`,
-    /// such as `Boolean`, `Number`, `int`, `uint`, and `float`.
-    /// `String` is never included in the resulting set, as it
-    /// includes the `null` value.
+    /// Returns the set (`void`, `String`, `Boolean`, `Number`, `int`, `uint`, `float`).
+    pub fn primitive_types(&self) -> Result<Rc<Vec<Thingy>>, DeferError> {
+        if let Some(r) = self.primitive_types.borrow().as_ref() {
+            return Ok(r.clone());
+        }
+        let r = Rc::new(vec![
+            self.void_type(),
+            self.string_type().defer()?,
+            self.boolean_type().defer()?,
+            self.number_type().defer()?,
+            self.int_type().defer()?,
+            self.uint_type().defer()?,
+            self.float_type().defer()?,
+        ]);
+        self.primitive_types.replace(Some(r.clone()));
+        Ok(r)
+    }
+
+    /// Returns the set (`Boolean`, `Number`, `int`, `uint`, `float`).
     pub fn non_null_primitive_types(&self) -> Result<Rc<Vec<Thingy>>, DeferError> {
         if let Some(r) = self.non_null_primitive_types.borrow().as_ref() {
             return Ok(r.clone());
