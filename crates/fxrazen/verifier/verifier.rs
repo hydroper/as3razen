@@ -457,8 +457,9 @@ impl Subverifier {
     }
 
     /// Handles definition conflict, returning any equivalent variable or method slot back, or invalidation.
-    pub fn handle_definition_conflict(&mut self, prev: &Thingy, new: &Thingy, parent: &Thingy) -> Thingy {
+    pub fn handle_definition_conflict(&mut self, prev: &Thingy, new: &Thingy) -> Thingy {
         let name = new.name();
+        let parent = new.parent().unwrap();
         if new.is::<VariableSlot>() && !parent.is::<FixtureScope>() {
             if prev.is::<VariableSlot>() {
                 self.add_warning(&new.location().unwrap(), FxDiagnosticKind::DuplicateVariableDefinition, diagarg![name.local_name()]);

@@ -48,9 +48,10 @@ impl DestructuringDeclarationSubverifier {
             let name = verifier.host.factory().create_qname(ns, id.to_identifier_name_or_asterisk().unwrap().0);
             let slot1 = verifier.host.factory().create_variable_slot(&name, read_only, &verifier.host.unresolved_thingy());
             slot1.set_location(Some(id.location.clone()));
+            slot1.set_parent(Some(parent.clone()));
 
             if let Some(prev) = output.get(&name) {
-                slot = Some(verifier.handle_definition_conflict(&prev, &slot1, parent));
+                slot = Some(verifier.handle_definition_conflict(&prev, &slot1));
             } else {
                 Unused(&verifier.host).add(&slot1);
                 output.set(name, slot1.clone());
@@ -73,6 +74,20 @@ impl DestructuringDeclarationSubverifier {
         let phase = phase.unwrap_or(VerifierPhase::Alpha);
         verifier.phase_of_thingy.insert(slot.clone(), phase);
 
-        todo()
+        match phase {
+            VerifierPhase::Alpha => {
+                verifier.phase_of_thingy.set(slot.clone(), VerifierPhase::Omega);
+                Err(DeferError())
+            },
+            VerifierPhase::Omega => {
+                // Assign a type if unresolved
+                if slot.static_type(&verifier.host).is::<UnresolvedThingy>() {
+                    todo();
+                }
+
+                todo()
+            },
+            _ => panic!(),
+        }
     }
 }
