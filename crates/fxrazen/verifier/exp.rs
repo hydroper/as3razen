@@ -1210,7 +1210,8 @@ impl ExpSubverifier {
                 }
                 Ok(Some(verifier.host.factory().create_value(&left_st)))
             },
-            Operator::Equals | Operator::StrictEquals => {
+            Operator::Equals |
+            Operator::StrictEquals => {
                 let Some(right) = verifier.verify_expression(&exp.right, &default())? else {
                     return Ok(None);
                 };
@@ -1233,7 +1234,8 @@ impl ExpSubverifier {
                 }
                 Ok(Some(verifier.host.factory().create_value(&boolean_type)))
             },
-            Operator::NotEquals | Operator::StrictNotEquals => {
+            Operator::NotEquals |
+            Operator::StrictNotEquals => {
                 let Some(right) = verifier.verify_expression(&exp.right, &default())? else {
                     return Ok(None);
                 };
@@ -1339,6 +1341,34 @@ impl ExpSubverifier {
                     return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() >= right.number_value(), &boolean_type)));
                 }
                 Ok(Some(verifier.host.factory().create_value(&boolean_type)))
+            },
+            Operator::Instanceof |
+            Operator::In |
+            Operator::NotIn => {
+                let Some(_) = verifier.verify_expression(&exp.right, &default())? else {
+                    return Ok(None);
+                };
+                Ok(Some(verifier.host.factory().create_value(&verifier.host.boolean_type().defer()?)))
+            },
+            Operator::Is | Operator::IsNot => {
+                let Some(_) = verifier.imp_coerce_exp(&exp.right, &verifier.host.class_type().defer()?)? else {
+                    return Ok(None);
+                };
+                Ok(Some(verifier.host.factory().create_value(&verifier.host.boolean_type().defer()?)))
+            },
+            Operator::As => {
+                let Some(right) = verifier.imp_coerce_exp(&exp.right, &verifier.host.class_type().defer()?)? else {
+                    return Ok(None);
+                };
+                if let Some(mut t) = right.as_type() {
+                    t = if t.includes_null(&verifier.host)? || t.includes_undefined(&verifier.host)? {
+                        t.clone()
+                    } else {
+                        verifier.host.factory().create_nullable_type(&t)
+                    };
+                    return Ok(Some(verifier.host.factory().create_value(&verifier.host.factory().create_value(&t))));
+                }
+                Ok(Some(verifier.host.factory().create_value(&verifier.host.factory().create_value(&verifier.host.any_type()))))
             },
             _ => panic!(),
         }

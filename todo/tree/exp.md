@@ -1,12 +1,6 @@
 # Expressions
 
 * [ ] `Binary`
-  * [ ] Instanceof
-  * [ ] In
-  * [ ] NotIn
-  * [ ] Is (implicitly coerce right-hand side to Class)
-  * [ ] IsNot
-  * [ ] As (implicitly coerce right-hand side to Class)
   * [ ] LogicalAnd
   * [ ] LogicalXor
   * [ ] LogicalOr
