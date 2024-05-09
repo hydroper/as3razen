@@ -45,6 +45,11 @@ pub enum FxDiagnosticKind {
     UnrelatedTernaryOperands = 2089,
     SystemNamespaceNotFound = 2090,
     RestParameterMustBeArray = 2091,
+    AConflictExistsWithDefinition = 2092,
+    DuplicateVariableDefinition = 2093,
+    DuplicateClassDefinition = 2094,
+    DuplicateInterfaceDefinition = 2095,
+    DuplicateFunctionDefinition = 2096,
 }
 
 impl FxDiagnosticKind {

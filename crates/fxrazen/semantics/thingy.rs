@@ -2944,7 +2944,13 @@ smodel! {
         }
     }
 
-    pub struct ClassScope: Scope {
+    pub struct FixtureScope: Scope {
+        pub(crate) fn FixtureScope() {
+            super();
+        }
+    }
+
+    pub struct ClassScope: FixtureScope {
         let ref m_class: Option<Thingy> = None;
 
         pub(crate) fn ClassScope(class: &Thingy) {
@@ -2957,7 +2963,7 @@ smodel! {
         }
     }
 
-    pub struct EnumScope: Scope {
+    pub struct EnumScope: FixtureScope {
         let ref m_class: Option<Thingy> = None;
 
         pub(crate) fn EnumScope(class: &Thingy) {
@@ -2970,7 +2976,7 @@ smodel! {
         }
     }
 
-    pub struct InterfaceScope: Scope {
+    pub struct InterfaceScope: FixtureScope {
         let ref m_itrfc: Option<Thingy> = None;
 
         pub(crate) fn InterfaceScope(itrfc: &Thingy) {
@@ -2983,7 +2989,7 @@ smodel! {
         }
     }
 
-    pub struct PackageScope: Scope {
+    pub struct PackageScope: FixtureScope {
         let ref m_pckg: Option<Thingy> = None;
 
         pub(crate) fn PackageScope(pckg: &Thingy) {

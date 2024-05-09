@@ -168,17 +168,29 @@ impl Subverifier {
     }
 
     pub fn add_syntax_error(&mut self, location: &Location, kind: FxDiagnosticKind, arguments: Vec<Rc<dyn DiagnosticArgument>>) {
-        location.compilation_unit().add_diagnostic(FxDiagnostic::new_syntax_error(location, kind, arguments));
+        let cu = location.compilation_unit();
+        if cu.prevent_equal_offset_error(location) {
+            return;
+        }
+        cu.add_diagnostic(FxDiagnostic::new_syntax_error(location, kind, arguments));
         self.invalidated = true;
     }
 
     pub fn add_verify_error(&mut self, location: &Location, kind: FxDiagnosticKind, arguments: Vec<Rc<dyn DiagnosticArgument>>) {
-        location.compilation_unit().add_diagnostic(FxDiagnostic::new_verify_error(location, kind, arguments));
+        let cu = location.compilation_unit();
+        if cu.prevent_equal_offset_error(location) {
+            return;
+        }
+        cu.add_diagnostic(FxDiagnostic::new_verify_error(location, kind, arguments));
         self.invalidated = true;
     }
 
     pub fn add_warning(&mut self, location: &Location, kind: FxDiagnosticKind, arguments: Vec<Rc<dyn DiagnosticArgument>>) {
-        location.compilation_unit().add_diagnostic(FxDiagnostic::new_warning(location, kind, arguments));
+        let cu = location.compilation_unit();
+        if cu.prevent_equal_offset_warning(location) {
+            return;
+        }
+        cu.add_diagnostic(FxDiagnostic::new_warning(location, kind, arguments));
     }
 
     pub fn set_scope(&mut self, scope: &Thingy) {
@@ -442,6 +454,40 @@ impl Subverifier {
             }
         }
         Ok(Some(r))
+    }
+
+    /// Handles definition conflict, returning any equivalent variable or method slot back, or invalidation.
+    pub fn handle_definition_conflict(&mut self, prev: &Thingy, new: &Thingy, parent: &Thingy) -> Thingy {
+        let name = new.name();
+        if new.is::<VariableSlot>() && !parent.is::<FixtureScope>() {
+            if prev.is::<VariableSlot>() {
+                self.add_warning(&new.location().unwrap(), FxDiagnosticKind::DuplicateVariableDefinition, diagarg![name.local_name()]);
+                return prev.clone();
+            } else {
+                self.report_definition_conflict_for_thingy(prev);
+                self.report_definition_conflict_for_thingy(new);
+                return self.host.invalidation_thingy();
+            }
+        } else if prev.is::<VariableSlot>() && !parent.is::<FixtureScope>() {
+            if new.is::<MethodSlot>() {
+                self.add_warning(&new.location().unwrap(), FxDiagnosticKind::DuplicateVariableDefinition, diagarg![name.local_name()]);
+                return prev.clone();
+            }
+        }
+        self.report_definition_conflict_for_thingy(prev);
+        self.report_definition_conflict_for_thingy(new);
+        self.host.invalidation_thingy()
+    }
+
+    fn report_definition_conflict_for_thingy(&mut self, thingy: &Thingy) {
+        let name = thingy.name();
+        if thingy.is::<ClassType>() || thingy.is::<EnumType>() {
+            self.add_verify_error(&thingy.location().unwrap(), FxDiagnosticKind::DuplicateClassDefinition, diagarg![name.local_name()]);
+        } else if thingy.is::<InterfaceType>() {
+            self.add_verify_error(&thingy.location().unwrap(), FxDiagnosticKind::DuplicateInterfaceDefinition, diagarg![name.local_name()]);
+        } else {
+            self.add_verify_error(&thingy.location().unwrap(), FxDiagnosticKind::AConflictExistsWithDefinition, diagarg![name.local_name(), name.namespace()]);
+        }
     }
 }
 

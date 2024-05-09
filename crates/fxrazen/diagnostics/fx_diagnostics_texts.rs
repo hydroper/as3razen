@@ -49,6 +49,11 @@ lazy_static! {
         FxDiagnosticKind::UnrelatedTernaryOperands.id() => "Unrelated ternary operands of types {1} and {2}.".into(),
         FxDiagnosticKind::SystemNamespaceNotFound.id() => "System namespace not found.".into(),
         FxDiagnosticKind::RestParameterMustBeArray.id() => "Rest parameter must be an Array.".into(),
+        FxDiagnosticKind::AConflictExistsWithDefinition.id() => "A conflict exists with definition {1} in namespace {2}.".into(),
+        FxDiagnosticKind::DuplicateVariableDefinition.id() => "Duplicate variable definition: {1}.".into(),
+        FxDiagnosticKind::DuplicateClassDefinition.id() => "Duplicate variable definition: {1}.".into(),
+        FxDiagnosticKind::DuplicateInterfaceDefinition.id() => "Duplicate interface definition: {1}.".into(),
+        FxDiagnosticKind::DuplicateFunctionDefinition.id() => "Duplicate function definition: {1}.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }
