@@ -22,7 +22,11 @@ pub(crate) struct DestructuringDeclarationSubverifier;
 
 impl DestructuringDeclarationSubverifier {
     // * [ ] Note 1: Remember to clear the phase entry after omega.
-    pub fn verify_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, init: &Thingy, read_only: bool, output: &NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
+
+    /// Verifies a pattern.
+    ///
+    /// `init` may be a value or an `UnresolvedThingy`
+    pub fn verify_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, init: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
         match pattern.as_ref() {
             Expression::QualifiedIdentifier(id) =>
                 Self::verify_identifier_pattern(verifier, pattern, id, init, read_only, output, ns, parent),
@@ -41,7 +45,7 @@ impl DestructuringDeclarationSubverifier {
         }
     }
 
-    fn verify_identifier_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, id: &QualifiedIdentifier, init: &Thingy, read_only: bool, output: &NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
+    fn verify_identifier_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, id: &QualifiedIdentifier, init: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
         let mut slot = verifier.host.node_mapping().get(pattern);
         let mut slot_just_init = false;
         if slot.is_none() {
@@ -53,7 +57,7 @@ impl DestructuringDeclarationSubverifier {
             if let Some(prev) = output.get(&name) {
                 slot = Some(verifier.handle_definition_conflict(&prev, &slot1));
             } else {
-                Unused(&verifier.host).add(&slot1);
+                Unused(&verifier.host).add_named_entity(&slot1);
                 output.set(name, slot1.clone());
                 slot = Some(slot1);
             }
@@ -76,16 +80,23 @@ impl DestructuringDeclarationSubverifier {
 
         match phase {
             VerifierPhase::Alpha => {
-                verifier.phase_of_thingy.set(slot.clone(), VerifierPhase::Omega);
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Omega);
                 Err(DeferError())
             },
             VerifierPhase::Omega => {
                 // Assign a type if unresolved
                 if slot.static_type(&verifier.host).is::<UnresolvedThingy>() {
-                    todo();
+                    init.defer()?;
+                    slot.set_static_type(init.static_type(&verifier.host).defer()?);
                 }
 
-                todo()
+                if init.is::<Constant>() {
+                    slot.set_var_constant(Some(init.clone()));
+                }
+
+                verifier.phase_of_thingy.remove(&slot);
+
+                Ok(())
             },
             _ => panic!(),
         }

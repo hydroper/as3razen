@@ -502,7 +502,7 @@ smodel! {
             DescendingDefinitionHierarchy(Some(self.clone()))
         }
 
-        pub fn is_namespace_or_ns_reference(&self) -> bool {
+        pub fn is_namespace_or_ns_constant(&self) -> bool {
             false
         }
 
@@ -521,7 +521,7 @@ smodel! {
                 return host.factory().create_type_as_reference_value(self);
             }
             if self.is::<Namespace>() {
-                return host.factory().create_namespace_as_reference_value(self);
+                return host.factory().create_namespace_constant(self);
             }
             if self.is::<InvalidationThingy>() {
                 return Ok(self.clone());
@@ -960,7 +960,7 @@ smodel! {
             host.namespace_type()
         }
 
-        pub override fn is_namespace_or_ns_reference(&self) -> bool {
+        pub override fn is_namespace_or_ns_constant(&self) -> bool {
             true
         }
     }
@@ -3120,6 +3120,23 @@ smodel! {
         }
     }
 
+    pub struct NamespaceConstant: Constant {
+        let ref m_ns: Option<Thingy> = None;
+
+        pub(crate) fn NamespaceConstant(referenced_ns: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_ns(Some(referenced_ns.clone()));
+        }
+
+        pub override fn referenced_ns(&self) -> Thingy {
+            self.m_ns().unwrap()
+        }
+
+        pub override fn is_namespace_or_ns_constant(&self) -> bool {
+            true
+        }
+    }
+
     pub struct NumberConstant: Constant {
         let ref m_value: NumberVariant = NumberVariant::Int(0);
 
@@ -3207,35 +3224,6 @@ smodel! {
 
         pub override fn referenced_type(&self) -> Thingy {
             self.m_type().unwrap()
-        }
-
-        pub override fn read_only(&self, host: &SemanticHost) -> bool {
-            true
-        }
-
-        pub override fn write_only(&self, host: &SemanticHost) -> bool {
-            false
-        }
-
-        pub override fn deletable(&self, host: &SemanticHost) -> bool {
-            false
-        }
-    }
-
-    pub struct NamespaceAsReferenceValue: ReferenceValue {
-        let ref m_ns: Option<Thingy> = None;
-
-        pub(crate) fn NamespaceAsReferenceValue(referenced_ns: &Thingy, static_type: &Thingy) {
-            super(static_type);
-            self.set_m_ns(Some(referenced_ns.clone()));
-        }
-
-        pub override fn referenced_ns(&self) -> Thingy {
-            self.m_ns().unwrap()
-        }
-
-        pub override fn is_namespace_or_ns_reference(&self) -> bool {
-            true
         }
 
         pub override fn read_only(&self, host: &SemanticHost) -> bool {

@@ -211,7 +211,7 @@ impl ObjectLiteralSubverifier {
         }
         let (qual, key) = qn.unwrap();
 
-        let has_known_ns = qual.as_ref().map(|q| q.is_namespace_or_ns_reference()).unwrap_or(true);
+        let has_known_ns = qual.as_ref().map(|q| q.is_namespace_or_ns_constant()).unwrap_or(true);
 
         if !(has_known_ns && matches!(key, PropertyLookupKey::LocalName(_))) {
             verifier.add_verify_error(&id.location, FxDiagnosticKind::DynamicOptionNotSupported, diagarg![]);
