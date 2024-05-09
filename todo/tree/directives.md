@@ -9,9 +9,9 @@
 
 ## Variable definitions
 
-* [ ] Assign ASDoc to the first topmost variable binding's slot
-* [ ] Assign meta-data to the first variable binding's slot.
-* [ ] Assign `[Bindable]` semantics to topmost variable slots
+* [ ] Assign ASDoc to the first topmost variable binding's slot after full resolution.
+* [ ] Assign meta-data to the first variable binding's slot after full resolution.
+* [ ] Assign `[Bindable]` semantics to topmost variable slots after full resolution.
 
 ## Class definitions
 
