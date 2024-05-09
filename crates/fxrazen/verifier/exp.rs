@@ -869,7 +869,7 @@ impl ExpSubverifier {
         } else {
             VerifyMode::Read
         };
-        let Some(value) = verifier.verify_expression(&exp.expression, &VerifierExpressionContext {
+        let Some(val) = verifier.verify_expression(&exp.expression, &VerifierExpressionContext {
             preceded_by_negative: exp.operator == Operator::Negative,
             mode: rw_mode,
             ..default()
@@ -877,6 +877,45 @@ impl ExpSubverifier {
             return Ok(None);
         };
 
-        todo()
+        let val_st = val.static_type(&verifier.host);
+        
+        match exp.operator {
+            Operator::PreIncrement |
+            Operator::PreDecrement |
+            Operator::PostIncrement |
+            Operator::PostDecrement => {
+                if !verifier.host.numeric_types()?.contains(&val_st) {
+                    verifier.add_verify_error(&exp.expression.location(), FxDiagnosticKind::UpdateExpressionMustBeNumber, diagarg![]);
+                } else if val.write_only(&verifier.host) {
+                    verifier.add_verify_error(&exp.expression.location(), FxDiagnosticKind::EntityIsWriteOnly, diagarg![]);
+                }
+                Ok(Some(verifier.host.factory().create_value(&val_st)))
+            },
+            Operator::NonNull => {
+                if val_st.includes_undefined(&verifier.host)? || val_st.includes_null(&verifier.host)? {
+                    let non_null_t = verifier.host.factory().create_non_nullable_type(&val_st);
+                    Ok(Some(verifier.host.factory().create_value(&non_null_t)))
+                } else {
+                    verifier.add_warning(&exp.expression.location(), FxDiagnosticKind::ReferenceIsAlreadyNonNullable, diagarg![]);
+                    Ok(Some(verifier.host.factory().create_value(&val_st)))
+                }
+            },
+            Operator::Delete => {
+                Ok(Some(verifier.host.factory().create_value(&verifier.host.boolean_type().defer()?)))
+            },
+            Operator::Void => {
+                Ok(Some(verifier.host.factory().create_undefined_constant(&verifier.host.any_type())))
+            },
+            Operator::Typeof => {
+                Ok(Some(verifier.host.factory().create_value(&verifier.host.string_type().defer()?)))
+            },
+            Operator::Yield => {
+                verifier.add_verify_error(&exp.location, FxDiagnosticKind::YieldIsNotSupported, diagarg![]);
+                Ok(None)
+            },
+            _ => {
+                panic!();
+            },
+        }
     }
 }

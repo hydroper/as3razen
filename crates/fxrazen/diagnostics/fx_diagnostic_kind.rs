@@ -37,6 +37,9 @@ pub enum FxDiagnosticKind {
     CallOnNonFunction = 2081,
     NonParameterizedType = 2082,
     AwaitOperandMustBeAPromise = 2083,
+    UpdateExpressionMustBeNumber = 2084,
+    ReferenceIsAlreadyNonNullable = 2085,
+    YieldIsNotSupported = 2086,
 }
 
 impl FxDiagnosticKind {
