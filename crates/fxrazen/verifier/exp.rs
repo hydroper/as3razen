@@ -986,11 +986,6 @@ impl ExpSubverifier {
         let base_st_esc = base_st.escape_of_nullable_or_non_nullable();
         let base_st_esc_is_opt = base_st_esc.includes_null(&verifier.host)? || base_st_esc.includes_undefined(&verifier.host)?;
 
-        // Report warning
-        if !base_st_esc_is_opt {
-            verifier.add_warning(&exp.base.location(), FxDiagnosticKind::ReferenceIsAlreadyNonNullable, diagarg![]);
-        }
-
         let non_null_t = if base_st_esc_is_opt { verifier.host.factory().create_non_nullable_type(&base_st_esc) } else { base_st_esc };
 
         // Assign placeholder's value
@@ -998,10 +993,25 @@ impl ExpSubverifier {
 
         // Verify subexpressions
         let Some(expval) = verifier.verify_expression(&exp.expression, &default())? else {
+            // Report warning
+            if !base_st_esc_is_opt {
+                verifier.add_warning(&exp.base.location(), FxDiagnosticKind::ReferenceIsAlreadyNonNullable, diagarg![]);
+            }
+
             return Ok(None);
         };
 
-        let nullable_result_type = verifier.host.factory().create_nullable_type(&expval.static_type(&verifier.host));
+        let expval_st = expval.static_type(&verifier.host);
+        let nullable_result_type = if expval_st == verifier.host.object_type().defer()? {
+            expval_st.clone()
+        } else {
+            verifier.host.factory().create_nullable_type(&expval_st)
+        };
+
+        // Report warning
+        if !base_st_esc_is_opt {
+            verifier.add_warning(&exp.base.location(), FxDiagnosticKind::ReferenceIsAlreadyNonNullable, diagarg![]);
+        }
 
         Ok(Some(verifier.host.factory().create_value(&nullable_result_type)))
     }
