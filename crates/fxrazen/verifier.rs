@@ -12,3 +12,6 @@ pub(crate) use object_literal::*;
 
 mod arguments;
 pub(crate) use arguments::*;
+
+mod destructuring;
+pub(crate) use destructuring::*;
