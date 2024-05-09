@@ -1015,4 +1015,8 @@ impl ExpSubverifier {
 
         Ok(Some(verifier.host.factory().create_value(&nullable_result_type)))
     }
+
+    pub fn verify_binary_exp(verifier: &mut Subverifier, exp: &BinaryExpression) -> Result<Option<Thingy>, DeferError> {
+        //
+    }
 }

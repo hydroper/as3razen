@@ -272,6 +272,9 @@ impl Subverifier {
                 // cached by the optional chaining operation.
                 panic!();
             },
+            Expression::Binary(e) => {
+                result = ExpSubverifier::verify_binary_exp(self, e)?;
+            },
         }
 
         if result.is_some() && result.as_ref().unwrap().is::<InvalidationThingy>() {
