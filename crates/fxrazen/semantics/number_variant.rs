@@ -1,8 +1,9 @@
 use crate::ns::*;
+
 use num_traits::FromPrimitive;
 // use num_traits::{One, Zero};
 // use num_bigint::BigInt;
-use std::ops::{BitXor, BitOr};
+use std::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Rem, Shl, Shr, Sub};
 
 /// Represents a numeric value represented as one of the data types
 /// `Number`, `float`, `uint`, or `int`.
@@ -15,30 +16,180 @@ pub enum NumberVariant {
     Uint(u32),
 }
 
+impl Add for NumberVariant {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self::Output {
+        match self {
+            Self::Float(v) => {
+                let rhs = rhs.as_float().unwrap();
+                Self::Float(v + rhs)
+            },
+            Self::Number(v) => {
+                let rhs = rhs.as_double().unwrap();
+                Self::Number(v + rhs)
+            },
+            Self::Int(v) => {
+                let rhs = rhs.as_int().unwrap();
+                Self::Int(v.checked_add(rhs).unwrap_or(0))
+            },
+            Self::Uint(v) => {
+                let rhs = rhs.as_uint().unwrap();
+                Self::Uint(v.checked_add(rhs).unwrap_or(0))
+            },
+        }
+    }
+}
+
+impl Sub for NumberVariant {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self::Output {
+        match self {
+            Self::Float(v) => {
+                let rhs = rhs.as_float().unwrap();
+                Self::Float(v - rhs)
+            },
+            Self::Number(v) => {
+                let rhs = rhs.as_double().unwrap();
+                Self::Number(v - rhs)
+            },
+            Self::Int(v) => {
+                let rhs = rhs.as_int().unwrap();
+                Self::Int(v.checked_sub(rhs).unwrap_or(0))
+            },
+            Self::Uint(v) => {
+                let rhs = rhs.as_uint().unwrap();
+                Self::Uint(v.checked_sub(rhs).unwrap_or(0))
+            },
+        }
+    }
+}
+
+impl Mul for NumberVariant {
+    type Output = Self;
+    fn mul(self, rhs: Self) -> Self::Output {
+        match self {
+            Self::Float(v) => {
+                let rhs = rhs.as_float().unwrap();
+                Self::Float(v * rhs)
+            },
+            Self::Number(v) => {
+                let rhs = rhs.as_double().unwrap();
+                Self::Number(v * rhs)
+            },
+            Self::Int(v) => {
+                let rhs = rhs.as_int().unwrap();
+                Self::Int(v.checked_mul(rhs).unwrap_or(0))
+            },
+            Self::Uint(v) => {
+                let rhs = rhs.as_uint().unwrap();
+                Self::Uint(v.checked_mul(rhs).unwrap_or(0))
+            },
+        }
+    }
+}
+
+impl Div for NumberVariant {
+    type Output = Self;
+    fn div(self, rhs: Self) -> Self::Output {
+        match self {
+            Self::Float(v) => {
+                let rhs = rhs.as_float().unwrap();
+                Self::Float(v / rhs)
+            },
+            Self::Number(v) => {
+                let rhs = rhs.as_double().unwrap();
+                Self::Number(v / rhs)
+            },
+            Self::Int(v) => {
+                let rhs = rhs.as_int().unwrap();
+                Self::Int(v.checked_div(rhs).unwrap_or(0))
+            },
+            Self::Uint(v) => {
+                let rhs = rhs.as_uint().unwrap();
+                Self::Uint(v.checked_div(rhs).unwrap_or(0))
+            },
+        }
+    }
+}
+
+impl Rem for NumberVariant {
+    type Output = Self;
+    fn rem(self, rhs: Self) -> Self::Output {
+        match self {
+            Self::Float(v) => {
+                let rhs = rhs.as_float().unwrap();
+                Self::Float(v % rhs)
+            },
+            Self::Number(v) => {
+                let rhs = rhs.as_double().unwrap();
+                Self::Number(v % rhs)
+            },
+            Self::Int(v) => {
+                let rhs = rhs.as_int().unwrap();
+                Self::Int(v.checked_rem(rhs).unwrap_or(0))
+            },
+            Self::Uint(v) => {
+                let rhs = rhs.as_uint().unwrap();
+                Self::Uint(v.checked_rem(rhs).unwrap_or(0))
+            },
+        }
+    }
+}
+
+impl std::ops::Neg for NumberVariant {
+    type Output = Self;
+    fn neg(self) -> Self::Output {
+        match self {
+            Self::Float(v) => Self::Float(-v),
+            Self::Number(v) => Self::Number(-v),
+            Self::Int(v) => Self::Int(-v),
+            Self::Uint(v) => Self::Uint(v),
+        }
+    }
+}
+
+impl BitAnd for NumberVariant {
+    type Output = Self;
+    fn bitand(self, rhs: Self) -> Self::Output {
+        match self {
+            Self::Float(v) => {
+                let rhs = rhs.as_float().unwrap();
+                Self::Float(f32::from_u32(unsafe { v.to_int_unchecked::<u32>() } & unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0.0))
+            },
+            Self::Number(v) => {
+                let rhs = rhs.as_double().unwrap();
+                Self::Number(f64::from_u32(unsafe { v.to_int_unchecked::<u32>() } & unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0.0))
+            },
+            Self::Int(v) => {
+                let rhs = rhs.as_int().unwrap();
+                Self::Int(v & rhs)
+            },
+            Self::Uint(v) => {
+                let rhs = rhs.as_uint().unwrap();
+                Self::Uint(v & rhs)
+            },
+        }
+    }
+}
+
 impl BitXor for NumberVariant {
     type Output = Self;
     fn bitxor(self, rhs: Self) -> Self::Output {
         match self {
             Self::Float(v) => {
-                let Self::Float(rhs) = rhs else { panic!(); };
+                let rhs = rhs.as_float().unwrap();
                 Self::Float(f32::from_u32(unsafe { v.to_int_unchecked::<u32>() } ^ unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0.0))
             },
             Self::Number(v) => {
-                let Self::Number(rhs) = rhs else { panic!(); };
+                let rhs = rhs.as_double().unwrap();
                 Self::Number(f64::from_u32(unsafe { v.to_int_unchecked::<u32>() } ^ unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0.0))
             },
-            /*
-            Self::BigInt(v) => {
-                let Self::BigInt(ref rhs) = rhs else { panic!(); };
-                Self::BigInt(v.clone() ^ rhs.clone())
-            },
-            */
             Self::Int(v) => {
-                let Self::Int(rhs) = rhs else { panic!(); };
+                let rhs = rhs.as_int().unwrap();
                 Self::Int(v ^ rhs)
             },
             Self::Uint(v) => {
-                let Self::Uint(rhs) = rhs else { panic!(); };
+                let rhs = rhs.as_uint().unwrap();
                 Self::Uint(v ^ rhs)
             },
         }
@@ -50,26 +201,68 @@ impl BitOr for NumberVariant {
     fn bitor(self, rhs: Self) -> Self::Output {
         match self {
             Self::Float(v) => {
-                let Self::Float(rhs) = rhs else { panic!(); };
+                let rhs = rhs.as_float().unwrap();
                 Self::Float(f32::from_u32(unsafe { v.to_int_unchecked::<u32>() } | unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0.0))
             },
             Self::Number(v) => {
-                let Self::Number(rhs) = rhs else { panic!(); };
+                let rhs = rhs.as_double().unwrap();
                 Self::Number(f64::from_u32(unsafe { v.to_int_unchecked::<u32>() } | unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0.0))
             },
-            /*
-            Self::BigInt(v) => {
-                let Self::BigInt(ref rhs) = rhs else { panic!(); };
-                Self::BigInt(v.clone() | rhs.clone())
-            },
-            */
             Self::Int(v) => {
-                let Self::Int(rhs) = rhs else { panic!(); };
+                let rhs = rhs.as_int().unwrap();
                 Self::Int(v | rhs)
             },
             Self::Uint(v) => {
-                let Self::Uint(rhs) = rhs else { panic!(); };
+                let rhs = rhs.as_uint().unwrap();
                 Self::Uint(v | rhs)
+            },
+        }
+    }
+}
+
+impl Shl for NumberVariant {
+    type Output = Self;
+    fn shl(self, rhs: Self) -> Self::Output {
+        match self {
+            Self::Float(v) => {
+                let rhs = rhs.as_float().unwrap();
+                Self::Float(f32::from_u32(unsafe { v.to_int_unchecked::<u32>() }.checked_shl(unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0)).unwrap_or(0.0))
+            },
+            Self::Number(v) => {
+                let rhs = rhs.as_double().unwrap();
+                Self::Number(f64::from_u32(unsafe { v.to_int_unchecked::<u32>() }.checked_shl(unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0)).unwrap_or(0.0))
+            },
+            Self::Int(v) => {
+                let rhs = rhs.as_int().unwrap();
+                Self::Int(v.checked_shl(rhs.try_into().unwrap_or(0)).unwrap_or(0))
+            },
+            Self::Uint(v) => {
+                let rhs = rhs.as_uint().unwrap();
+                Self::Uint(v.checked_shl(rhs).unwrap_or(0))
+            },
+        }
+    }
+}
+
+impl Shr for NumberVariant {
+    type Output = Self;
+    fn shr(self, rhs: Self) -> Self::Output {
+        match self {
+            Self::Float(v) => {
+                let rhs = rhs.as_float().unwrap();
+                Self::Float(f32::from_u32(unsafe { v.to_int_unchecked::<u32>() }.checked_shr(unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0)).unwrap_or(0.0))
+            },
+            Self::Number(v) => {
+                let rhs = rhs.as_double().unwrap();
+                Self::Number(f64::from_u32(unsafe { v.to_int_unchecked::<u32>() }.checked_shr(unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0)).unwrap_or(0.0))
+            },
+            Self::Int(v) => {
+                let rhs = rhs.as_int().unwrap();
+                Self::Int(v.checked_shr(rhs.try_into().unwrap_or(0)).unwrap_or(0))
+            },
+            Self::Uint(v) => {
+                let rhs = rhs.as_uint().unwrap();
+                Self::Uint(v.checked_shr(rhs).unwrap_or(0))
             },
         }
     }
@@ -206,6 +399,40 @@ impl NumberVariant {
     /// Erases bits if all of such bits are included in the base value.
     pub fn erase_bits(&self, bits: &Self) -> Self {
         if self.includes_bits(bits) { self.clone() ^ bits.clone() } else { self.clone() }
+    }
+
+    pub fn bitwise_not(&self) -> Self {
+        match self {
+            Self::Float(v) => Self::Float(f32::from_u32(unsafe { !v.to_int_unchecked::<u32>() }).unwrap_or(0.0)),
+            Self::Number(v) => Self::Number(f64::from_u32(unsafe { !v.to_int_unchecked::<u32>() }).unwrap_or(0.0)),
+            Self::Int(v) => Self::Int(!v),
+            Self::Uint(v) => Self::Uint(!v),
+        }
+    }
+    
+    pub fn shift_right_unsigned(&self, rhs: &Self) -> Self {
+        match self {
+            Self::Float(v) => {
+                let rhs = rhs.as_float().unwrap();
+                Self::Float(f32::from_u32(unsafe { v.to_int_unchecked::<u32>() }.checked_shr(unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0)).unwrap_or(0.0))
+            },
+            Self::Number(v) => {
+                let rhs = rhs.as_double().unwrap();
+                Self::Number(f64::from_u32(unsafe { v.to_int_unchecked::<u32>() }.checked_shr(unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0)).unwrap_or(0.0))
+            },
+            Self::Int(v) => {
+                let rhs = rhs.as_int().unwrap();
+                let uint1: u32 = (*v).try_into().unwrap_or(0);
+                let uint2: u32 = rhs.try_into().unwrap_or(0);
+                let v = uint1.checked_shr(uint2).unwrap_or(0);
+                let v: i32 = v.try_into().unwrap_or(0);
+                Self::Int(v)
+            },
+            Self::Uint(v) => {
+                let rhs = rhs.as_uint().unwrap();
+                Self::Uint(v.checked_shr(rhs).unwrap_or(0))
+            },
+        }
     }
 
     pub fn includes_bits(&self, rhs: &Self) -> bool {

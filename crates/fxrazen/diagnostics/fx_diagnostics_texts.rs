@@ -41,7 +41,7 @@ lazy_static! {
         FxDiagnosticKind::CallOnNonFunction.id() => "Call on non Function object.".into(),
         FxDiagnosticKind::NonParameterizedType.id() => "Applying types on non parameterized type.".into(),
         FxDiagnosticKind::AwaitOperandMustBeAPromise.id() => "Await operand must be a Promise.".into(),
-        FxDiagnosticKind::UpdateExpressionMustBeNumber.id() => "Update expression must be a Number.".into(),
+        FxDiagnosticKind::OperandMustBeNumber.id() => "Operand must be a Number.".into(),
         FxDiagnosticKind::ReferenceIsAlreadyNonNullable.id() => "Reference is already non nullable.".into(),
         FxDiagnosticKind::YieldIsNotSupported.id() => "Yield operator is currently not supported.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),

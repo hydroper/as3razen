@@ -885,7 +885,7 @@ impl ExpSubverifier {
             Operator::PostIncrement |
             Operator::PostDecrement => {
                 if !verifier.host.numeric_types()?.contains(&val_st) {
-                    verifier.add_verify_error(&exp.expression.location(), FxDiagnosticKind::UpdateExpressionMustBeNumber, diagarg![]);
+                    verifier.add_verify_error(&exp.expression.location(), FxDiagnosticKind::OperandMustBeNumber, diagarg![]);
                 } else if val.write_only(&verifier.host) {
                     verifier.add_verify_error(&exp.expression.location(), FxDiagnosticKind::EntityIsWriteOnly, diagarg![]);
                 }
@@ -912,6 +912,43 @@ impl ExpSubverifier {
             Operator::Yield => {
                 verifier.add_verify_error(&exp.location, FxDiagnosticKind::YieldIsNotSupported, diagarg![]);
                 Ok(None)
+            },
+            Operator::Positive => {
+                let val_st_esc = val_st.escape_of_non_nullable();
+                if !([verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&val_st_esc) || verifier.host.numeric_types()?.contains(&val_st)) {
+                    verifier.add_verify_error(&exp.expression.location(), FxDiagnosticKind::OperandMustBeNumber, diagarg![]);
+                    return Ok(None);
+                }
+                if val.is::<NumberConstant>() {
+                    return Ok(Some(val.clone()));
+                }
+                Ok(Some(verifier.host.factory().create_value(&val_st)))
+            },
+            Operator::Negative => {
+                let val_st_esc = val_st.escape_of_non_nullable();
+                if !([verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&val_st_esc) || verifier.host.numeric_types()?.contains(&val_st)) {
+                    verifier.add_verify_error(&exp.expression.location(), FxDiagnosticKind::OperandMustBeNumber, diagarg![]);
+                    return Ok(None);
+                }
+                if val.is::<NumberConstant>() {
+                    // Numeric literal has already been negated.
+                    if matches!(exp.expression.as_ref(), Expression::NumericLiteral(_)) {
+                        return Ok(Some(val.clone()));
+                    }
+                    return Ok(Some(verifier.host.factory().create_number_constant(-val.number_value(), &val_st)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&val_st)))
+            },
+            Operator::BitwiseNot => {
+                let val_st_esc = val_st.escape_of_non_nullable();
+                if !([verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&val_st_esc) || verifier.host.numeric_types()?.contains(&val_st)) {
+                    verifier.add_verify_error(&exp.expression.location(), FxDiagnosticKind::OperandMustBeNumber, diagarg![]);
+                    return Ok(None);
+                }
+                if val.is::<NumberConstant>() {
+                    return Ok(Some(verifier.host.factory().create_number_constant(val.number_value().bitwise_not(), &val_st)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&val_st)))
             },
             _ => {
                 panic!();
