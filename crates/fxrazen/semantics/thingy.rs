@@ -11,7 +11,7 @@ smodel! {
     pub struct Thingy {
         pub fn defer(&self) -> Result<Thingy, DeferError> {
             if self.is::<UnresolvedThingy>() {
-                Err(DeferError())
+                Err(DeferError::default())
             } else {
                 Ok(self.clone())
             }

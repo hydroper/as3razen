@@ -13,7 +13,7 @@ impl<'a> MethodOverriding<'a> {
         }
         let base_class = base_class.unwrap();
         if base_class.is::<UnresolvedThingy>() {
-            return Err(DeferError());
+            return Err(DeferError::default());
         }
         let mut r: Vec<Thingy> = vec![];
         for (name, prop) in base_class.prototype(self.0).borrow().iter() {

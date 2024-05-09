@@ -71,7 +71,7 @@ impl ExpSubverifier {
                     return Ok(None);
                 },
                 PropertyLookupError::Defer => {
-                    return Err(DeferError());
+                    return Err(DeferError::default());
                 },
                 PropertyLookupError::VoidBase => {
                     verifier.add_verify_error(&id.location, FxDiagnosticKind::AccessOfVoid, diagarg![]);
@@ -341,7 +341,7 @@ impl ExpSubverifier {
                 match ArgumentsSubverifier::verify(verifier, exp.arguments.as_ref().unwrap_or(&vec![]), &sig) {
                     Ok(_) => {},
                     Err(VerifierArgumentsError::Defer) => {
-                        return Err(DeferError());
+                        return Err(DeferError::default());
                     },
                     Err(VerifierArgumentsError::Expected(n)) => {
                         verifier.add_verify_error(&exp.base.location(), FxDiagnosticKind::IncorrectNumArguments, diagarg![n.to_string()]);
@@ -413,7 +413,7 @@ impl ExpSubverifier {
                     return Ok(None);
                 },
                 PropertyLookupError::Defer => {
-                    return Err(DeferError());
+                    return Err(DeferError::default());
                 },
                 PropertyLookupError::VoidBase => {
                     verifier.add_verify_error(&id.location, FxDiagnosticKind::AccessOfVoid, diagarg![]);
@@ -482,7 +482,7 @@ impl ExpSubverifier {
                     return Ok(Some(verifier.host.invalidation_thingy()));
                 },
                 Err(PropertyLookupError::Defer) => {
-                    return Err(DeferError());
+                    return Err(DeferError::default());
                 },
                 Err(_) => {
                     panic!();
@@ -505,7 +505,7 @@ impl ExpSubverifier {
                     return Ok(Some(verifier.host.invalidation_thingy()));
                 },
                 Err(PropertyLookupError::Defer) => {
-                    return Err(DeferError());
+                    return Err(DeferError::default());
                 },
                 Err(_) => {
                     panic!();
@@ -555,7 +555,7 @@ impl ExpSubverifier {
                     panic!();
                 },
                 PropertyLookupError::Defer => {
-                    return Err(DeferError());
+                    return Err(DeferError::default());
                 },
                 PropertyLookupError::VoidBase => {
                     verifier.add_verify_error(&member_exp.key.location(), FxDiagnosticKind::AccessOfVoid, diagarg![]);
@@ -744,7 +744,7 @@ impl ExpSubverifier {
             match ArgumentsSubverifier::verify(verifier, &exp.arguments, &sig) {
                 Ok(_) => {},
                 Err(VerifierArgumentsError::Defer) => {
-                    return Err(DeferError());
+                    return Err(DeferError::default());
                 },
                 Err(VerifierArgumentsError::Expected(n)) => {
                     verifier.add_verify_error(&exp.base.location(), FxDiagnosticKind::IncorrectNumArguments, diagarg![n.to_string()]);
@@ -764,7 +764,7 @@ impl ExpSubverifier {
             match ArgumentsSubverifier::verify(verifier, &exp.arguments, &sig) {
                 Ok(_) => {},
                 Err(VerifierArgumentsError::Defer) => {
-                    return Err(DeferError());
+                    return Err(DeferError::default());
                 },
                 Err(VerifierArgumentsError::Expected(n)) => {
                     verifier.add_verify_error(&exp.base.location(), FxDiagnosticKind::IncorrectNumArguments, diagarg![n.to_string()]);

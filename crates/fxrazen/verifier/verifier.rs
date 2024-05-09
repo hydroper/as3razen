@@ -1,5 +1,16 @@
 use crate::ns::*;
 
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
+pub enum VerifierPhase {
+    Alpha = 0,
+    Beta = 1,
+    Delta = 2,
+    Epsilon = 3,
+    Eta = 4,
+    Theta = 5,
+    Omega = 6,
+}
+
 /// ActionScript 3 and MXML verifier.
 ///
 /// `Verifier` performs type checking and maps nodes to something in
@@ -50,6 +61,7 @@ impl Verifier {
         Self {
             verifier: Subverifier {
                 host: host.clone(),
+                phase_of_thingy: HashMap::new(),
                 deferred_directives: vec![],
                 deferred_function_commons: vec![],
                 invalidated: false,
@@ -122,10 +134,11 @@ impl Verifier {
 
 pub(crate) struct Subverifier {
     pub host: Rc<SemanticHost>,
+    pub phase_of_thingy: HashMap<Thingy, VerifierPhase>,
     /// List of (phase, scope, directive).
-    pub deferred_directives: Vec<(usize, Thingy, Rc<Directive>)>,
+    pub deferred_directives: Vec<(VerifierPhase, Thingy, Rc<Directive>)>,
     /// List of (phase, scope, common).
-    pub deferred_function_commons: Vec<(usize, Thingy, Rc<FunctionCommon>)>,
+    pub deferred_function_commons: Vec<(VerifierPhase, Thingy, Rc<FunctionCommon>)>,
     invalidated: bool,
     // pub deferred_counter: usize,
     pub scope: Option<Thingy>,
@@ -227,6 +240,9 @@ impl Subverifier {
             },
             Expression::XmlList(e) => {
                 result = ExpSubverifier::verify_xml_list_exp(self, e, context)?;
+            },
+            Expression::XmlMarkup(e) => {
+                result = Some(self.host.factory().create_value(&self.host.xml_type().defer()?));
             },
             Expression::ArrayLiteral(e) => {
                 result = ArraySubverifier::verify_array_literal(self, e, context)?;

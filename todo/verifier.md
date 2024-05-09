@@ -196,3 +196,7 @@ Error: The return statement cannot be used in package initialization code.
 ## Top level
 
 * [ ] The topmost scope of top level code is an activation with `set_is_global_initialization(true)`.
+
+## Classes and enumerations
+
+* [ ] Do not allow destructuring in variable bindings belonging to class or enum top level declarations.

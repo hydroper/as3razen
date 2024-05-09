@@ -1,10 +1,19 @@
 use std::fmt::Debug;
-
 use crate::ns::*;
 
 /// Error used to indicate that verification must be deferred.
 #[derive(Clone, Copy, PartialEq, Debug)]
-pub struct DeferError();
+pub struct DeferError {
+    pub phase: Option<VerifierPhase>,
+}
+
+impl Default for DeferError {
+    fn default() -> Self {
+        Self {
+            phase: None,
+        }
+    }
+}
 
 /// Error used to indicate an ambiguous reference to a local name.
 #[derive(Clone, Debug)]
