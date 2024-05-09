@@ -7,6 +7,7 @@
   * [ ] PreDecrement
   * [ ] NonNull
   * [ ] Delete
+    * [ ] Pass `context.mode = delete` to expression
   * [ ] Void
   * [ ] Typeof
   * [ ] Await
@@ -31,4 +32,5 @@
 * [ ] `TupleType`
 * [ ] `FunctionType`
 * [ ] `Assignment`
+  * [ ] Pass `context.mode = write` to left-hand side
 * [ ] `Function`
