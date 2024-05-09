@@ -1,5 +1,9 @@
 # Codegen
 
+## External projects
+
+External FXRazen projects are external libraries that do not generate any code, typically used for builtins such as AIR globals. In these cases, only the verifier is responsible for handling the semantic model.
+
 ## Vector Data Type
 
 * [ ] Generate a multiname for a `Vector` type with type arguments as follows:
@@ -47,3 +51,7 @@ No notes as of yet.
 ## Call operator
 
 * [ ] Calling `Array(...)` behaves the same as `new Array(...)`.
+
+## Prototype
+
+* [ ] Do not contribute the "prototype" property from a class object to the AVM2 bytecode. It should be defined implicitly by AVM2.

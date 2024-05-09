@@ -7,7 +7,8 @@
 
 ## Variable definitions
 
-* [ ] Assign ASDoc to topmost variable slot
+* [ ] Assign ASDoc to the first topmost variable binding's slot
+* [ ] Assign meta-data to the first variable binding's slot.
 * [ ] Assign `[Bindable]` semantics to topmost variable slots
 
 ## Class definitions

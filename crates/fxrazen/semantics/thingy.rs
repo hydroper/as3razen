@@ -366,13 +366,6 @@ smodel! {
             panic!();
         }
 
-        pub fn is_external(&self) -> bool {
-            false
-        }
-
-        pub fn set_is_external(&self, value: bool) {
-        }
-
         pub fn is_abstract(&self) -> bool {
             false
         }
@@ -1127,7 +1120,6 @@ smodel! {
     pub struct Alias: Thingy {
         let ref m_name: Option<QName> = None;
         let ref m_alias_of: Option<Thingy> = None;
-        let m_is_external: bool = false;
         let ref m_parent: Option<Thingy> = None;
         let ref m_location: Option<Location> = None;
 
@@ -1143,14 +1135,6 @@ smodel! {
 
         pub override fn alias_of(&self) -> Thingy {
             self.m_alias_of().unwrap()
-        }
-
-        pub override fn is_external(&self) -> bool {
-            self.m_is_external()
-        }
-
-        pub override fn set_is_external(&self, value: bool) {
-            self.set_m_is_external(value);
         }
 
         pub override fn location(&self) -> Option<Location> {
@@ -1387,16 +1371,6 @@ smodel! {
             self.set_m_flags(v);
         }
 
-        pub override fn is_external(&self) -> bool {
-            self.m_flags().contains(ClassTypeFlags::IS_EXTERNAL)
-        }
-
-        pub override fn set_is_external(&self, value: bool) {
-            let mut v = self.m_flags();
-            v.set(ClassTypeFlags::IS_EXTERNAL, value);
-            self.set_m_flags(v);
-        }
-
         pub override fn known_subclasses(&self) -> SharedArray<Thingy> {
             self.m_known_subclasses()
         }
@@ -1472,7 +1446,6 @@ smodel! {
     pub struct EnumType: Type {
         let ref m_name: Option<QName> = None;
         let ref m_parent: Option<Thingy> = None;
-        let m_is_external: bool = false;
         let ref m_private_ns: Option<Thingy> = None;
         let ref m_properties: NameMap = NameMap::new();
         let ref m_prototype: NameMap = NameMap::new();
@@ -1534,14 +1507,6 @@ smodel! {
             false
         }
 
-        pub override fn is_external(&self) -> bool {
-            self.m_is_external()
-        }
-
-        pub override fn set_is_external(&self, value: bool) {
-            self.set_m_is_external(value);
-        }
-
         #[inheritdoc]
         pub override fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
             Some(host.object_type())
@@ -1591,7 +1556,6 @@ smodel! {
     pub struct InterfaceType: Type {
         let ref m_name: Option<QName> = None;
         let ref m_type_params: Option<SharedArray<Thingy>> = None;
-        let m_is_external: bool = false;
         let ref m_extends_interfaces: SharedArray<Thingy> = SharedArray::new();
         let ref m_known_implementors: SharedArray<Thingy> = SharedArray::new();
         let ref m_parent: Option<Thingy> = None;
@@ -1619,14 +1583,6 @@ smodel! {
 
         pub override fn set_location(&self, loc: Option<Location>) {
             self.set_m_location(loc);
-        }
-
-        pub override fn is_external(&self) -> bool {
-            self.m_is_external()
-        }
-
-        pub override fn set_is_external(&self, value: bool) {
-            self.set_m_is_external(value);
         }
 
         pub override fn type_params(&self) -> Option<SharedArray<Thingy>> {
@@ -2154,16 +2110,6 @@ smodel! {
             self.set_m_constant(k);
         }
 
-        pub override fn is_external(&self) -> bool {
-            self.m_flags().contains(VariableSlotFlags::IS_EXTERNAL)
-        }
-
-        pub override fn set_is_external(&self, value: bool) {
-            let mut v = self.m_flags();
-            v.set(VariableSlotFlags::IS_EXTERNAL, value);
-            self.set_m_flags(v);
-        }
-
         pub override fn read_only(&self, host: &SemanticHost) -> bool {
             self.m_flags().contains(VariableSlotFlags::READ_ONLY)
         }
@@ -2263,10 +2209,6 @@ smodel! {
             None
         }
 
-        pub override fn is_external(&self) -> bool {
-            self.origin().is_external()
-        }
-
         pub override fn read_only(&self, host: &SemanticHost) -> bool {
             self.origin().read_only(host)
         }
@@ -2360,16 +2302,6 @@ smodel! {
 
         pub override fn set_setter(&self, m: Option<Thingy>) {
             self.set_m_setter(m);
-        }
-
-        pub override fn is_external(&self) -> bool {
-            self.m_flags().contains(VirtualSlotFlags::IS_EXTERNAL)
-        }
-
-        pub override fn set_is_external(&self, value: bool) {
-            let mut v = self.m_flags();
-            v.set(VirtualSlotFlags::IS_EXTERNAL, value);
-            self.set_m_flags(v);
         }
 
         pub override fn read_only(&self, host: &SemanticHost) -> bool {
@@ -2510,10 +2442,6 @@ smodel! {
             Some(r)
         }
 
-        pub override fn is_external(&self) -> bool {
-            self.origin().is_external()
-        }
-
         pub override fn read_only(&self, host: &SemanticHost) -> bool {
             self.origin().read_only(host)
         }
@@ -2585,16 +2513,6 @@ smodel! {
 
         pub override fn name(&self) -> QName {
             self.m_name().unwrap()
-        }
-
-        pub override fn is_external(&self) -> bool {
-            self.m_flags().contains(MethodSlotFlags::IS_EXTERNAL)
-        }
-    
-        pub override fn set_is_external(&self, value: bool) {
-            let mut v = self.m_flags();
-            v.set(MethodSlotFlags::IS_EXTERNAL, value);
-            self.set_m_flags(v);
         }
 
         pub override fn is_final(&self) -> bool {
@@ -2767,10 +2685,6 @@ smodel! {
 
         pub override fn name(&self) -> QName {
             self.origin().name()
-        }
-
-        pub override fn is_external(&self) -> bool {
-            self.origin().is_external()
         }
 
         pub override fn is_final(&self) -> bool {
@@ -3823,14 +3737,12 @@ bitflags! {
         const IS_ABSTRACT   = 0b00000100;
         const IS_DYNAMIC    = 0b00001000;
         const IS_OPTIONS_CLASS = 0b00010000;
-        const IS_EXTERNAL   = 0b00100000;
     }
 }
 
 bitflags! {
     #[derive(Copy, Clone, PartialEq, Eq)]
     struct VariableSlotFlags: u16 {
-        const IS_EXTERNAL   = 0b00000001;
         const READ_ONLY     = 0b00000010;
     }
 }
@@ -3838,7 +3750,6 @@ bitflags! {
 bitflags! {
     #[derive(Copy, Clone, PartialEq, Eq)]
     struct VirtualSlotFlags: u16 {
-        const IS_EXTERNAL   = 0b00000001;
     }
 }
 
@@ -3848,7 +3759,6 @@ bitflags! {
         const IS_FINAL          = 0b000000001;
         const IS_STATIC         = 0b000000010;
         const IS_ABSTRACT       = 0b000000100;
-        const IS_EXTERNAL       = 0b000001000;
         const IS_OVERRIDING     = 0b000010000;
         const IS_ASYNC          = 0b000100000;
         const IS_GENERATOR      = 0b001000000;

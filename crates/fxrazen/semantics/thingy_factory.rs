@@ -116,7 +116,6 @@ impl<'a> ThingyFactory<'a> {
         // "static const prototype: *;"
         let prototype_name = self.create_qname(&ns_for_prototype, "prototype".into());
         let prototype_slot = self.create_variable_slot(&prototype_name, true, &self.0.any_type());
-        prototype_slot.set_is_external(true);
         r.properties(self.0).set(prototype_name.clone(), prototype_slot);
 
         r.into()
@@ -129,7 +128,6 @@ impl<'a> ThingyFactory<'a> {
         // "static const prototype: *;"
         let prototype_name = self.create_qname(&ns_for_prototype, "prototype".into());
         let prototype_slot = self.create_variable_slot(&prototype_name, true, &self.0.any_type());
-        prototype_slot.set_is_external(true);
         r.properties(self.0).set(prototype_name.clone(), prototype_slot);
 
         r.into()
