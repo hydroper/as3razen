@@ -101,7 +101,7 @@ dependencies = [
 
 [[package]]
 name = "fxrazen"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "as3_parser",
  "bitflags",
