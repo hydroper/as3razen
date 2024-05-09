@@ -1,7 +1,5 @@
 # Expressions
 
-* [ ] `Binary`
-  * [ ] NullCoalescing
 * [ ] `Conditional`
 * [ ] `Sequence`
 * [ ] `ReservedNamespace`
