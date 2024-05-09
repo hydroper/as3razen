@@ -1,7 +1,5 @@
 # Expressions
 
-* [ ] `Unary`
-  * [ ] LogicalNot
 * [ ] `OptionalChaining`
 * [ ] `OptionalChainingPlaceholder`
 * [ ] `Binary`

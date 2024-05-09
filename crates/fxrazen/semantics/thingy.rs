@@ -3126,8 +3126,6 @@ smodel! {
             super(static_type);
         }
 
-
-
         pub override fn clone_constant(&self, host: &SemanticHost) -> Thingy {
             host.factory().create_null_constant(&self.static_type(host))
         }

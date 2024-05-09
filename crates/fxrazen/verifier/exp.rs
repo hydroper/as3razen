@@ -950,6 +950,23 @@ impl ExpSubverifier {
                 }
                 Ok(Some(verifier.host.factory().create_value(&val_st)))
             },
+            Operator::LogicalNot => {
+                if val.is::<Constant>() {
+                    if val.is::<BooleanConstant>() {
+                        return Ok(Some(verifier.host.factory().create_boolean_constant(!val.boolean_value(), &verifier.host.boolean_type().defer()?)));
+                    } else if val.is::<NumberConstant>() {
+                        let mv = val.number_value();
+                        return Ok(Some(verifier.host.factory().create_boolean_constant(mv.is_zero() || mv.is_nan(), &verifier.host.boolean_type().defer()?)));
+                    } else if val.is::<StringConstant>() {
+                        return Ok(Some(verifier.host.factory().create_boolean_constant(val.string_value().is_empty(), &verifier.host.boolean_type().defer()?)));
+                    } else if val.is::<UndefinedConstant>() {
+                        return Ok(Some(verifier.host.factory().create_boolean_constant(true, &verifier.host.boolean_type().defer()?)));
+                    } else if val.is::<NullConstant>() {
+                        return Ok(Some(verifier.host.factory().create_boolean_constant(true, &verifier.host.boolean_type().defer()?)));
+                    }
+                }
+                Ok(Some(verifier.host.factory().create_value(&verifier.host.boolean_type().defer()?)))
+            },
             _ => {
                 panic!();
             },
