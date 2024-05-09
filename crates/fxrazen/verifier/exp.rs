@@ -1492,4 +1492,30 @@ impl ExpSubverifier {
         };
         Ok(Some(ns.wrap_property_reference(&verifier.host)?))
     }
+
+    pub fn verify_nullable_type_exp(verifier: &mut Subverifier, exp: &NullableTypeExpression) -> Result<Option<Thingy>, DeferError> {
+        let Some(base) = verifier.verify_type_expression(&exp.base)? else {
+            return Ok(None);
+        };
+        Ok(Some(verifier.host.factory().create_nullable_type(&base).wrap_property_reference(&verifier.host)?))
+    }
+
+    pub fn verify_non_nullable_type_exp(verifier: &mut Subverifier, exp: &NonNullableTypeExpression) -> Result<Option<Thingy>, DeferError> {
+        let Some(base) = verifier.verify_type_expression(&exp.base)? else {
+            return Ok(None);
+        };
+        // Marking non nullable on a non-null type as-is results into the same type as-is
+        // without the non nullable modifier.
+        if !(base.includes_null(&verifier.host)? || base.includes_undefined(&verifier.host)?) {
+            return Ok(Some(base.wrap_property_reference(&verifier.host)?));
+        }
+        Ok(Some(verifier.host.factory().create_non_nullable_type(&base).wrap_property_reference(&verifier.host)?))
+    }
+
+    pub fn verify_array_type_exp(verifier: &mut Subverifier, exp: &ArrayTypeExpression) -> Result<Option<Thingy>, DeferError> {
+        let Some(elem_type) = verifier.verify_type_expression(&exp.expression)? else {
+            return Ok(None);
+        };
+        Ok(Some(verifier.host.factory().create_type_after_substitution(&verifier.host.array_type().defer()?, &shared_array![elem_type]).wrap_property_reference(&verifier.host)?))
+    }
 }

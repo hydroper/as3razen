@@ -284,6 +284,21 @@ impl Subverifier {
             Expression::ReservedNamespace(e) => {
                 result = ExpSubverifier::verify_reserved_ns_exp(self, e)?;
             },
+            Expression::NullableType(e) => {
+                result = ExpSubverifier::verify_nullable_type_exp(self, e)?;
+            },
+            Expression::NonNullableType(e) => {
+                result = ExpSubverifier::verify_non_nullable_type_exp(self, e)?;
+            },
+            Expression::AnyType(e) => {
+                result = Some(self.host.any_type().wrap_property_reference(&self.host)?);
+            },
+            Expression::VoidType(e) => {
+                result = Some(self.host.void_type().wrap_property_reference(&self.host)?);
+            },
+            Expression::ArrayType(e) => {
+                result = ExpSubverifier::verify_array_type_exp(self, e)?;
+            },
         }
 
         if result.is_some() && result.as_ref().unwrap().is::<InvalidationThingy>() {
