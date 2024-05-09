@@ -1,5 +1,10 @@
 # Directives
 
+## Phases
+
+* [ ] Before a directive is verified, it is removed from the list of remaining directives to verify in the same block.
+* [ ] When a directive throws a defer error, the directive is added to the list of remaining directives to verify in the same block.
+
 ## Variable definitions
 
 * [ ] Assign ASDoc to topmost variable slot

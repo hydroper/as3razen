@@ -174,7 +174,7 @@ impl ObjectLiteralSubverifier {
                     return Ok(None);
                 },
                 PropertyLookupError::Defer => {
-                    return Err(DeferError::default());
+                    return Err(DeferError());
                 },
                 PropertyLookupError::VoidBase => {
                     verifier.add_verify_error(&id.location, FxDiagnosticKind::AccessOfVoid, diagarg![]);
@@ -230,7 +230,7 @@ impl ObjectLiteralSubverifier {
                     return Ok(None);
                 },
                 PropertyLookupError::Defer => {
-                    return Err(DeferError::default());
+                    return Err(DeferError());
                 },
                 _ => {
                     panic!();

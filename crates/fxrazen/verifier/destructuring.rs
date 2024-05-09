@@ -15,11 +15,8 @@ use crate::ns::*;
 // attached with any phase variant, it is assumed to be already
 // resolved. 
 //
-// When a phase successfully ends, a `DeferError { phase, ..default() }`
-// error is thrown, except for `Omega`. The verifier
-// will read that phase indicator and continue verifying, for example, other
-// directives, instead of verifying again all the list just because
-// of one deferred directive.
+// When a phase successfully ends, a `DeferError()` is thrown,
+// except for after finishing `Omega`.
 //
 pub(crate) struct DestructuringDeclarationSubverifier;
 
