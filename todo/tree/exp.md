@@ -2,17 +2,24 @@
 
 * [ ] `Binary`
   * [ ] Add
+    * [ ] String constant concatenation
+    * [ ] String concatenation when both operands are String or String!
   * [ ] Subtract
   * [ ] Multiply
   * [ ] Divide
   * [ ] Remainder
   * [ ] Power
+    * Do not implement constant power for now.
   * [ ] BitwiseAnd
   * [ ] BitwiseXor
   * [ ] BitwiseOr
   * [ ] ShiftLeft
   * [ ] ShiftRight
   * [ ] ShiftRightUnsigned
+  * [ ] Equals
+  * [ ] NotEquals
+  * [ ] StrictEquals
+  * [ ] StrictNotEquals
   * [ ] Lt
   * [ ] Gt
   * [ ] Le
@@ -23,10 +30,6 @@
   * [ ] Is (implicitly coerce right-hand side to Class)
   * [ ] IsNot
   * [ ] As (implicitly coerce right-hand side to Class)
-  * [ ] Equals
-  * [ ] NotEquals
-  * [ ] StrictEquals
-  * [ ] StrictNotEquals
   * [ ] LogicalAnd
   * [ ] LogicalXor
   * [ ] LogicalOr
