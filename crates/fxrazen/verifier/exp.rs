@@ -1518,4 +1518,67 @@ impl ExpSubverifier {
         };
         Ok(Some(verifier.host.factory().create_type_after_substitution(&verifier.host.array_type().defer()?, &shared_array![elem_type]).wrap_property_reference(&verifier.host)?))
     }
+
+    pub fn verify_tuple_type_exp(verifier: &mut Subverifier, exp: &TupleTypeExpression) -> Result<Option<Thingy>, DeferError> {
+        let mut elem_types = Vec::<Thingy>::new();
+        let mut error = false;
+        for elem in &exp.expressions {
+            let Some(elem_type) = verifier.verify_type_expression(&elem)? else {
+                error = true;
+                continue;
+            };
+            elem_types.push(elem_type.clone());
+        }
+        if error {
+            return Ok(None);
+        }
+        Ok(Some(verifier.host.factory().create_tuple_type(elem_types).wrap_property_reference(&verifier.host)?))
+    }
+
+    pub fn verify_function_type_exp(verifier: &mut Subverifier, exp: &FunctionTypeExpression) -> Result<Option<Thingy>, DeferError> {
+        let mut params = Vec::<Rc<SemanticFunctionTypeParameter>>::new();
+        let mut error = false;
+        let mut last_param_kind = ParameterKind::Required;
+        for param_node in &exp.parameters {
+            if !last_param_kind.may_be_followed_by(param_node.kind) {
+                error = true;
+            }
+            let param_st: Thingy;
+            if let Some(param_ty_node) = &param_node.type_expression {
+                let Some(param_st_1) = verifier.verify_type_expression(param_ty_node)? else {
+                    error = true;
+                    last_param_kind = param_node.kind;
+                    continue;
+                };
+                param_st = param_st_1;
+            } else {
+                // Rest parameter is [*] by default
+                param_st = verifier.host.array_type_of_any()?;
+            }
+            if param_node.kind == ParameterKind::Rest && param_st.array_element_type(&verifier.host)?.is_none() {
+                verifier.add_verify_error(&param_node.type_expression.as_ref().unwrap().location(), FxDiagnosticKind::RestParameterMustBeArray, diagarg![]);
+            }
+            params.push(Rc::new(SemanticFunctionTypeParameter {
+                kind: param_node.kind,
+                static_type: param_st,
+            }));
+            last_param_kind = param_node.kind;
+        }
+
+        let result_type: Thingy;
+        if let Some(result_type_node) = &exp.result_type {
+            let Some(result_type_1) = verifier.verify_type_expression(result_type_node)? else {
+                return Ok(None);
+            };
+            result_type = result_type_1;
+        } else {
+            result_type = verifier.host.any_type();
+        }
+
+        if error {
+            return Ok(None);
+        }
+
+        Ok(Some(verifier.host.factory().create_function_type(params, result_type).wrap_property_reference(&verifier.host)?))
+    }
 }

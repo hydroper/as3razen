@@ -44,6 +44,7 @@ pub enum FxDiagnosticKind {
     ComparisonBetweenUnrelatedTypes = 2088,
     UnrelatedTernaryOperands = 2089,
     SystemNamespaceNotFound = 2090,
+    RestParameterMustBeArray = 2091,
 }
 
 impl FxDiagnosticKind {

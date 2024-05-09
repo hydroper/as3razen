@@ -48,6 +48,7 @@ lazy_static! {
         FxDiagnosticKind::ComparisonBetweenUnrelatedTypes.id() => "Comparison between a value of type {1} and an unrelated type {2}.".into(),
         FxDiagnosticKind::UnrelatedTernaryOperands.id() => "Unrelated ternary operands of types {1} and {2}.".into(),
         FxDiagnosticKind::SystemNamespaceNotFound.id() => "System namespace not found.".into(),
+        FxDiagnosticKind::RestParameterMustBeArray.id() => "Rest parameter must be an Array.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

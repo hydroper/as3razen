@@ -299,6 +299,12 @@ impl Subverifier {
             Expression::ArrayType(e) => {
                 result = ExpSubverifier::verify_array_type_exp(self, e)?;
             },
+            Expression::TupleType(e) => {
+                result = ExpSubverifier::verify_tuple_type_exp(self, e)?;
+            },
+            Expression::FunctionType(e) => {
+                result = ExpSubverifier::verify_function_type_exp(self, e)?;
+            },
         }
 
         if result.is_some() && result.as_ref().unwrap().is::<InvalidationThingy>() {
