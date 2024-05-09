@@ -95,6 +95,11 @@ contributes multiple concatenated packages from `qux.**` to the `foo.bar.*` pack
 * [x] Detect captured properties by calling `set_property_has_capture()` in the parent activation when resolving a lexical reference and the activation to which it belongs, if any, is different from the current activation.
 * [ ] Set `this()` properly in activations. For class static methods, global initialization code, and package initialization code, `this()` should always be `None`.
 
+## Methods
+
+* [ ] Set `is_async()`, `is_generator()`, and `is_constructor()` properly in method slots.
+* [ ] Auto wrap asynchronous method's result type from signature into `Promise` if not already a `Promise`.
+
 ## Parameterized types
 
 * Parameterized types, when referred to without an immediately following `.<...>` sequence, are equivalent to `T.<*, ...>`.

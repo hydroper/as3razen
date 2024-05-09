@@ -10,7 +10,7 @@
     * [ ] Pass `context.mode = delete` to expression
   * [ ] Void
   * [ ] Typeof
-  * [ ] Await
+  * [x] Await
   * [ ] Yield
     * [ ] Error out indicating that yield is not supported.
   * [ ] Positive

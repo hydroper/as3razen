@@ -463,6 +463,19 @@ smodel! {
             }
         }
 
+        /// If a type is `Promise.<T>`, returns `T`, either as an origin type parameter
+        /// or as a substitute type.
+        pub fn promise_result_type(&self, host: &SemanticHost) -> Result<Option<Thingy>, DeferError> {
+            let promise_type = host.promise_type().defer()?;
+            if self == &promise_type {
+                Ok(Some(promise_type.type_params().unwrap().get(0).unwrap()))
+            } else if self.type_after_sub_has_origin(&promise_type) {
+                Ok(Some(self.substitute_types().get(0).unwrap()))
+            } else {
+                Ok(None)
+            }
+        }
+
         pub fn type_after_sub_has_origin(&self, origin: &Thingy) -> bool {
             self.is::<TypeAfterSubstitution>() && &self.origin() == origin
         }

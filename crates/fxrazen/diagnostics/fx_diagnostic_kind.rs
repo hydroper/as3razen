@@ -36,6 +36,7 @@ pub enum FxDiagnosticKind {
     CallOnArrayType = 2080,
     CallOnNonFunction = 2081,
     NonParameterizedType = 2082,
+    AwaitOperandMustBeAPromise = 2083,
 }
 
 impl FxDiagnosticKind {

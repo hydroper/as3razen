@@ -847,8 +847,31 @@ impl ExpSubverifier {
     }
 
     pub fn verify_unary_exp(verifier: &mut Subverifier, exp: &UnaryExpression) -> Result<Option<Thingy>, DeferError> {
+        if exp.operator == Operator::Await {
+            let Some(val) = verifier.verify_expression(&exp.expression, &default())? else {
+                return Ok(None);
+            };
+
+            let val_st = val.static_type(&verifier.host);
+            let Some(result_type) = val_st.escape_of_non_nullable().promise_result_type(&verifier.host)? else {
+                verifier.add_verify_error(&exp.location, FxDiagnosticKind::AwaitOperandMustBeAPromise, diagarg![]);
+                return Ok(None);
+            };
+
+            return Ok(Some(verifier.host.factory().create_value(&result_type)));
+        }
+
+        let update_ops = [Operator::PreIncrement, Operator::PreDecrement, Operator::PostIncrement, Operator::PostDecrement];
+        let rw_mode = if exp.operator == Operator::Delete {
+            VerifyMode::Delete
+        } else if update_ops.contains(&exp.operator) {
+            VerifyMode::Write
+        } else {
+            VerifyMode::Read
+        };
         let Some(value) = verifier.verify_expression(&exp.expression, &VerifierExpressionContext {
-            preceded_by_negative: true,
+            preceded_by_negative: exp.operator == Operator::Negative,
+            mode: rw_mode,
             ..default()
         })? else {
             return Ok(None);
