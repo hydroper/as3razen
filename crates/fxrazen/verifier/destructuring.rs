@@ -22,7 +22,6 @@ pub(crate) struct DestructuringDeclarationSubverifier;
 
 impl DestructuringDeclarationSubverifier {
     // * [ ] Note 1: Remember to clear the phase entry after omega.
-
     pub fn verify_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, init: &Thingy, read_only: bool, output: &NameMap, ns: &Thingy, parent: &Thingy) -> Result<Option<Thingy>, DeferError> {
         //
     }
