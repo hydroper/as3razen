@@ -61,6 +61,7 @@ impl Verifier {
         Self {
             verifier: Subverifier {
                 host: host.clone(),
+                cached_var_init: HashMap::new(),
                 phase_of_thingy: HashMap::new(),
                 deferred_directives: vec![],
                 deferred_function_commons: vec![],
@@ -134,6 +135,9 @@ impl Verifier {
 
 pub(crate) struct Subverifier {
     pub host: Rc<SemanticHost>,
+    /// Temporary cache of variable binding initializers.
+    pub cached_var_init: HashMap<NodeAsKey<Rc<Expression>>, Thingy>,
+    /// Temporary mapping of things to phases.
     pub phase_of_thingy: HashMap<Thingy, VerifierPhase>,
     /// List of (phase, scope, directive).
     pub deferred_directives: Vec<(VerifierPhase, Thingy, Rc<Directive>)>,

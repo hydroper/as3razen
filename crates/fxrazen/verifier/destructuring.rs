@@ -20,8 +20,13 @@ use crate::ns::*;
 // will read that phase indicator and continue verifying, for example, other
 // directives, instead of verifying again all the list just because
 // of one deferred directive.
+//
 pub(crate) struct DestructuringDeclarationSubverifier;
 
 impl DestructuringDeclarationSubverifier {
     // * [ ] Note 1: Remember to clear the phase entry after omega.
+
+    pub fn verify_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, init: &Thingy, read_only: bool, output: &NameMap, ns: &Thingy, parent: &Thingy) -> Result<Option<Thingy>, DeferError> {
+        //
+    }
 }
