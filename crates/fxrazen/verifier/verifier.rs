@@ -264,6 +264,14 @@ impl Subverifier {
             Expression::Unary(e) => {
                 result = ExpSubverifier::verify_unary_exp(self, e)?;
             },
+            Expression::OptionalChaining(e) => {
+                result = ExpSubverifier::verify_opt_chaining_exp(self, e)?;
+            },
+            Expression::OptionalChainingPlaceholder(e) => {
+                // The optional chaining placeholder is assumed to be already
+                // cached by the optional chaining operation.
+                panic!();
+            },
         }
 
         if result.is_some() && result.as_ref().unwrap().is::<InvalidationThingy>() {

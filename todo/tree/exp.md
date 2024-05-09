@@ -1,7 +1,5 @@
 # Expressions
 
-* [ ] `OptionalChaining`
-* [ ] `OptionalChainingPlaceholder`
 * [ ] `Binary`
 * [ ] `Conditional`
 * [ ] `Sequence`

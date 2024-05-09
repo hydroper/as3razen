@@ -972,4 +972,37 @@ impl ExpSubverifier {
             },
         }
     }
+
+    pub fn verify_opt_chaining_exp(verifier: &mut Subverifier, exp: &OptionalChainingExpression) -> Result<Option<Thingy>, DeferError> {
+        let placeholder = exp.expression.search_optional_chaining_placeholder().unwrap();
+
+        let Some(base) = verifier.verify_expression(&exp.base, &default())? else {
+            verifier.host.node_mapping().set(&placeholder, None);
+            verifier.verify_expression(&exp.expression, &default())?;
+            return Ok(None);
+        };
+
+        let base_st = base.static_type(&verifier.host);
+        let base_st_esc = base_st.escape_of_nullable_or_non_nullable();
+        let base_st_esc_is_opt = base_st_esc.includes_null(&verifier.host)? || base_st_esc.includes_undefined(&verifier.host)?;
+
+        // Report warning
+        if !base_st_esc_is_opt {
+            verifier.add_warning(&exp.base.location(), FxDiagnosticKind::ReferenceIsAlreadyNonNullable, diagarg![]);
+        }
+
+        let non_null_t = if base_st_esc_is_opt { verifier.host.factory().create_non_nullable_type(&base_st_esc) } else { base_st_esc };
+
+        // Assign placeholder's value
+        verifier.host.node_mapping().set(&placeholder, Some(verifier.host.factory().create_value(&non_null_t)));
+
+        // Verify subexpressions
+        let Some(expval) = verifier.verify_expression(&exp.expression, &default())? else {
+            return Ok(None);
+        };
+
+        let nullable_result_type = verifier.host.factory().create_nullable_type(&expval.static_type(&verifier.host));
+
+        Ok(Some(verifier.host.factory().create_value(&nullable_result_type)))
+    }
 }
