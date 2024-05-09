@@ -1,9 +1,6 @@
 # Expressions
 
 * [ ] `Binary`
-  * [ ] LogicalAnd
-  * [ ] LogicalXor
-  * [ ] LogicalOr
   * [ ] NullCoalescing
 * [ ] `Conditional`
 * [ ] `Sequence`

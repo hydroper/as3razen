@@ -1370,6 +1370,48 @@ impl ExpSubverifier {
                 }
                 Ok(Some(verifier.host.factory().create_value(&verifier.host.factory().create_value(&verifier.host.any_type()))))
             },
+            Operator::LogicalAnd => {
+                let Some(right) = verifier.verify_expression(&exp.right, &default())? else {
+                    return Ok(None);
+                };
+                let right_st = right.static_type(&verifier.host);
+                let boolean_type = verifier.host.boolean_type().defer()?;
+
+                if left.is::<BooleanConstant>() && right.is::<BooleanConstant>() {
+                    return Ok(Some(verifier.host.factory().create_boolean_constant(left.boolean_value() && right.boolean_value(), &boolean_type)));
+                }
+                if left_st == boolean_type && left_st == right_st {
+                    return Ok(Some(verifier.host.factory().create_value(&boolean_type)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&verifier.host.any_type())))
+            },
+            Operator::LogicalXor => {
+                let Some(right) = verifier.verify_expression(&exp.right, &default())? else {
+                    return Ok(None);
+                };
+                let right_st = right.static_type(&verifier.host);
+                let boolean_type = verifier.host.boolean_type().defer()?;
+
+                if left_st == boolean_type && left_st == right_st {
+                    return Ok(Some(verifier.host.factory().create_value(&boolean_type)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&verifier.host.any_type())))
+            },
+            Operator::LogicalOr => {
+                let Some(right) = verifier.verify_expression(&exp.right, &default())? else {
+                    return Ok(None);
+                };
+                let right_st = right.static_type(&verifier.host);
+                let boolean_type = verifier.host.boolean_type().defer()?;
+
+                if left.is::<BooleanConstant>() && right.is::<BooleanConstant>() {
+                    return Ok(Some(verifier.host.factory().create_boolean_constant(left.boolean_value() || right.boolean_value(), &boolean_type)));
+                }
+                if left_st == boolean_type && left_st == right_st {
+                    return Ok(Some(verifier.host.factory().create_value(&boolean_type)));
+                }
+                Ok(Some(verifier.host.factory().create_value(&verifier.host.any_type())))
+            },
             _ => panic!(),
         }
     }
