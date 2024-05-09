@@ -275,6 +275,15 @@ impl Subverifier {
             Expression::Binary(e) => {
                 result = ExpSubverifier::verify_binary_exp(self, e)?;
             },
+            Expression::Conditional(e) => {
+                result = ExpSubverifier::verify_conditional_exp(self, e, context)?;
+            },
+            Expression::Sequence(e) => {
+                result = ExpSubverifier::verify_seq_exp(self, e)?;
+            },
+            Expression::ReservedNamespace(e) => {
+                result = ExpSubverifier::verify_reserved_ns_exp(self, e)?;
+            },
         }
 
         if result.is_some() && result.as_ref().unwrap().is::<InvalidationThingy>() {

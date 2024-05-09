@@ -46,6 +46,8 @@ lazy_static! {
         FxDiagnosticKind::YieldIsNotSupported.id() => "Yield operator is currently not supported.".into(),
         FxDiagnosticKind::UnrelatedMathOperation.id() => "Unrelated mathematical operation using type {1}.".into(),
         FxDiagnosticKind::ComparisonBetweenUnrelatedTypes.id() => "Comparison between a value of type {1} and an unrelated type {2}.".into(),
+        FxDiagnosticKind::UnrelatedTernaryOperands.id() => "Unrelated ternary operands of types {1} and {2}.".into(),
+        FxDiagnosticKind::SystemNamespaceNotFound.id() => "System namespace not found.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

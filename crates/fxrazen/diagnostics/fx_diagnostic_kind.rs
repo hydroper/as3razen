@@ -42,6 +42,8 @@ pub enum FxDiagnosticKind {
     YieldIsNotSupported = 2086,
     UnrelatedMathOperation = 2087,
     ComparisonBetweenUnrelatedTypes = 2088,
+    UnrelatedTernaryOperands = 2089,
+    SystemNamespaceNotFound = 2090,
 }
 
 impl FxDiagnosticKind {

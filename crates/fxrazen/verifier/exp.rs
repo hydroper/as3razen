@@ -1432,4 +1432,64 @@ impl ExpSubverifier {
             _ => panic!(),
         }
     }
+
+    pub fn verify_conditional_exp(verifier: &mut Subverifier, exp: &ConditionalExpression, context: &VerifierExpressionContext) -> Result<Option<Thingy>, DeferError> {
+        verifier.verify_expression(&exp.test, &default())?;
+        let ctx1 = VerifierExpressionContext {
+            context_type: context.context_type.clone(),
+            ..default()
+        };
+        let Some(conseq) = verifier.verify_expression(&exp.consequent, &ctx1)? else {
+            verifier.verify_expression(&exp.alternative, &ctx1)?;
+            return Ok(None);
+        };
+
+        let conseq_st = conseq.static_type(&verifier.host);
+
+        let ctx2 = VerifierExpressionContext {
+            context_type: ctx1.context_type.or(Some(conseq_st.clone())),
+            ..default()
+        };
+        let Some(alt) = verifier.verify_expression(&exp.alternative, &ctx2)? else {
+            return Ok(None);
+        };
+
+        let alt_st = alt.static_type(&verifier.host);
+
+        let _coercion1 = TypeConversions(&verifier.host).implicit(&alt, &conseq_st, false)?;
+        if let Some(_coercion1) = _coercion1 {
+            return Ok(Some(verifier.host.factory().create_value(&conseq_st)));
+        }
+
+        let _coercion2 = TypeConversions(&verifier.host).implicit(&conseq, &alt_st, false)?;
+        if let Some(_coercion2) = _coercion2 {
+            return Ok(Some(verifier.host.factory().create_value(&alt_st)));
+        }
+        
+        verifier.add_verify_error(&exp.location, FxDiagnosticKind::UnrelatedTernaryOperands, diagarg![conseq_st, alt_st]);
+
+        Ok(None)
+    }
+
+    pub fn verify_seq_exp(verifier: &mut Subverifier, exp: &SequenceExpression) -> Result<Option<Thingy>, DeferError> {
+        verifier.verify_expression(&exp.left, &default())?;
+        let Some(right) = verifier.verify_expression(&exp.right, &default())? else {
+            return Ok(None);
+        };
+        Ok(Some(verifier.host.factory().create_value(&right.static_type(&verifier.host))))
+    }
+
+    pub fn verify_reserved_ns_exp(verifier: &mut Subverifier, exp: &ReservedNamespaceExpression) -> Result<Option<Thingy>, DeferError> {
+        let nskind = match exp {
+            ReservedNamespaceExpression::Public(_) => SystemNamespaceKind::Public,
+            ReservedNamespaceExpression::Private(_) => SystemNamespaceKind::Private,
+            ReservedNamespaceExpression::Protected(_) => SystemNamespaceKind::Protected,
+            ReservedNamespaceExpression::Internal(_) => SystemNamespaceKind::Internal,
+        };
+        let Some(ns) = verifier.scope().search_system_ns_in_scope_chain(nskind) else {
+            verifier.add_verify_error(&exp.location(), FxDiagnosticKind::SystemNamespaceNotFound, diagarg![]);
+            return Ok(None);
+        };
+        Ok(Some(ns.wrap_property_reference(&verifier.host)?))
+    }
 }

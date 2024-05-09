@@ -896,6 +896,36 @@ smodel! {
             PropertyLookup(host).lookup_in_scope_chain(self, qual, key)
         }
 
+        pub fn search_system_ns_in_scope_chain(&self, ns: SystemNamespaceKind) -> Option<Thingy> {
+            let mut scope = Some(self.clone());
+            while let Some(scope1) = scope {
+                if scope1.is::<PackageScope>() || scope1.is::<Activation>() {
+                    if ns == SystemNamespaceKind::Public {
+                        return scope1.public_ns();
+                    }
+                    if ns == SystemNamespaceKind::Internal {
+                        return scope1.internal_ns();
+                    }
+                } else if scope1.is::<ClassScope>() {
+                    if ns == SystemNamespaceKind::Private {
+                        return scope1.private_ns();
+                    }
+                    if ns == SystemNamespaceKind::Protected {
+                        return scope1.protected_ns();
+                    }
+                    if ns == SystemNamespaceKind::StaticProtected {
+                        return scope1.static_protected_ns();
+                    }
+                } else if scope1.is::<EnumScope>() {
+                    if ns == SystemNamespaceKind::Private {
+                        return scope1.private_ns();
+                    }
+                }
+                scope = scope1.parent();
+            }
+            None
+        }
+
         fn to_string_1(&self) -> String {
             "".into()
         }
@@ -2913,6 +2943,8 @@ smodel! {
         let ref m_this: Option<Thingy> = None;
         let ref m_property_has_capture: Option<SharedArray<Thingy>> = None;
         let ref m_cfg: ControlFlowGraph = ControlFlowGraph::new();
+        let ref m_public_ns: Option<Thingy> = None;
+        let ref m_internal_ns: Option<Thingy> = None;
 
         pub(crate) fn Activation(of_method: &Thingy) {
             super();
@@ -2979,6 +3011,22 @@ smodel! {
 
         pub override fn set_is_package_initialization(&self, value: bool) {
             self.set_m_kind(if value { PACKAGE_INIT_ACTIVATION } else { DEFAULT_ACTIVATION });
+        }
+
+        pub override fn public_ns(&self) -> Option<Thingy> {
+            self.m_public_ns()
+        }
+
+        pub override fn set_public_ns(&self, ns: Option<Thingy>) {
+            self.set_m_public_ns(ns);
+        }
+
+        pub override fn internal_ns(&self) -> Option<Thingy> {
+            self.m_internal_ns()
+        }
+
+        pub override fn set_internal_ns(&self, ns: Option<Thingy>) {
+            self.set_m_internal_ns(ns);
         }
     }
 
