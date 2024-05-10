@@ -12,7 +12,7 @@ impl ExpSubverifier {
         let mut result_qual: Option<Thingy> = None;
 
         if let Some(qualifier) = qualifier {
-            result_qual = verifier.imp_coerce_exp(qualifier, &verifier.host.namespace_type())?;
+            result_qual = verifier.imp_coerce_exp(qualifier, &verifier.host.namespace_type().defer()?)?;
             if result_qual.is_none() {
                 failed = true;
             }
@@ -25,7 +25,7 @@ impl ExpSubverifier {
                 result_key = Some(PropertyLookupKey::LocalName(id.clone()));
             },
             QualifiedIdentifierIdentifier::Brackets(exp) => {
-                let v = verifier.imp_coerce_exp(exp, &verifier.host.string_type())?;
+                let v = verifier.imp_coerce_exp(exp, &verifier.host.string_type().defer()?)?;
                 if let Some(v) = v {
                     result_key = Some(PropertyLookupKey::Computed(v));
                 } else {
