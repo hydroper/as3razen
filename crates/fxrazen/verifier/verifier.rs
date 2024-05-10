@@ -63,7 +63,7 @@ impl Verifier {
                 host: host.clone(),
                 cached_var_init: HashMap::new(),
                 phase_of_thingy: HashMap::new(),
-                deferred_function_commons: SharedMap::new(),
+                deferred_function_exp: SharedMap::new(),
                 invalidated: false,
                 external: false,
                 // deferred_counter: 0,
@@ -107,15 +107,15 @@ impl Verifier {
         if let Ok(v) = v {
             for _ in 0..Verifier::MAX_CYCLES {
                 let mut any_defer = false;
-                for (common, data) in self.verifier.deferred_function_commons.clone().borrow().iter() {
+                for (common, data) in self.verifier.deferred_function_exp.clone().borrow().iter() {
                     let common = (**common).clone();
-                    any_defer = FunctionCommonSubverifier::verify_function_common(&mut self.verifier, &common, data).is_err();
+                    any_defer = FunctionCommonSubverifier::verify_function_exp_common(&mut self.verifier, &common, data).is_err();
                 }
                 if !any_defer {
                     break;
                 }
             }
-            for (common, _) in self.verifier.deferred_function_commons.clone().borrow().iter() {
+            for (common, _) in self.verifier.deferred_function_exp.clone().borrow().iter() {
                 let loc = (*common).location.clone();
                 self.verifier.add_verify_error(&loc, FxDiagnosticKind::ReachedMaximumCycles, diagarg![]);
             }
@@ -158,7 +158,7 @@ pub(crate) struct Subverifier {
     pub phase_of_thingy: HashMap<Thingy, VerifierPhase>,
 
     /// Mapping used for function expressions.
-    pub deferred_function_commons: SharedMap<NodeAsKey<Rc<FunctionCommon>>, VerifierFunctionPartials>,
+    pub deferred_function_exp: SharedMap<NodeAsKey<Rc<FunctionCommon>>, VerifierFunctionPartials>,
 
     invalidated: bool,
     // pub deferred_counter: usize,
@@ -181,7 +181,7 @@ impl Subverifier {
     pub fn reset_state(&mut self) {
         self.cached_var_init.clear();
         self.phase_of_thingy.clear();
-        self.deferred_function_commons.clear();
+        self.deferred_function_exp.clear();
     }
 
     pub fn add_syntax_error(&mut self, location: &Location, kind: FxDiagnosticKind, arguments: Vec<Rc<dyn DiagnosticArgument>>) {

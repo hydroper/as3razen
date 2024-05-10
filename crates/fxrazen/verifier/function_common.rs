@@ -52,7 +52,7 @@ pub(crate) struct VerifierFunctionPartials1 {
 pub(crate) struct FunctionCommonSubverifier;
 
 impl FunctionCommonSubverifier {
-    pub fn verify_function_common(verifier: &mut Subverifier, common: &Rc<FunctionCommon>, data: &VerifierFunctionPartials) -> Result<(), DeferError> {
+    pub fn verify_function_exp_common(verifier: &mut Subverifier, common: &Rc<FunctionCommon>, data: &VerifierFunctionPartials) -> Result<(), DeferError> {
         todo()
     }
 }
