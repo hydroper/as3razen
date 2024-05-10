@@ -368,4 +368,50 @@ impl DestructuringDeclarationSubverifier {
             _ => panic!(),
         }
     }
+
+    fn verify_object_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, literal: &ObjectInitializer, init: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
+        let mut slot = verifier.host.node_mapping().get(pattern);
+        let mut slot_just_init = false;
+        if slot.is_none() {
+            let name = verifier.host.empty_empty_qname();
+            let slot1 = verifier.host.factory().create_variable_slot(&name, read_only, &verifier.host.unresolved_thingy());
+            slot1.set_parent(Some(parent.clone()));
+            slot = Some(slot1);
+            verifier.host.node_mapping().set(pattern, slot.clone());
+
+            slot_just_init = true;
+        }
+
+        let slot = slot.unwrap();
+
+        let phase = verifier.phase_of_thingy.get(&slot).cloned();
+        if phase.is_none() && !slot_just_init {
+            return Ok(());
+        }
+
+        let phase = phase.unwrap_or(VerifierPhase::Alpha);
+        verifier.phase_of_thingy.insert(slot.clone(), phase);
+
+        match phase {
+            VerifierPhase::Alpha => {
+                // Verify fields
+                todo();
+
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Omega);
+                Err(DeferError(Some(VerifierPhase::Omega)))
+            },
+            VerifierPhase::Omega => {
+                init.defer()?;
+                let init_st = init.static_type(&verifier.host).defer()?;
+
+                // Verify fields
+                todo();
+
+                verifier.phase_of_thingy.remove(&slot);
+
+                Ok(())
+            },
+            _ => panic!(),
+        }
+    }
 }
