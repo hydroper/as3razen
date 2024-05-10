@@ -3610,6 +3610,21 @@ smodel! {
         }
     }
 
+    /// Non-null assertion value as part of fields from object destructuring.
+    pub struct NonNullValue: Value {
+        let ref m_base: Option<Thingy> = None;
+
+        pub(crate) fn NonNullValue(base: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_base(Some(base.clone()));
+        }
+
+        /// Original value.
+        pub override fn base(&self) -> Thingy {
+            self.m_base().unwrap()
+        }
+    }
+
     /// Represents the direct value of a `function` expression, holding back its activation.
     pub struct LambdaObject: Value {
         let ref m_activation: Option<Thingy> = None;
@@ -3661,12 +3676,12 @@ smodel! {
             super();
         }
 
-        /// Reference value.
+        /// Reference value, non-null value, or constant.
         pub override fn field_reference(&self) -> Option<Thingy> {
             self.m_field_reference()
         }
 
-        /// Reference value.
+        /// Reference value, non-null value, or constant.
         pub override fn set_field_reference(&self, value: Option<Thingy>) {
             self.set_m_field_reference(value);
         }
@@ -3693,12 +3708,12 @@ smodel! {
             super();
         }
 
-        /// Reference value.
+        /// Reference value, non-null value, or constant.
         pub override fn field_reference(&self) -> Option<Thingy> {
             self.m_field_reference()
         }
 
-        /// Reference value.
+        /// Reference value, non-null value, or constant.
         pub override fn set_field_reference(&self, value: Option<Thingy>) {
             self.set_m_field_reference(value);
         }

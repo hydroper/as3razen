@@ -564,6 +564,19 @@ impl<'a> ThingyFactory<'a> {
         Ok(ConversionValue::new(&self.0.arena, base, variant, opt, target, &st).into())
     }
 
+    pub fn create_non_null_value(&self, base: &Thingy) -> Result<Thingy, DeferError> {
+        let orig_st = base.static_type(self.0).defer()?;
+        let orig_st_esc = orig_st.escape_of_nullable();
+        if orig_st_esc.includes_null(self.0)? || orig_st_esc.includes_undefined(self.0)? {
+            let st = self.create_non_nullable_type(&orig_st_esc);
+            Ok(NonNullValue::new(&self.0.arena, base, &st).into())
+        } else if orig_st_esc != orig_st {
+            Ok(NonNullValue::new(&self.0.arena, base, &orig_st_esc).into())
+        } else {
+            Ok(base.clone())
+        }
+    }
+
     pub fn create_lambda_object(&self, activation: &Thingy) -> Result<Thingy, DeferError> {
         Ok(LambdaObject::new(&self.0.arena, activation, &self.0.function_type().defer()?).into())
     }

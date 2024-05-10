@@ -466,7 +466,7 @@ impl DestructuringDeclarationSubverifier {
         // Verify fields
         for field in &literal.fields {
             match field.as_ref() {
-                InitializerField::Field { name, non_null: _, value: subpat } => {
+                InitializerField::Field { name, non_null, value: subpat } => {
                     // Fields have an already attached DeclarativeFieldDestructuringResolution.
                     // A field is considered already verified if `field_reference()` is `Some`.
                     let resolution = verifier.host.node_mapping().get(field).unwrap();
@@ -474,9 +474,116 @@ impl DestructuringDeclarationSubverifier {
                         continue;
                     }
 
-                    todo();
+                    let qn: Option<(Option<Thingy>, PropertyLookupKey)>;
+
+                    match &name.0 {
+                        FieldName::Identifier(id) => {
+                            qn = ExpSubverifier::verify_qualified_identifier(verifier, id)?;
+                        },
+                        FieldName::Brackets(exp) |
+                        FieldName::NumericLiteral(exp) |
+                        FieldName::StringLiteral(exp) => {
+                            let val = verifier.verify_expression(exp, &default())?;
+                            qn = Some((None, PropertyLookupKey::Computed(val.unwrap_or(verifier.host.invalidation_thingy()))));
+                        },
+                    }
+
+                    if qn.is_none() {
+                        if let Some(var_slot) = resolution.var_slot() {
+                            var_slot.set_static_type(verifier.host.invalidation_thingy());
+                        }
+                        if let Some(subpat) = subpat {
+                            Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy(), read_only, output, ns, parent)?;
+                        }
+                        resolution.set_field_reference(Some(verifier.host.invalidation_thingy()));
+                        continue;
+                    }
+
+                    let name_loc = &name.1;
+
+                    let (qual, key) = qn.unwrap();
+
+                    let open_ns_set = verifier.scope().concat_open_ns_set_of_scope_chain();
+                    let r = PropertyLookup(&verifier.host).lookup_in_object(&init, &open_ns_set, qual, &key);
+                    if r.is_err() {
+                        match r.unwrap_err() {
+                            PropertyLookupError::AmbiguousReference(name) => {
+                                if let Some(var_slot) = resolution.var_slot() {
+                                    var_slot.set_static_type(verifier.host.invalidation_thingy());
+                                }
+                                if let Some(subpat) = subpat {
+                                    Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy(), read_only, output, ns, parent)?;
+                                }
+                                resolution.set_field_reference(Some(verifier.host.invalidation_thingy()));
+                                verifier.add_verify_error(name_loc, FxDiagnosticKind::AmbiguousReference, diagarg![name.clone()]);
+                                continue;
+                            },
+                            PropertyLookupError::Defer => {
+                                return Err(DeferError(None));
+                            },
+                            PropertyLookupError::VoidBase => {
+                                if let Some(var_slot) = resolution.var_slot() {
+                                    var_slot.set_static_type(verifier.host.invalidation_thingy());
+                                }
+                                if let Some(subpat) = subpat {
+                                    Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy(), read_only, output, ns, parent)?;
+                                }
+                                resolution.set_field_reference(Some(verifier.host.invalidation_thingy()));
+                                verifier.add_verify_error(name_loc, FxDiagnosticKind::AccessOfVoid, diagarg![]);
+                                continue;
+                            },
+                            PropertyLookupError::NullableObject { .. } => {
+                                if let Some(var_slot) = resolution.var_slot() {
+                                    var_slot.set_static_type(verifier.host.invalidation_thingy());
+                                }
+                                if let Some(subpat) = subpat {
+                                    Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy(), read_only, output, ns, parent)?;
+                                }
+                                resolution.set_field_reference(Some(verifier.host.invalidation_thingy()));
+                                verifier.add_verify_error(name_loc, FxDiagnosticKind::AccessOfNullable, diagarg![]);
+                                continue;
+                            },
+                        }
+                    }
+                    let r = r.unwrap();
+                    if r.is_none() {
+                        if let Some(var_slot) = resolution.var_slot() {
+                            var_slot.set_static_type(verifier.host.invalidation_thingy());
+                        }
+                        if let Some(subpat) = subpat {
+                            Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy(), read_only, output, ns, parent)?;
+                        }
+                        resolution.set_field_reference(Some(verifier.host.invalidation_thingy()));
+                        verifier.add_verify_error(name_loc, FxDiagnosticKind::UndefinedPropertyWithStaticType, diagarg![key.local_name().unwrap(), init_st.clone()]);
+                        continue;
+                    }
+                    let r = r.unwrap();
+
+                    // Post-processing
+                    let postval = verifier.reference_post_processing(r, &default())?;
+                    if let Some(mut postval) = postval {
+                        if *non_null {
+                            postval = verifier.host.factory().create_non_null_value(&postval)?;
+                        }
+
+                        if let Some(var_slot) = resolution.var_slot() {
+                            var_slot.set_static_type(postval.static_type(&verifier.host));
+                        }
+                        if let Some(subpat) = subpat {
+                            Self::verify_pattern(verifier, subpat, &postval, read_only, output, ns, parent)?;
+                        }
+                        resolution.set_field_reference(Some(postval));
+                    } else {
+                        if let Some(var_slot) = resolution.var_slot() {
+                            var_slot.set_static_type(verifier.host.invalidation_thingy());
+                        }
+                        if let Some(subpat) = subpat {
+                            Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy(), read_only, output, ns, parent)?;
+                        }
+                        resolution.set_field_reference(Some(verifier.host.invalidation_thingy()));
+                    }
                 },
-                InitializerField::Rest((restpat, loc)) => {
+                InitializerField::Rest((restpat, _)) => {
                     Self::verify_pattern(verifier, restpat, &verifier.host.invalidation_thingy(), read_only, output, ns, parent)?;
                 },
             }
