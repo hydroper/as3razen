@@ -339,8 +339,12 @@ impl Subverifier {
             },
         }
 
-        if result.is_some() && result.as_ref().unwrap().is::<InvalidationThingy>() {
-            result = None;
+        if let Some(r1) = result.as_ref() {
+            if r1.is::<InvalidationThingy>() {
+                result = None;
+            } else if r1.static_type(&self.host).is::<InvalidationThingy>() {
+                result = None;
+            }
         }
 
         self.host.node_mapping().set(exp, result.clone());

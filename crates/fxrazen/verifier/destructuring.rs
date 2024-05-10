@@ -177,16 +177,86 @@ impl DestructuringDeclarationSubverifier {
                     todo()
                 // Verify tuple in omega phase
                 } else if init_st_esc.is::<TupleType>() {
-                    todo()
+                    Self::verify_tuple_array_pattern_omega(verifier, literal, &slot, &init_st_esc, read_only, output, ns, parent)
                 // Verify * or Object in omega phase
                 } else if [verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&init_st_esc) {
-                    todo()
+                    Self::verify_untyped_array_pattern_omega(verifier, literal, &slot, read_only, output, ns, parent)
                 // Invalidation in omega phase
                 } else {
-                    todo()
+                    Self::verify_invalidation_array_pattern_omega(verifier, literal, &slot, read_only, output, ns, parent)
                 }
             },
             _ => panic!(),
         }
+    }
+
+    fn verify_tuple_array_pattern_omega(verifier: &mut Subverifier, literal: &ArrayLiteral, patslot: &Thingy, tuple_type: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
+        let elem_types = tuple_type.element_types();
+        let mut i: usize = 0;
+        let mut rest_found = false;
+
+        for elem in &literal.elements {
+            match elem {
+                Element::Expression(subpat) => {
+                    if rest_found || i >= elem_types.length() {
+                        Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy(), read_only, output, ns, parent)?;
+                    } else {
+                        let elem_type = elem_types.get(i).unwrap();
+                        Self::verify_pattern(verifier, subpat, &verifier.host.factory().create_value(&elem_type), read_only, output, ns, parent)?;
+                    }
+                },
+                Element::Rest((restpat, _)) => {
+                    let array_type_of_any = verifier.host.array_type_of_any()?;
+                    rest_found = true;
+                    Self::verify_pattern(verifier, restpat, &verifier.host.factory().create_value(&array_type_of_any), read_only, output, ns, parent)?;
+                },
+                Element::Elision => {},
+            }
+            i += 1;
+        }
+
+        if i > elem_types.length() && !rest_found {
+            verifier.add_verify_error(&literal.location, FxDiagnosticKind::ArrayLengthNotEqualsTupleLength, diagarg![tuple_type.clone()]);
+        }
+
+        verifier.phase_of_thingy.remove(&patslot);
+
+        Ok(())
+    }
+
+    fn verify_untyped_array_pattern_omega(verifier: &mut Subverifier, literal: &ArrayLiteral, patslot: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
+        for elem in &literal.elements {
+            match elem {
+                Element::Expression(subpat) => {
+                    Self::verify_pattern(verifier, subpat, &verifier.host.factory().create_value(&verifier.host.any_type()), read_only, output, ns, parent)?;
+                },
+                Element::Rest((restpat, _)) => {
+                    Self::verify_pattern(verifier, restpat, &verifier.host.factory().create_value(&verifier.host.any_type()), read_only, output, ns, parent)?;
+                },
+                Element::Elision => {},
+            }
+        }
+
+        verifier.phase_of_thingy.remove(&patslot);
+
+        Ok(())
+    }
+
+    fn verify_invalidation_array_pattern_omega(verifier: &mut Subverifier, literal: &ArrayLiteral, patslot: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
+        for elem in &literal.elements {
+            match elem {
+                Element::Expression(subpat) => {
+                    Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy(), read_only, output, ns, parent)?;
+                },
+                Element::Rest((restpat, _)) => {
+                    Self::verify_pattern(verifier, restpat, &verifier.host.invalidation_thingy(), read_only, output, ns, parent)?;
+                },
+                Element::Elision => {},
+            }
+        }
+
+        verifier.phase_of_thingy.remove(&patslot);
+
+        Ok(())
     }
 }

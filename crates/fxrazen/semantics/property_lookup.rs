@@ -136,6 +136,10 @@ impl<'a> PropertyLookup<'a> {
             let base_type = defer(&base.static_type(self.0))?;
             let base_esc_type = base_type.escape_of_non_nullable();
 
+            if base_esc_type.is::<InvalidationThingy>() {
+                return Ok(Some(base_esc_type.clone()));
+            }
+
             // If base is a value whose type is one of { XML, XML!, XMLList, XMLList! }, return a XML reference value.
             if [defer(&self.0.xml_type())?, defer(&self.0.xml_list_type())?].contains(&base_esc_type) {
                 let k = map_defer_error(key.computed_or_local_name(self.0))?;

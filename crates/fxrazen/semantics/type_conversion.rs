@@ -133,7 +133,7 @@ impl<'a> TypeConversions<'a> {
             return Ok(Some(value.clone()));
         }
 
-        if value.is::<InvalidationThingy>() || target_type.is::<InvalidationThingy>() {
+        if value.is::<InvalidationThingy>() || from_type.is::<InvalidationThingy>() || target_type.is::<InvalidationThingy>() {
             return Ok(Some(self.0.invalidation_thingy()));
         }
 

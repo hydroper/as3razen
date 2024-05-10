@@ -801,7 +801,7 @@ smodel! {
             } else if self.is::<FunctionType>() {
                 return vec![host.function_type()];
             } else if self.is::<TupleType>() {
-                return vec![host.array_type()];
+                return vec![host.array_type_of_any().unwrap_or(host.unresolved_thingy())];
             } else if self.is::<InvalidationThingy>() {
                 return vec![];
             }
@@ -1864,7 +1864,7 @@ smodel! {
 
         #[inheritdoc]
         pub override fn extends_class(&self, host: &SemanticHost) -> Option<Thingy> {
-            Some(host.array_type())
+            Some(host.array_type_of_any().unwrap_or(host.unresolved_thingy()))
         }
 
         pub override fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
