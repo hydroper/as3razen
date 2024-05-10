@@ -25,7 +25,7 @@ impl DestructuringDeclarationSubverifier {
 
     /// Verifies a pattern.
     ///
-    /// `init` may be a value or an `UnresolvedThingy`
+    /// `init` may be a value, an `InvalidationThingy` or an `UnresolvedThingy`
     pub fn verify_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, init: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
         match pattern.as_ref() {
             Expression::QualifiedIdentifier(id) =>
@@ -171,10 +171,10 @@ impl DestructuringDeclarationSubverifier {
 
                 // Verify Vector.<T> in omega phase
                 if let Some(elem_type) = init_st_esc.vector_element_type(&verifier.host)? {
-                    todo()
+                    Self::verify_vector_array_pattern_omega(verifier, literal, &slot, &init_st_esc, &elem_type, read_only, output, ns, parent)
                 // Verify Array.<T> in omega phase
                 } else if let Some(elem_type) = init_st_esc.array_element_type(&verifier.host)? {
-                    todo()
+                    Self::verify_array_array_pattern_omega(verifier, literal, &slot, &init_st_esc, &elem_type, read_only, output, ns, parent)
                 // Verify tuple in omega phase
                 } else if init_st_esc.is::<TupleType>() {
                     Self::verify_tuple_array_pattern_omega(verifier, literal, &slot, &init_st_esc, read_only, output, ns, parent)
@@ -188,6 +188,42 @@ impl DestructuringDeclarationSubverifier {
             },
             _ => panic!(),
         }
+    }
+
+    fn verify_vector_array_pattern_omega(verifier: &mut Subverifier, literal: &ArrayLiteral, patslot: &Thingy, vector_type: &Thingy, elem_type: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
+        for elem in &literal.elements {
+            match elem {
+                Element::Expression(subpat) => {
+                    Self::verify_pattern(verifier, subpat, &verifier.host.factory().create_value(elem_type), read_only, output, ns, parent)?;
+                },
+                Element::Rest((restpat, _)) => {
+                    Self::verify_pattern(verifier, restpat, &verifier.host.factory().create_value(vector_type), read_only, output, ns, parent)?;
+                },
+                Element::Elision => {},
+            }
+        }
+
+        verifier.phase_of_thingy.remove(&patslot);
+
+        Ok(())
+    }
+
+    fn verify_array_array_pattern_omega(verifier: &mut Subverifier, literal: &ArrayLiteral, patslot: &Thingy, array_type: &Thingy, elem_type: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
+        for elem in &literal.elements {
+            match elem {
+                Element::Expression(subpat) => {
+                    Self::verify_pattern(verifier, subpat, &verifier.host.factory().create_value(elem_type), read_only, output, ns, parent)?;
+                },
+                Element::Rest((restpat, _)) => {
+                    Self::verify_pattern(verifier, restpat, &verifier.host.factory().create_value(array_type), read_only, output, ns, parent)?;
+                },
+                Element::Elision => {},
+            }
+        }
+
+        verifier.phase_of_thingy.remove(&patslot);
+
+        Ok(())
     }
 
     fn verify_tuple_array_pattern_omega(verifier: &mut Subverifier, literal: &ArrayLiteral, patslot: &Thingy, tuple_type: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
