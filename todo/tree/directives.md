@@ -7,6 +7,10 @@
 * [ ] When at least one directive throws a defer error, the entire verification should reoccur next time.
 * [ ] Addition: the former explanations should be expanded such that deferred verification occurs in compilation unit level.
 
+## Scopes
+
+Set scopes carefully within directive sequences. Sometimes inherit and enter; sometimes just overwrite it.
+
 ## Variable definitions
 
 * [ ] Assign ASDoc to the first topmost variable binding's slot after full resolution.
