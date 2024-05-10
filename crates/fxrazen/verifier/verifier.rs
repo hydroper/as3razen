@@ -157,6 +157,7 @@ pub(crate) struct Subverifier {
     /// Temporary mapping of things to phases.
     pub phase_of_thingy: HashMap<Thingy, VerifierPhase>,
 
+    /// Mapping used for function expressions.
     pub deferred_function_commons: SharedMap<NodeAsKey<Rc<FunctionCommon>>, VerifierFunctionPartials>,
 
     invalidated: bool,
