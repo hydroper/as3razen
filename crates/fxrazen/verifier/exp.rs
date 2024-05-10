@@ -1645,7 +1645,7 @@ impl ExpSubverifier {
 
     fn is_destructuring_left_hand_side(exp: &Rc<Expression>) -> bool {
         match exp.as_ref() {
-            Expression::Unary(e) => Self::is_destructuring_left_hand_side(&e.expression),
+            Expression::Unary(e) => e.operator == Operator::NonNull && Self::is_destructuring_left_hand_side(&e.expression),
             Expression::ArrayLiteral(_) | Expression::ObjectInitializer(_) => true,
             _ => false,
         }
