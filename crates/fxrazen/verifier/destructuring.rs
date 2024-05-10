@@ -62,6 +62,10 @@ impl DestructuringDeclarationSubverifier {
 
         match phase {
             VerifierPhase::Alpha => {
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Beta);
+                Err(DeferError(Some(VerifierPhase::Beta)))
+            },
+            VerifierPhase::Beta => {
                 verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Omega);
                 Err(DeferError(Some(VerifierPhase::Omega)))
             },
@@ -116,7 +120,7 @@ impl DestructuringDeclarationSubverifier {
                     match elem {
                         Element::Expression(subpat) => {
                             if let Err(DeferError(subphase)) = Self::verify_pattern(verifier, subpat, &verifier.host.unresolved_thingy(), read_only, output, ns, parent) {
-                                assert_eq!(subphase, Some(VerifierPhase::Omega));
+                                assert_eq!(subphase, Some(VerifierPhase::Beta));
                             }
                         },
                         Element::Rest((restpat, loc)) => {
@@ -126,7 +130,7 @@ impl DestructuringDeclarationSubverifier {
                             rest_i = i;
                             rest_loc = Some(loc.clone());
                             if let Err(DeferError(subphase)) = Self::verify_pattern(verifier, restpat, &verifier.host.unresolved_thingy(), read_only, output, ns, parent) {
-                                assert_eq!(subphase, Some(VerifierPhase::Omega));
+                                assert_eq!(subphase, Some(VerifierPhase::Beta));
                             }
                         },
                         Element::Elision => {},
@@ -136,6 +140,10 @@ impl DestructuringDeclarationSubverifier {
                 if rest_loc.is_some() && rest_i != i - 1 {
                     verifier.add_verify_error(&rest_loc.unwrap(), FxDiagnosticKind::UnexpectedRest, diagarg![]);
                 }
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Beta);
+                Err(DeferError(Some(VerifierPhase::Beta)))
+            },
+            VerifierPhase::Beta => {
                 verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Omega);
                 Err(DeferError(Some(VerifierPhase::Omega)))
             },
@@ -303,9 +311,13 @@ impl DestructuringDeclarationSubverifier {
             VerifierPhase::Alpha => {
                 // Verify subpattern
                 if let Err(DeferError(subphase)) = Self::verify_pattern(verifier, &literal.expression, &verifier.host.unresolved_thingy(), read_only, output, ns, parent) {
-                    assert_eq!(subphase, Some(VerifierPhase::Omega));
+                    assert_eq!(subphase, Some(VerifierPhase::Beta));
                 }
 
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Beta);
+                Err(DeferError(Some(VerifierPhase::Beta)))
+            },
+            VerifierPhase::Beta => {
                 verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Omega);
                 Err(DeferError(Some(VerifierPhase::Omega)))
             },
@@ -376,6 +388,10 @@ impl DestructuringDeclarationSubverifier {
             VerifierPhase::Alpha => {
                 Self::verify_object_pattern_alpha(verifier, literal, &slot, read_only, output, ns, parent)
             },
+            VerifierPhase::Beta => {
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Omega);
+                Err(DeferError(Some(VerifierPhase::Omega)))
+            },
             VerifierPhase::Omega => {
                 Self::verify_object_pattern_omega(verifier, literal, &slot, init, read_only, output, ns, parent)
             },
@@ -394,7 +410,7 @@ impl DestructuringDeclarationSubverifier {
 
                     if let Some(subpat) = subpat {
                         if let Err(DeferError(subphase)) = Self::verify_pattern(verifier, subpat, &verifier.host.unresolved_thingy(), read_only, output, ns, parent) {
-                            assert_eq!(subphase, Some(VerifierPhase::Omega));
+                            assert_eq!(subphase, Some(VerifierPhase::Beta));
                         }
                     } else {
                         let Some(shorthand) = field.shorthand().and_then(|id| {
@@ -414,14 +430,14 @@ impl DestructuringDeclarationSubverifier {
                 InitializerField::Rest((restpat, loc)) => {
                     verifier.add_verify_error(loc, FxDiagnosticKind::UnexpectedRest, diagarg![]);
                     if let Err(DeferError(subphase)) = Self::verify_pattern(verifier, restpat, &verifier.host.unresolved_thingy(), read_only, output, ns, parent) {
-                        assert_eq!(subphase, Some(VerifierPhase::Omega));
+                        assert_eq!(subphase, Some(VerifierPhase::Beta));
                     }
                 },
             }
         }
 
-        verifier.phase_of_thingy.insert(patslot.clone(), VerifierPhase::Omega);
-        Err(DeferError(Some(VerifierPhase::Omega)))
+        verifier.phase_of_thingy.insert(patslot.clone(), VerifierPhase::Beta);
+        Err(DeferError(Some(VerifierPhase::Beta)))
     }
 
     fn verify_shorthand_of_object_pattern_alpha(verifier: &mut Subverifier, shorthand: (String, Location), read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Thingy {

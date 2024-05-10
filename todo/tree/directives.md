@@ -4,7 +4,7 @@
 
 * [ ] Statements are verified only after directives, in two different verification methods (one verification method for directives, and one pass verification method for statements). Block statements, with the right scopes, are entered recursively for directives.
 * [ ] Directives are always have a cache to prevent re-verification using the node mapping of SemanticHost; it may just be an invalidation thingy when it does not matter, such as for an use namespace directive.
-* [ ] When a directive throws a defer error, the entire verification should reoccur next time.
+* [ ] When at least one directive throws a defer error, the entire verification should reoccur next time.
 * [ ] Addition: the former explanations should be expanded such that deferred verification occurs in compilation unit level.
 
 ## Variable definitions
