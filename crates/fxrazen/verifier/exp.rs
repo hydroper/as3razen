@@ -1581,4 +1581,73 @@ impl ExpSubverifier {
 
         Ok(Some(verifier.host.factory().create_function_type(params, result_type).wrap_property_reference(&verifier.host)?))
     }
+
+    pub fn verify_assignment_exp(verifier: &mut Subverifier, exp: &AssignmentExpression) -> Result<Option<Thingy>, DeferError> {
+        if Self::is_destructuring_left_hand_side(&exp.left) && exp.compound.is_none() {
+            let Some(right) = verifier.verify_expression(&exp.right, &default())? else {
+                AssignmentDestructuringSubverifier::verify_pattern(verifier, &exp.left, &verifier.host.invalidation_thingy())?;
+                return Ok(None);
+            };
+
+            AssignmentDestructuringSubverifier::verify_pattern(verifier, &exp.left, &right)?;
+
+            Ok(Some(verifier.host.factory().create_value(&right.static_type(&verifier.host))))
+        } else {
+            let ctx1 = VerifierExpressionContext {
+                mode: VerifyMode::Write,
+                ..default()
+            };
+            let Some(left) = verifier.verify_expression(&exp.left, &ctx1)? else {
+                verifier.verify_expression(&exp.right, &default())?;
+                return Ok(None);
+            };
+            let left_st = left.static_type(&verifier.host);
+            let left_st_esc = left_st.escape_of_non_nullable();
+            let right = verifier.imp_coerce_exp(&exp.right, &left_st)?;
+
+            if let Some(compound) = exp.compound {
+                match compound {
+                    Operator::Add |
+                    Operator::LogicalAnd |
+                    Operator::LogicalXor |
+                    Operator::LogicalOr |
+                    Operator::NullCoalescing => {},
+
+                    Operator::Subtract |
+                    Operator::Multiply |
+                    Operator::Divide |
+                    Operator::Remainder |
+                    Operator::Power |
+                    Operator::BitwiseAnd |
+                    Operator::BitwiseXor |
+                    Operator::BitwiseOr |
+                    Operator::ShiftLeft |
+                    Operator::ShiftRight |
+                    Operator::ShiftRightUnsigned => {
+                        if ![verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&left_st_esc)
+                        && !verifier.host.numeric_types()?.contains(&left_st_esc)
+                        {
+                            verifier.add_verify_error(&exp.location, FxDiagnosticKind::UnrelatedMathOperation, diagarg![left_st.clone()]);
+                        }
+                    },
+
+                    _ => panic!(),
+                }
+            }
+
+            if right.is_none() {
+                Ok(None)
+            } else {
+                Ok(Some(verifier.host.factory().create_value(&right.unwrap().static_type(&verifier.host))))
+            }
+        }
+    }
+
+    fn is_destructuring_left_hand_side(exp: &Rc<Expression>) -> bool {
+        match exp.as_ref() {
+            Expression::Unary(e) => Self::is_destructuring_left_hand_side(&e.expression),
+            Expression::ArrayLiteral(_) | Expression::ObjectInitializer(_) => true,
+            _ => false,
+        }
+    }
 }
