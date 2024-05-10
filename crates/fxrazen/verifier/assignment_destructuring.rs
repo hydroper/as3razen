@@ -26,12 +26,12 @@ impl AssignmentDestructuringSubverifier {
     }
 
     pub fn verify_identifier_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, id: &QualifiedIdentifier, init: &Thingy) -> Result<(), DeferError> {
-        init.defer()?;
-        let init_st = init.static_type(&verifier.host).defer()?;
-
         if verifier.host.node_mapping().has(pattern) || id.attribute {
             return Ok(());
         }
+
+        init.defer()?;
+        let init_st = init.static_type(&verifier.host).defer()?;
 
         let qn = ExpSubverifier::verify_qualified_identifier(verifier, id)?;
         if qn.is_none() {
@@ -93,12 +93,12 @@ impl AssignmentDestructuringSubverifier {
     }
 
     pub fn verify_non_null_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, literal: &UnaryExpression, init: &Thingy) -> Result<(), DeferError> {
-        init.defer()?;
-        init.static_type(&verifier.host).defer()?;
-
         if verifier.host.node_mapping().has(pattern) {
             return Ok(());
         }
+
+        init.defer()?;
+        init.static_type(&verifier.host).defer()?;
 
         let non_null_val = verifier.host.factory().create_non_null_value(&init)?;
         
@@ -106,6 +106,151 @@ impl AssignmentDestructuringSubverifier {
 
         verifier.host.node_mapping().set(pattern, Some(non_null_val));
 
+        Ok(())
+    }
+
+    pub fn verify_array_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, literal: &ArrayLiteral, init: &Thingy) -> Result<(), DeferError> {
+        if verifier.host.node_mapping().has(pattern) {
+            return Ok(());
+        }
+
+        init.defer()?;
+        let init_st = init.static_type(&verifier.host).defer()?;
+        let init_st_esc = init_st.escape_of_non_nullable();
+
+        // Pre verification of rest operator
+        let mut rest_loc: Option<Location> = None;
+        let mut i: usize = 0;
+        let mut rest_i: usize = 0;
+        for elem in &literal.elements {
+            match elem {
+                Element::Expression(_) => {},
+                Element::Rest((_, loc)) => {
+                    if rest_loc.is_some() {
+                        verifier.add_verify_error(loc, FxDiagnosticKind::UnexpectedRest, diagarg![]);
+                    }
+                    rest_i = i;
+                    rest_loc = Some(loc.clone());
+                },
+                Element::Elision => {},
+            }
+            i += 1;
+        }
+        if rest_loc.is_some() && rest_i != i - 1 {
+            verifier.add_verify_error(&rest_loc.unwrap(), FxDiagnosticKind::UnexpectedRest, diagarg![]);
+        }
+
+        // Verify Vector.<T>
+        if let Some(elem_type) = init_st_esc.vector_element_type(&verifier.host)? {
+            Self::verify_vector_array_pattern(verifier, literal, &init_st_esc, &elem_type)?;
+        // Verify Array.<T>
+        } else if let Some(elem_type) = init_st_esc.array_element_type(&verifier.host)? {
+            Self::verify_array_array_pattern(verifier, literal, &init_st_esc, &elem_type)?;
+        // Verify tuple
+        } else if init_st_esc.is::<TupleType>() {
+            Self::verify_tuple_array_pattern(verifier, literal, &init_st_esc)?;
+        // Verify * or Object
+        } else if [verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&init_st_esc) {
+            Self::verify_untyped_array_pattern(verifier, literal)?;
+        // Invalidation
+        } else {
+            Self::verify_invalidation_array_pattern(verifier, literal)?;
+        }
+
+        verifier.host.node_mapping().set(pattern, Some(init.clone()));
+
+        Ok(())
+    }
+
+    fn verify_vector_array_pattern(verifier: &mut Subverifier, literal: &ArrayLiteral, vector_type: &Thingy, elem_type: &Thingy) -> Result<(), DeferError> {
+        for elem in &literal.elements {
+            match elem {
+                Element::Expression(subpat) => {
+                    Self::verify_pattern(verifier, subpat, &verifier.host.factory().create_value(elem_type))?;
+                },
+                Element::Rest((restpat, _)) => {
+                    Self::verify_pattern(verifier, restpat, &verifier.host.factory().create_value(vector_type))?;
+                },
+                Element::Elision => {},
+            }
+        }
+        Ok(())
+    }
+
+    fn verify_array_array_pattern(verifier: &mut Subverifier, literal: &ArrayLiteral, array_type: &Thingy, elem_type: &Thingy) -> Result<(), DeferError> {
+        for elem in &literal.elements {
+            match elem {
+                Element::Expression(subpat) => {
+                    Self::verify_pattern(verifier, subpat, &verifier.host.factory().create_value(elem_type))?;
+                },
+                Element::Rest((restpat, _)) => {
+                    Self::verify_pattern(verifier, restpat, &verifier.host.factory().create_value(array_type))?;
+                },
+                Element::Elision => {},
+            }
+        }
+        Ok(())
+    }
+
+    fn verify_tuple_array_pattern(verifier: &mut Subverifier, literal: &ArrayLiteral, tuple_type: &Thingy) -> Result<(), DeferError> {
+        let elem_types = tuple_type.element_types();
+        let mut i: usize = 0;
+        let mut rest_found = false;
+
+        for elem in &literal.elements {
+            match elem {
+                Element::Expression(subpat) => {
+                    if rest_found || i >= elem_types.length() {
+                        Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy())?;
+                    } else {
+                        let elem_type = elem_types.get(i).unwrap();
+                        Self::verify_pattern(verifier, subpat, &verifier.host.factory().create_value(&elem_type))?;
+                    }
+                },
+                Element::Rest((restpat, _)) => {
+                    let array_type_of_any = verifier.host.array_type_of_any()?;
+                    rest_found = true;
+                    Self::verify_pattern(verifier, restpat, &verifier.host.factory().create_value(&array_type_of_any))?;
+                },
+                Element::Elision => {},
+            }
+            i += 1;
+        }
+
+        if i > elem_types.length() && !rest_found {
+            verifier.add_verify_error(&literal.location, FxDiagnosticKind::ArrayLengthNotEqualsTupleLength, diagarg![tuple_type.clone()]);
+        }
+
+        Ok(())
+    }
+
+    fn verify_untyped_array_pattern(verifier: &mut Subverifier, literal: &ArrayLiteral) -> Result<(), DeferError> {
+        for elem in &literal.elements {
+            match elem {
+                Element::Expression(subpat) => {
+                    Self::verify_pattern(verifier, subpat, &verifier.host.factory().create_value(&verifier.host.any_type()))?;
+                },
+                Element::Rest((restpat, _)) => {
+                    Self::verify_pattern(verifier, restpat, &verifier.host.factory().create_value(&verifier.host.any_type()))?;
+                },
+                Element::Elision => {},
+            }
+        }
+        Ok(())
+    }
+
+    fn verify_invalidation_array_pattern(verifier: &mut Subverifier, literal: &ArrayLiteral) -> Result<(), DeferError> {
+        for elem in &literal.elements {
+            match elem {
+                Element::Expression(subpat) => {
+                    Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy())?;
+                },
+                Element::Rest((restpat, _)) => {
+                    Self::verify_pattern(verifier, restpat, &verifier.host.invalidation_thingy())?;
+                },
+                Element::Elision => {},
+            }
+        }
         Ok(())
     }
 }
