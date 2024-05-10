@@ -15,6 +15,9 @@ impl<'a> MethodOverriding<'a> {
         if base_class.is::<UnresolvedThingy>() {
             return Err(DeferError(None));
         }
+        if &base_class == class {
+            return Ok(vec![]);
+        }
         let mut r: Vec<Thingy> = vec![];
         for (name, prop) in base_class.prototype(self.0).borrow().iter() {
             // Regular method
@@ -57,6 +60,9 @@ impl<'a> MethodOverriding<'a> {
             return Err(MethodOverridingError::MustOverrideAMethod);
         }
         let base_type = base_type.unwrap();
+        if base_type == class {
+            return Ok(());
+        }
         let base_method = self.lookup_method(&name, &base_type, ns_set)?;
         if base_method.is_none() {
             return Err(MethodOverridingError::MustOverrideAMethod);

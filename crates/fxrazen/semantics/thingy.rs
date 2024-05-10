@@ -489,7 +489,7 @@ smodel! {
 
         /// Iterator over a descending class hierarchy.
         pub fn descending_class_hierarchy<'a>(&self, host: &'a SemanticHost) -> DescendingClassHierarchy<'a> {
-            DescendingClassHierarchy(Some(self.clone()), host)
+            DescendingClassHierarchy(Some(self.clone()), host, self.clone())
         }
 
         /// Iterator over a descending scope hierarchy.
@@ -768,17 +768,23 @@ smodel! {
         /// Returns all ascending types of a type in ascending type order,
         /// each possibly unresolved.
         pub fn all_ascending_types(&self, host: &SemanticHost) -> Vec<Thingy> {
+            self.all_ascending_types_non_circular(host, self)
+        }
+
+        fn all_ascending_types_non_circular(&self, host: &SemanticHost, descending_most: &Thingy) -> Vec<Thingy> {
             let mut r = vec![];
             let mut r2 = vec![];
             for type_thing in self.direct_ascending_types(host) {
                 if !type_thing.is::<UnresolvedThingy>() {
-                    for type_symbol in type_thing.all_ascending_types(host) {
-                        if !r.contains(&type_thing) {
-                            r.push(type_thing.clone());
+                    if &type_thing != descending_most {
+                        for type1 in type_thing.all_ascending_types(host) {
+                            if !r.contains(&type1) && &type1 != descending_most {
+                                r.push(type1.clone());
+                            }
                         }
                     }
                 }
-                if !r.contains(&type_thing) {
+                if !r.contains(&type_thing) && &type_thing != descending_most {
                     r2.push(type_thing.clone());
                 }
             }
@@ -3939,7 +3945,8 @@ pub struct ControlFlowEdge {
     pub to: ControlFlowBlock,
 }
 
-pub struct DescendingClassHierarchy<'a>(Option<Thingy>, &'a SemanticHost);
+// The third element is the descending most type.
+pub struct DescendingClassHierarchy<'a>(Option<Thingy>, &'a SemanticHost, Thingy);
 
 impl<'a> Iterator for DescendingClassHierarchy<'a> {
     type Item = Thingy;
@@ -3949,6 +3956,9 @@ impl<'a> Iterator for DescendingClassHierarchy<'a> {
                 self.0 = None;
             } else {
                 self.0 = r.extends_class(self.1);
+                if self.0.as_ref().unwrap() == &self.2 {
+                    self.0 = None;
+                }
             }
             Some(r)
         } else {

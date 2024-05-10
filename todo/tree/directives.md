@@ -13,6 +13,10 @@
 * [ ] Assign meta-data to the first variable binding's slot after full resolution.
 * [ ] Assign `[Bindable]` semantics to topmost variable slots after full resolution.
 
+## Inheritance
+
+* [ ] For classes and interfaces, right after the phase in which the inheritance is solved, ensure the inheritance is not circular (an inherited type must not be equals to or a subtype of the inheritor type) by reporting a verify error in such case.
+
 ## Class definitions
 
 * [ ] Assign ASDoc
