@@ -238,7 +238,7 @@ impl<'a> ThingyFactory<'a> {
 
     /// Interns a nullable type.
     pub fn create_nullable_type(&self, base: &Thingy) -> Thingy {
-        if base == &self.0.any_type() || base.is::<NullableType>() {
+        if base == &self.0.any_type() || base.is::<NullableType>() || base.is::<InvalidationThingy>() {
             return base.clone();
         }
         if base.is::<NonNullableType>() {
@@ -256,7 +256,7 @@ impl<'a> ThingyFactory<'a> {
 
     /// Interns a non nullable type.
     pub fn create_non_nullable_type(&self, base: &Thingy) -> Thingy {
-        if base == &self.0.any_type() || base.is::<NonNullableType>() {
+        if base == &self.0.any_type() || base.is::<NonNullableType>() || base.is::<InvalidationThingy>() {
             return base.clone();
         }
         let mut m = self.0.non_nullable_types.borrow_mut();

@@ -91,4 +91,21 @@ impl AssignmentDestructuringSubverifier {
 
         Ok(())
     }
+
+    pub fn verify_non_null_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, literal: &UnaryExpression, init: &Thingy) -> Result<(), DeferError> {
+        init.defer()?;
+        init.static_type(&verifier.host).defer()?;
+
+        if verifier.host.node_mapping().has(pattern) {
+            return Ok(());
+        }
+
+        let non_null_val = verifier.host.factory().create_non_null_value(&init)?;
+        
+        Self::verify_pattern(verifier, &literal.expression, &non_null_val)?;
+
+        verifier.host.node_mapping().set(pattern, Some(non_null_val));
+
+        Ok(())
+    }
 }

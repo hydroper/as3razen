@@ -975,6 +975,14 @@ smodel! {
             self.clone().into()
         }
 
+        pub override fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(true)
+        }
+
+        pub override fn includes_null(&self, host: &SemanticHost) -> Result<bool, DeferError> {
+            Ok(true)
+        }
+
         override fn to_string_1(&self) -> String {
             "[unknown]".into()
         }
