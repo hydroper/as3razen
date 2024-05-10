@@ -162,15 +162,31 @@ impl DestructuringDeclarationSubverifier {
             VerifierPhase::Omega => {
                 init.defer()?;
                 let init_st = init.static_type(&verifier.host).defer()?;
+                let init_st_esc = init_st.escape_of_non_nullable();
 
                 // Assign a type if unresolved
                 if slot.static_type(&verifier.host).is::<UnresolvedThingy>() {
                     slot.set_static_type(init_st.clone());
                 }
 
-                todo()
+                // Verify Vector.<T> in omega phase
+                if let Some(elem_type) = init_st_esc.vector_element_type(&verifier.host)? {
+                    todo()
+                // Verify Array.<T> in omega phase
+                } else if let Some(elem_type) = init_st_esc.array_element_type(&verifier.host)? {
+                    todo()
+                // Verify tuple in omega phase
+                } else if init_st_esc.is::<TupleType>() {
+                    todo()
+                // Verify * or Object in omega phase
+                } else if [verifier.host.any_type(), verifier.host.object_type().defer()?].contains(&init_st_esc) {
+                    todo()
+                // Invalidation in omega phase
+                } else {
+                    todo()
+                }
             },
-            _ => panic(),
+            _ => panic!(),
         }
     }
 }

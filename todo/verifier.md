@@ -115,7 +115,7 @@ contributes multiple concatenated packages from `qux.**` to the `foo.bar.*` pack
 ## Array type
 
 * [ ] In ABC, a type parameter is automatically added for `Array` and `__AS3__.vec.Vector`.
-* [ ] In source, a type parameter is automatically added for `Array` and `__AS3__.vec.Vector`.
+* [ ] In source, a type parameter is automatically added for `Array` and `__AS3__.vec.Vector` if there is not one already.
 
 ## Property access
 
