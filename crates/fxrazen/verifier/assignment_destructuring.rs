@@ -253,4 +253,208 @@ impl AssignmentDestructuringSubverifier {
         }
         Ok(())
     }
+
+    fn verify_object_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, literal: &ObjectInitializer, init: &Thingy) -> Result<(), DeferError> {
+        if verifier.host.node_mapping().has(pattern) {
+            return Ok(());
+        }
+
+        init.defer()?;
+        let init_st = init.static_type(&verifier.host).defer()?;
+
+        for field in &literal.fields {
+            match field.as_ref() {
+                InitializerField::Field { name, non_null, value: subpat } => {
+                    // AssignmentFieldDestructuringResolution
+                    let resolution;
+                    if let Some(resolution1) = verifier.host.node_mapping().get(field) {
+                        resolution = resolution1;
+                    } else {
+                        resolution = verifier.host.factory().create_assignment_field_destructuring_resolution();
+                        verifier.host.node_mapping().set(field, Some(resolution.clone()));
+                    }
+
+                    if resolution.field_reference().is_some() {
+                        continue;
+                    }
+
+                    let qn: Option<(Option<Thingy>, PropertyLookupKey)>;
+
+                    match &name.0 {
+                        FieldName::Identifier(id) => {
+                            qn = ExpSubverifier::verify_qualified_identifier(verifier, id)?;
+                        },
+                        FieldName::Brackets(exp) |
+                        FieldName::NumericLiteral(exp) |
+                        FieldName::StringLiteral(exp) => {
+                            let val = verifier.verify_expression(exp, &default())?;
+                            qn = Some((None, PropertyLookupKey::Computed(val.unwrap_or(verifier.host.invalidation_thingy()))));
+                        },
+                    }
+
+                    if qn.is_none() {
+                        if let Some(var_slot) = resolution.var_slot() {
+                            var_slot.set_static_type(verifier.host.invalidation_thingy());
+                        }
+                        if let Some(subpat) = subpat {
+                            Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy())?;
+                        }
+                        resolution.set_field_reference(Some(verifier.host.invalidation_thingy()));
+                        continue;
+                    }
+
+                    let name_loc = &name.1;
+
+                    let (qual, key) = qn.unwrap();
+
+                    let open_ns_set = verifier.scope().concat_open_ns_set_of_scope_chain();
+                    let r = PropertyLookup(&verifier.host).lookup_in_object(&init, &open_ns_set, qual, &key);
+                    if r.is_err() {
+                        match r.unwrap_err() {
+                            PropertyLookupError::AmbiguousReference(name) => {
+                                if let Some(subpat) = subpat {
+                                    Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy())?;
+                                }
+                                resolution.set_field_reference(Some(verifier.host.invalidation_thingy()));
+                                verifier.add_verify_error(name_loc, FxDiagnosticKind::AmbiguousReference, diagarg![name.clone()]);
+                                continue;
+                            },
+                            PropertyLookupError::Defer => {
+                                return Err(DeferError(None));
+                            },
+                            PropertyLookupError::VoidBase => {
+                                if let Some(subpat) = subpat {
+                                    Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy())?;
+                                }
+                                resolution.set_field_reference(Some(verifier.host.invalidation_thingy()));
+                                verifier.add_verify_error(name_loc, FxDiagnosticKind::AccessOfVoid, diagarg![]);
+                                continue;
+                            },
+                            PropertyLookupError::NullableObject { .. } => {
+                                if let Some(subpat) = subpat {
+                                    Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy())?;
+                                }
+                                resolution.set_field_reference(Some(verifier.host.invalidation_thingy()));
+                                verifier.add_verify_error(name_loc, FxDiagnosticKind::AccessOfNullable, diagarg![]);
+                                continue;
+                            },
+                        }
+                    }
+                    let r = r.unwrap();
+                    if r.is_none() {
+                        if let Some(subpat) = subpat {
+                            Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy())?;
+                        }
+                        resolution.set_field_reference(Some(verifier.host.invalidation_thingy()));
+                        verifier.add_verify_error(name_loc, FxDiagnosticKind::UndefinedPropertyWithStaticType, diagarg![key.local_name().unwrap(), init_st.clone()]);
+                        continue;
+                    }
+                    let r = r.unwrap();
+
+                    // Post-processing
+                    let postval = verifier.reference_post_processing(r, &default())?;
+                    if let Some(mut postval) = postval {
+                        if *non_null {
+                            postval = verifier.host.factory().create_non_null_value(&postval)?;
+                        }
+
+                        if let Some(var_slot) = resolution.var_slot() {
+                            var_slot.set_static_type(postval.static_type(&verifier.host));
+                        }
+                        if let Some(subpat) = subpat {
+                            Self::verify_pattern(verifier, subpat, &postval)?;
+                        } else {
+                            let Some(shorthand) = field.shorthand().and_then(|id| {
+                                if let QualifiedIdentifierIdentifier::Id(id) = &id.id {
+                                    Some(id.clone())
+                                } else {
+                                    None
+                                }
+                            }) else {
+                                verifier.add_syntax_error(&name.1, FxDiagnosticKind::UnexpectedFieldNameInDestructuring, diagarg![]);
+                                continue;
+                            };
+    
+                            if let Some(target) = Self::verify_shorthand_target_of_object_pattern(verifier, shorthand)? {
+                                resolution.set_target_reference(Some(target.clone()));
+
+                                // Implicit coercion
+                                let Some(_) = TypeConversions(&verifier.host).implicit(&postval, &target.static_type(&verifier.host), false)? else {
+                                    verifier.add_verify_error(&name_loc, FxDiagnosticKind::ImplicitCoercionToUnrelatedType, diagarg![postval.static_type(&verifier.host), target.static_type(&verifier.host)]);
+                                    verifier.host.node_mapping().set(pattern, None);
+                                    continue;
+                                };
+                            }
+                        }
+                        resolution.set_field_reference(Some(postval));
+                    } else {
+                        if let Some(var_slot) = resolution.var_slot() {
+                            var_slot.set_static_type(verifier.host.invalidation_thingy());
+                        }
+                        if let Some(subpat) = subpat {
+                            Self::verify_pattern(verifier, subpat, &verifier.host.invalidation_thingy())?;
+                        } else {
+                            let Some(shorthand) = field.shorthand().and_then(|id| {
+                                if let QualifiedIdentifierIdentifier::Id(id) = &id.id {
+                                    Some(id.clone())
+                                } else {
+                                    None
+                                }
+                            }) else {
+                                verifier.add_syntax_error(&name.1, FxDiagnosticKind::UnexpectedFieldNameInDestructuring, diagarg![]);
+                                continue;
+                            };
+    
+                            resolution.set_target_reference(Self::verify_shorthand_target_of_object_pattern(verifier, shorthand)?);
+                        }
+                        resolution.set_field_reference(Some(verifier.host.invalidation_thingy()));
+                    }
+                },
+                InitializerField::Rest((restpat, loc)) => {
+                    verifier.add_verify_error(loc, FxDiagnosticKind::UnexpectedRest, diagarg![]);
+                    Self::verify_pattern(verifier, restpat, &verifier.host.invalidation_thingy())?;
+                },
+            }
+        }
+
+        verifier.host.node_mapping().set(pattern, Some(init.clone()));
+
+        Ok(())
+    }
+
+    fn verify_shorthand_target_of_object_pattern(verifier: &mut Subverifier, shorthand: (String, Location)) -> Result<Option<Thingy>, DeferError> {
+        let key = PropertyLookupKey::LocalName(shorthand.0.clone());
+        let r = verifier.scope().lookup_in_scope_chain(&verifier.host, None, &key);
+        if r.is_err() {
+            match r.unwrap_err() {
+                PropertyLookupError::AmbiguousReference(name) => {
+                    verifier.add_verify_error(&shorthand.1, FxDiagnosticKind::AmbiguousReference, diagarg![name.clone()]);
+                    return Ok(None);
+                },
+                PropertyLookupError::Defer => {
+                    return Err(DeferError(None));
+                },
+                PropertyLookupError::VoidBase => {
+                    verifier.add_verify_error(&shorthand.1, FxDiagnosticKind::AccessOfVoid, diagarg![]);
+                    return Ok(None);
+                },
+                PropertyLookupError::NullableObject { .. } => {
+                    verifier.add_verify_error(&shorthand.1, FxDiagnosticKind::AccessOfNullable, diagarg![]);
+                    return Ok(None);
+                },
+            }
+        }
+        let r = r.unwrap();
+        if r.is_none() {
+            verifier.add_verify_error(&shorthand.1, FxDiagnosticKind::UndefinedProperty, diagarg![key.local_name().unwrap()]);
+            return Ok(None);
+        }
+        let r = r.unwrap();
+
+        // Mark local capture
+        verifier.detect_local_capture(&r);
+
+        // Post-processing
+        verifier.reference_post_processing(r, &default())
+    }
 }
