@@ -1650,4 +1650,8 @@ impl ExpSubverifier {
             _ => false,
         }
     }
+
+    pub fn verify_function_exp(verifier: &mut Subverifier, exp: &FunctionExpression) -> Result<Option<Thingy>, DeferError> {
+        todo()
+    }
 }

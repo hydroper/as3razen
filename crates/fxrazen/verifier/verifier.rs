@@ -340,6 +340,9 @@ impl Subverifier {
             Expression::Assignment(e) => {
                 result = ExpSubverifier::verify_assignment_exp(self, e)?;
             },
+            Expression::Function(e) => {
+                result = ExpSubverifier::verify_function_exp(self, e)?;
+            },
         }
 
         if let Some(r1) = result.as_ref() {
