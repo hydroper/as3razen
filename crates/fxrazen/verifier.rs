@@ -15,3 +15,6 @@ pub(crate) use arguments::*;
 
 mod destructuring;
 pub(crate) use destructuring::*;
+
+mod assignment_destructuring;
+pub(crate) use assignment_destructuring::*;
