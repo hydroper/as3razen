@@ -257,7 +257,7 @@ impl Subverifier {
             Expression::XmlList(e) => {
                 result = ExpSubverifier::verify_xml_list_exp(self, e, context)?;
             },
-            Expression::XmlMarkup(e) => {
+            Expression::XmlMarkup(_) => {
                 result = Some(self.host.factory().create_value(&self.host.xml_type().defer()?));
             },
             Expression::ArrayLiteral(e) => {
@@ -299,7 +299,7 @@ impl Subverifier {
             Expression::OptionalChaining(e) => {
                 result = ExpSubverifier::verify_opt_chaining_exp(self, e)?;
             },
-            Expression::OptionalChainingPlaceholder(e) => {
+            Expression::OptionalChainingPlaceholder(_) => {
                 // The optional chaining placeholder is assumed to be already
                 // cached by the optional chaining operation.
                 panic!();
@@ -322,10 +322,10 @@ impl Subverifier {
             Expression::NonNullableType(e) => {
                 result = ExpSubverifier::verify_non_nullable_type_exp(self, e)?;
             },
-            Expression::AnyType(e) => {
+            Expression::AnyType(_) => {
                 result = Some(self.host.any_type().wrap_property_reference(&self.host)?);
             },
-            Expression::VoidType(e) => {
+            Expression::VoidType(_) => {
                 result = Some(self.host.void_type().wrap_property_reference(&self.host)?);
             },
             Expression::ArrayType(e) => {
