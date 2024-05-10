@@ -485,13 +485,18 @@ impl Subverifier {
     }
 
     fn report_definition_conflict_for_thingy(&mut self, thingy: &Thingy) {
+        let Some(loc) = thingy.location() else {
+            return;
+        };
         let name = thingy.name();
         if thingy.is::<ClassType>() || thingy.is::<EnumType>() {
-            self.add_verify_error(&thingy.location().unwrap(), FxDiagnosticKind::DuplicateClassDefinition, diagarg![name.local_name()]);
+            self.add_verify_error(&loc, FxDiagnosticKind::DuplicateClassDefinition, diagarg![name.local_name()]);
         } else if thingy.is::<InterfaceType>() {
-            self.add_verify_error(&thingy.location().unwrap(), FxDiagnosticKind::DuplicateInterfaceDefinition, diagarg![name.local_name()]);
+            self.add_verify_error(&loc, FxDiagnosticKind::DuplicateInterfaceDefinition, diagarg![name.local_name()]);
+        } else if thingy.is::<MethodSlot>() {
+            self.add_verify_error(&loc, FxDiagnosticKind::DuplicateFunctionDefinition, diagarg![name.local_name()]);
         } else {
-            self.add_verify_error(&thingy.location().unwrap(), FxDiagnosticKind::AConflictExistsWithDefinition, diagarg![name.local_name(), name.namespace()]);
+            self.add_verify_error(&loc, FxDiagnosticKind::AConflictExistsWithDefinition, diagarg![name.local_name(), name.namespace()]);
         }
     }
 }
