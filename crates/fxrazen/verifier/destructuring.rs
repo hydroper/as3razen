@@ -160,6 +160,14 @@ impl DestructuringDeclarationSubverifier {
                 Err(DeferError(Some(VerifierPhase::Omega)))
             },
             VerifierPhase::Omega => {
+                init.defer()?;
+                let init_st = init.static_type(&verifier.host).defer()?;
+
+                // Assign a type if unresolved
+                if slot.static_type(&verifier.host).is::<UnresolvedThingy>() {
+                    slot.set_static_type(init_st.clone());
+                }
+
                 todo()
             },
             _ => panic(),
