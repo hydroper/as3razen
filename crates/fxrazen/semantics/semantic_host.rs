@@ -41,6 +41,7 @@ pub struct SemanticHost {
     dictionary_type: RefCell<Option<Thingy>>,
     flash_proxy_ns: RefCell<Option<Thingy>>,
     as3_ns: RefCell<Option<Thingy>>,
+    empty_empty_qname: RefCell<Option<QName>>,
 
     meta_prop: Thingy,
     meta_env_prop: Thingy,
@@ -118,6 +119,7 @@ impl SemanticHost {
             dictionary_type: RefCell::new(None),
             flash_proxy_ns: RefCell::new(None),
             as3_ns: RefCell::new(None),
+            empty_empty_qname: RefCell::new(None),
 
             primitive_types: RefCell::new(None),
             non_null_primitive_types: RefCell::new(None),
@@ -143,6 +145,9 @@ impl SemanticHost {
 
         // Initialize the "AS3" namespace
         host.as3_ns.replace(Some(host.factory().create_user_ns("http://adobe.com/AS3/2006/builtin".into())));
+
+        // Initialize empty-empty QName
+        host.empty_empty_qname.replace(Some(host.factory().create_qname(&host.factory().create_user_ns("".into()), "".into())));
 
         host
     }
@@ -180,6 +185,10 @@ impl SemanticHost {
     #[inline(always)]
     pub(crate) fn config_constants_cu(&self) -> SharedMap<String, Rc<CompilationUnit>> {
         self.config_constants_cu.clone()
+    }
+
+    pub fn empty_empty_qname(&self) -> QName {
+        self.empty_empty_qname.borrow().as_ref().unwrap().clone()
     }
 
     pub fn top_level_package(&self) -> Thingy {
