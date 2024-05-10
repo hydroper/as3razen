@@ -919,6 +919,30 @@ smodel! {
             None
         }
 
+        pub fn field_reference(&self) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn set_field_reference(&self, value: Option<Thingy>) {
+            panic!();
+        }
+
+        pub fn var_slot(&self) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn set_var_slot(&self, value: Option<Thingy>) {
+            panic!();
+        }
+
+        pub fn target_reference(&self) -> Option<Thingy> {
+            panic!();
+        }
+
+        pub fn set_target_reference(&self, value: Option<Thingy>) {
+            panic!();
+        }
+
         fn to_string_1(&self) -> String {
             "".into()
         }
@@ -3619,6 +3643,70 @@ smodel! {
 
         pub override fn set_field_slot(&self, value: Option<Thingy>) {
             self.set_m_field_slot(value);
+        }
+    }
+
+    /// Resolutions of a field in a declarative object destructuring pattern.
+    pub struct DeclarativeFieldDestructuringResolution: Thingy {
+        let ref m_field_reference: Option<Thingy> = None;
+        let ref m_var_slot: Option<Thingy> = None;
+
+        pub(crate) fn DeclarativeFieldDestructuringResolution() {
+            super();
+        }
+
+        /// Reference value.
+        pub override fn field_reference(&self) -> Option<Thingy> {
+            self.m_field_reference()
+        }
+
+        /// Reference value.
+        pub override fn set_field_reference(&self, value: Option<Thingy>) {
+            self.set_m_field_reference(value);
+        }
+
+        /// For fields without subpatterns, indicates
+        /// the assigned variable slot.
+        pub override fn var_slot(&self) -> Option<Thingy> {
+            self.m_var_slot()
+        }
+
+        /// For fields without subpatterns, indicates
+        /// the assigned variable slot.
+        pub override fn set_var_slot(&self, value: Option<Thingy>) {
+            self.set_m_var_slot(value);
+        }
+    }
+
+    /// Resolutions of a field in an assignment object destructuring pattern.
+    pub struct AssignmentFieldDestructuringResolution: Thingy {
+        let ref m_field_reference: Option<Thingy> = None;
+        let ref m_target_reference: Option<Thingy> = None;
+
+        pub(crate) fn AssignmentFieldDestructuringResolution() {
+            super();
+        }
+
+        /// Reference value.
+        pub override fn field_reference(&self) -> Option<Thingy> {
+            self.m_field_reference()
+        }
+
+        /// Reference value.
+        pub override fn set_field_reference(&self, value: Option<Thingy>) {
+            self.set_m_field_reference(value);
+        }
+
+        /// For fields without subpatterns, indicates
+        /// the target reference value.
+        pub override fn target_reference(&self) -> Option<Thingy> {
+            self.m_target_reference()
+        }
+
+        /// For fields without subpatterns, indicates
+        /// the target reference value.
+        pub override fn set_target_reference(&self, value: Option<Thingy>) {
+            self.set_m_target_reference(value);
         }
     }
 }

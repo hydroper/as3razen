@@ -54,6 +54,7 @@ lazy_static! {
         FxDiagnosticKind::DuplicateClassDefinition.id() => "Duplicate variable definition: {1}.".into(),
         FxDiagnosticKind::DuplicateInterfaceDefinition.id() => "Duplicate interface definition: {1}.".into(),
         FxDiagnosticKind::DuplicateFunctionDefinition.id() => "Duplicate function definition: {1}.".into(),
+        FxDiagnosticKind::UnexpectedFieldNameInDestructuring.id() => "Unexpected field name in destructuring.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

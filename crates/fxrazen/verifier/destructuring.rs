@@ -394,7 +394,7 @@ impl DestructuringDeclarationSubverifier {
 
         match phase {
             VerifierPhase::Alpha => {
-                Self::verify_object_pattern_alpha(verifier, literal, &slot, init, read_only, output, ns, parent)
+                Self::verify_object_pattern_alpha(verifier, literal, &slot, read_only, output, ns, parent)
             },
             VerifierPhase::Omega => {
                 Self::verify_object_pattern_omega(verifier, literal, &slot, init, read_only, output, ns, parent)
@@ -403,15 +403,39 @@ impl DestructuringDeclarationSubverifier {
         }
     }
 
-    fn verify_object_pattern_alpha(verifier: &mut Subverifier, literal: &ObjectInitializer, patslot: &Thingy, init: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
+    fn verify_object_pattern_alpha(verifier: &mut Subverifier, literal: &ObjectInitializer, patslot: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
         // Verify fields
         for field in &literal.fields {
             match field.as_ref() {
-                InitializerField::Field { name, non_null: _, value } => {
-                    todo();
+                InitializerField::Field { name, non_null: _, value: subpat } => {
+                    // DeclarativeFieldDestructuringResolution
+                    let resolution = verifier.host.factory().create_declarative_field_destructuring_resolution();
+                    verifier.host.node_mapping().set(field, Some(resolution.clone()));
+
+                    if let Some(subpat) = subpat {
+                        if let Err(DeferError(subphase)) = Self::verify_pattern(verifier, subpat, &verifier.host.unresolved_thingy(), read_only, output, ns, parent) {
+                            assert_eq!(subphase, Some(VerifierPhase::Omega));
+                        }
+                    } else {
+                        let Some(shorthand) = field.shorthand().and_then(|id| {
+                            if let QualifiedIdentifierIdentifier::Id(id) = &id.id {
+                                Some(id.clone())
+                            } else {
+                                None
+                            }
+                        }) else {
+                            verifier.add_syntax_error(&name.1, FxDiagnosticKind::UnexpectedFieldNameInDestructuring, diagarg![]);
+                            continue;
+                        };
+
+                        resolution.set_var_slot(Some(Self::verify_shorthand_of_object_pattern_alpha(verifier, shorthand, read_only, output, ns, parent)));
+                    }
                 },
                 InitializerField::Rest((restpat, loc)) => {
-                    todo();
+                    verifier.add_verify_error(loc, FxDiagnosticKind::UnexpectedRest, diagarg![]);
+                    if let Err(DeferError(subphase)) = Self::verify_pattern(verifier, restpat, &verifier.host.unresolved_thingy(), read_only, output, ns, parent) {
+                        assert_eq!(subphase, Some(VerifierPhase::Omega));
+                    }
                 },
             }
         }
@@ -420,12 +444,43 @@ impl DestructuringDeclarationSubverifier {
         Err(DeferError(Some(VerifierPhase::Omega)))
     }
 
+    fn verify_shorthand_of_object_pattern_alpha(verifier: &mut Subverifier, shorthand: (String, Location), read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Thingy {
+        let name = verifier.host.factory().create_qname(ns, shorthand.0.clone());
+        let slot = verifier.host.factory().create_variable_slot(&name, read_only, &verifier.host.unresolved_thingy());
+        slot.set_location(Some(shorthand.1.clone()));
+        slot.set_parent(Some(parent.clone()));
+
+        if let Some(prev) = output.get(&name) {
+            verifier.handle_definition_conflict(&prev, &slot)
+        } else {
+            Unused(&verifier.host).add_named_entity(&slot);
+            output.set(name, slot.clone());
+            slot
+        }
+    }
+
     fn verify_object_pattern_omega(verifier: &mut Subverifier, literal: &ObjectInitializer, patslot: &Thingy, init: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
         init.defer()?;
         let init_st = init.static_type(&verifier.host).defer()?;
 
         // Verify fields
-        todo();
+        for field in &literal.fields {
+            match field.as_ref() {
+                InitializerField::Field { name, non_null: _, value: subpat } => {
+                    // Fields have an already attached DeclarativeFieldDestructuringResolution.
+                    // A field is considered already verified if `field_reference()` is `Some`.
+                    let resolution = verifier.host.node_mapping().get(field).unwrap();
+                    if resolution.field_reference().is_some() {
+                        continue;
+                    }
+
+                    todo();
+                },
+                InitializerField::Rest((restpat, loc)) => {
+                    Self::verify_pattern(verifier, restpat, &verifier.host.invalidation_thingy(), read_only, output, ns, parent)?;
+                },
+            }
+        }
 
         verifier.phase_of_thingy.remove(&patslot);
 

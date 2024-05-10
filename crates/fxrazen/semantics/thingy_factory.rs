@@ -571,4 +571,12 @@ impl<'a> ThingyFactory<'a> {
     pub fn create_field_resolution(&self) -> Thingy {
         FieldResolution::new(&self.0.arena).into()
     }
+
+    pub fn create_declarative_field_destructuring_resolution(&self) -> Thingy {
+        DeclarativeFieldDestructuringResolution::new(&self.0.arena).into()
+    }
+
+    pub fn create_assignment_field_destructuring_resolution(&self) -> Thingy {
+        AssignmentFieldDestructuringResolution::new(&self.0.arena).into()
+    }
 }
