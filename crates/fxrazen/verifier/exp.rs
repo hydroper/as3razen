@@ -133,6 +133,7 @@ impl ExpSubverifier {
             cu = cu1;
         } else {
             cu = CompilationUnit::new(None, cdata);
+            cu.set_compiler_options(location.compilation_unit().compiler_options());
             verifier.host.config_constants_cu().set(name, cu.clone());
         }
 
