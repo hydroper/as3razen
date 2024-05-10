@@ -394,24 +394,41 @@ impl DestructuringDeclarationSubverifier {
 
         match phase {
             VerifierPhase::Alpha => {
-                // Verify fields
-                todo();
-
-                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Omega);
-                Err(DeferError(Some(VerifierPhase::Omega)))
+                Self::verify_object_pattern_alpha(verifier, literal, &slot, init, read_only, output, ns, parent)
             },
             VerifierPhase::Omega => {
-                init.defer()?;
-                let init_st = init.static_type(&verifier.host).defer()?;
-
-                // Verify fields
-                todo();
-
-                verifier.phase_of_thingy.remove(&slot);
-
-                Ok(())
+                Self::verify_object_pattern_omega(verifier, literal, &slot, init, read_only, output, ns, parent)
             },
             _ => panic!(),
         }
+    }
+
+    fn verify_object_pattern_alpha(verifier: &mut Subverifier, literal: &ObjectInitializer, patslot: &Thingy, init: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
+        // Verify fields
+        for field in &literal.fields {
+            match field.as_ref() {
+                InitializerField::Field { name, non_null: _, value } => {
+                    todo();
+                },
+                InitializerField::Rest((restpat, loc)) => {
+                    todo();
+                },
+            }
+        }
+
+        verifier.phase_of_thingy.insert(patslot.clone(), VerifierPhase::Omega);
+        Err(DeferError(Some(VerifierPhase::Omega)))
+    }
+
+    fn verify_object_pattern_omega(verifier: &mut Subverifier, literal: &ObjectInitializer, patslot: &Thingy, init: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
+        init.defer()?;
+        let init_st = init.static_type(&verifier.host).defer()?;
+
+        // Verify fields
+        todo();
+
+        verifier.phase_of_thingy.remove(&patslot);
+
+        Ok(())
     }
 }
