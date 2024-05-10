@@ -18,3 +18,6 @@ pub(crate) use destructuring::*;
 
 mod assignment_destructuring;
 pub(crate) use assignment_destructuring::*;
+
+mod function_common;
+pub(crate) use function_common::*;

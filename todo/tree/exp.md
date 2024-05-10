@@ -1,8 +1,8 @@
 # Expressions
 
 * [ ] `Function`
-  * [ ] Verify the formal parameter list
   * [ ] Cache the activation
+  * [ ] Verify the formal parameter list
   * [ ] If there is a function name
     * [ ] Set the function name's self reference to a `Function` typed variable slot if not already in there.
   * [ ] If the result type is specified or the inferTypes option is off

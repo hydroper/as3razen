@@ -63,8 +63,7 @@ impl Verifier {
                 host: host.clone(),
                 cached_var_init: HashMap::new(),
                 phase_of_thingy: HashMap::new(),
-                deferred_directives: vec![],
-                deferred_function_commons: vec![],
+                activation_of_function_common: HashMap::new(),
                 invalidated: false,
                 external: false,
                 // deferred_counter: 0,
@@ -85,7 +84,6 @@ impl Verifier {
         if self.verifier.invalidated {
             panic!("Verifier already invalidated.");
         }
-        self.verifier.reset_state();
 
         todo_here();
     }
@@ -99,7 +97,6 @@ impl Verifier {
         if self.verifier.invalidated {
             panic!("Verifier already invalidated.");
         }
-        self.verifier.reset_state();
 
         let v = self.verifier.verify_expression(exp, context);
         if let Ok(v) = v {
@@ -137,12 +134,12 @@ pub(crate) struct Subverifier {
     pub host: Rc<SemanticHost>,
     /// Temporary cache of variable binding initializers.
     pub cached_var_init: HashMap<NodeAsKey<Rc<Expression>>, Thingy>,
+
     /// Temporary mapping of things to phases.
     pub phase_of_thingy: HashMap<Thingy, VerifierPhase>,
-    /// List of (phase, scope, directive).
-    pub deferred_directives: Vec<(VerifierPhase, Thingy, Rc<Directive>)>,
-    /// List of (phase, scope, common).
-    pub deferred_function_commons: Vec<(VerifierPhase, Thingy, Rc<FunctionCommon>)>,
+
+    pub activation_of_function_common: HashMap<NodeAsKey<Rc<FunctionCommon>>, Thingy>,
+
     invalidated: bool,
     // pub deferred_counter: usize,
     pub scope: Option<Thingy>,
@@ -159,12 +156,6 @@ impl Subverifier {
     /// verifying.
     pub fn invalidated(&self) -> bool {
         self.invalidated
-    }
-
-    fn reset_state(&mut self) {
-        // self.deferred_counter = 0;
-        self.deferred_directives.clear();
-        self.deferred_function_commons.clear();
     }
 
     pub fn add_syntax_error(&mut self, location: &Location, kind: FxDiagnosticKind, arguments: Vec<Rc<dyn DiagnosticArgument>>) {
