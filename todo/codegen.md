@@ -55,3 +55,7 @@ No notes as of yet.
 ## Prototype
 
 * [ ] Do not contribute the "prototype" property from a class object to the AVM2 bytecode. It should be defined implicitly by AVM2.
+
+## Non-null assertion operator
+
+* [ ] For the `o!` operation, do not generate any assertion code, for efficiency (just used for type checking really).

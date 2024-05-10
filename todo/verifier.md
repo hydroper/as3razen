@@ -201,4 +201,4 @@ Error: The return statement cannot be used in package initialization code.
 
 ## Classes and enumerations
 
-* [ ] Do not allow destructuring in variable bindings belonging to class or enum top level declarations.
+* [ ] Do not allow destructuring in variable bindings belonging to package, class, or enum top level declarations. Only simple identifiers (without non-null operator) may be used as variable bindings in these places.

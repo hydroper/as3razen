@@ -295,4 +295,77 @@ impl DestructuringDeclarationSubverifier {
 
         Ok(())
     }
+
+    fn verify_non_null_pattern(verifier: &mut Subverifier, pattern: &Rc<Expression>, literal: &UnaryExpression, init: &Thingy, read_only: bool, output: &mut NameMap, ns: &Thingy, parent: &Thingy) -> Result<(), DeferError> {
+        let mut slot = verifier.host.node_mapping().get(pattern);
+        let mut slot_just_init = false;
+        if slot.is_none() {
+            let name = verifier.host.empty_empty_qname();
+            let slot1 = verifier.host.factory().create_variable_slot(&name, read_only, &verifier.host.unresolved_thingy());
+            slot1.set_parent(Some(parent.clone()));
+            slot = Some(slot1);
+            verifier.host.node_mapping().set(pattern, slot.clone());
+
+            slot_just_init = true;
+        }
+
+        let slot = slot.unwrap();
+
+        let phase = verifier.phase_of_thingy.get(&slot).cloned();
+        if phase.is_none() && !slot_just_init {
+            return Ok(());
+        }
+
+        let phase = phase.unwrap_or(VerifierPhase::Alpha);
+        verifier.phase_of_thingy.insert(slot.clone(), phase);
+
+        match phase {
+            VerifierPhase::Alpha => {
+                // Verify subpattern
+                if let Err(DeferError(subphase)) = Self::verify_pattern(verifier, &literal.expression, &verifier.host.unresolved_thingy(), read_only, output, ns, parent) {
+                    assert_eq!(subphase, Some(VerifierPhase::Omega));
+                }
+
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Omega);
+                Err(DeferError(Some(VerifierPhase::Omega)))
+            },
+            VerifierPhase::Omega => {
+                init.defer()?;
+                let init_st = init.static_type(&verifier.host).defer()?;
+                let init_st_esc = init_st.escape_of_nullable();
+
+                // Assign a type if unresolved
+                if slot.static_type(&verifier.host).is::<UnresolvedThingy>() {
+                    slot.set_static_type(init_st.clone());
+                }
+
+                let init_st_is_non_null =
+                        init_st.includes_null(&verifier.host)?
+                    ||  init_st.includes_undefined(&verifier.host)?;
+
+                let init_st_esc_is_non_null =
+                        init_st_esc.includes_null(&verifier.host)?
+                    ||  init_st_esc.includes_undefined(&verifier.host)?;
+
+                let init_st_non_null = if init_st_esc_is_non_null {
+                    init_st_esc.clone()
+                } else {
+                    verifier.host.factory().create_non_nullable_type(&init_st_esc)
+                };
+
+                // Verify subpattern
+                Self::verify_pattern(verifier, &literal.expression, &verifier.host.factory().create_value(&init_st_non_null), read_only, output, ns, parent)?;
+
+                // Report warning
+                if init_st_is_non_null {
+                    verifier.add_warning(&literal.location, FxDiagnosticKind::ReferenceIsAlreadyNonNullable, diagarg![]);
+                }
+
+                verifier.phase_of_thingy.remove(&slot);
+
+                Ok(())
+            },
+            _ => panic!(),
+        }
+    }
 }
