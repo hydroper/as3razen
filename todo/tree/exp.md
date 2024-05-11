@@ -9,20 +9,5 @@
   * [x] Verify the formal parameter list
   * [x] If the result type is specified, verify it.
   * [ ] FunctionCommon
-    * [x] Set current scope to the activation.
-    * [x] Set the activation method's signature to the last obtained signature if any.
-    * [ ] Verify directives and then statements in a separate cycle context
-    * [ ] Analyse the control flow
-    * [ ] If the signature is fully resolved      
-      * [ ] Ensure all code paths return a value based on the control flow graph
-        * [ ] Result types that do not require a return value are `*`, `void`, `Promise.<*>`, and `Promise.<void>`.
-    * [ ] Otherwise
-      * [ ] Ensure all code paths return a value based on the control flow graph
-      * [ ] Let the result type be the the value type returned from all code points.
-        * [ ] If result types of code paths do not implicitly coerce to that of the first code path, throw a verify error.
-      * [ ] Construct the signature.
-    * [ ] Set the activation method's signature to the last obtained signature. 
-    * [ ] Cleanup the VerifierFunctionPartials cache from Subverifier.
-    * [ ] Return `Ok(())`
   * [x] Set current scope to kScope.
   * [x] Return a `LambdaObject` value.

@@ -83,19 +83,48 @@ impl FunctionCommonSubverifier {
             method.set_signature(&signature);
         }
 
-        // Resolve directives and then statements.
+        // Resolve directives and then statements, or just the expression body.
+        match &common.body {
+            Some(FunctionBody::Block(block)) => {
+                let mut deferred = false;
+                let mut block_scope = host.factory().create_scope();
+                verifier.inherit_and_enter_scope(&block_scope);
+                deferred = DirectiveSubverifier::verify_directives(&block.directives)?;
+                StatementSubverifier::verify_statements(&block.directives);
+                verifier.exit_scope();
+            },
+            Some(FunctionBody::Expression(exp)) => {
+                if let Some(result_type) = partials.result_type() {
+                    verifier.imp_coerce_exp(exp, &result_type)?;
+                } else {
+                    verifier.verify_expression(exp, &default())?;
+                }
+            },
+            None => {},
+        }
+
+        // Analyse the control flow.
         todo_here();
 
-        // If the signature is fully resolved, analyse the control flow,
-        // and ensure all code paths return a value.
+        // If the signature is fully resolved, ensure all code paths return a value.
+        // Result types that do not require a return value are
+        // `*`, `void`, `Promise.<*>`, and `Promise.<void>`.
         if let Some(signature) = partials.signature() {
             todo_here();
         // If the signature is not fully resolved due to unknown result type,
-        // .
+        // collect the result value types returned from all code paths,
+        // ensure the result of all code paths implicitly coerce to the first code path's
+        // result's type, and construct the signature into the signature local.
         } else {
             todo_here();
         }
 
-        todo_here()
+        // Set the activation method's signature to the last obtained signature. 
+        method.set_signature(&signature.unwrap());
+
+        // Cleanup the VerifierFunctionPartials cache from Subverifier.
+        verifier.deferred_function_exp.remove(&NodeAsKey(common.clone()));
+
+        Ok(())
     }
 }

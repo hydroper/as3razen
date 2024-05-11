@@ -59,3 +59,9 @@ No notes as of yet.
 ## Non-null assertion operator
 
 * [ ] For the `o!` operation, do not generate any assertion code, for efficiency (just used for type checking really).
+
+## Asynchronous methods
+
+Asynchronous methods should generate code differently for the return statement and the end block of the method's control flow. It should invoke the resolve function for such. It should invoke the reject function for any caught exception.
+
+The control flow is handled in a special way in asynchronous methods, which requires some research before just going into codegen directly.
