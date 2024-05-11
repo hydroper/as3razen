@@ -1699,46 +1699,50 @@ impl ExpSubverifier {
         let mut params: Vec<Rc<SemanticFunctionTypeParameter>> = vec![];
         let mut last_param_kind = ParameterKind::Required;
 
-        for param_node in &common.signature.parameters {
-            match param_node.kind {
-                ParameterKind::Required => {
-                    let param_type;
-                    if let Some(type_annot) = param_node.destructuring.type_annotation.as_ref() {
-                        param_type = verifier.verify_type_expression(type_annot)?.unwrap_or(host.invalidation_thingy());
-                    } else {
-                        param_type = host.any_type();
-                    }
-
-                    let init = verifier.cache_var_init(&param_node.destructuring.destructuring, || host.factory().create_value(&param_type));
-
-                    if last_param_kind.may_be_followed_by(param_node.kind) {
-                        loop {
-                            match DestructuringDeclarationSubverifier::verify_pattern(verifier, &param_node.destructuring.destructuring, &init, false, &mut activation.properties(&host), &internal_ns, &activation) {
-                                Ok(_) => {
-                                    break;
-                                },
-                                Err(DeferError(Some(VerifierPhase::Beta))) |
-                                Err(DeferError(Some(VerifierPhase::Omega))) => {},
-                                Err(DeferError(_)) => {
-                                    return Err(DeferError(None));
-                                },
-                            }
+        if partials.params().is_none() {
+            for param_node in &common.signature.parameters {
+                match param_node.kind {
+                    ParameterKind::Required => {
+                        let param_type;
+                        if let Some(type_annot) = param_node.destructuring.type_annotation.as_ref() {
+                            param_type = verifier.verify_type_expression(type_annot)?.unwrap_or(host.invalidation_thingy());
+                        } else {
+                            param_type = host.any_type();
                         }
 
-                        params.push(Rc::new(SemanticFunctionTypeParameter {
-                            kind: param_node.kind,
-                            static_type: param_type.clone(),
-                        }));
-                    }
-                },
-                ParameterKind::Optional => {
-                    todo();
-                },
-                ParameterKind::Rest => {
-                    todo();
-                },
+                        let init = verifier.cache_var_init(&param_node.destructuring.destructuring, || host.factory().create_value(&param_type));
+
+                        if last_param_kind.may_be_followed_by(param_node.kind) {
+                            loop {
+                                match DestructuringDeclarationSubverifier::verify_pattern(verifier, &param_node.destructuring.destructuring, &init, false, &mut activation.properties(&host), &internal_ns, &activation) {
+                                    Ok(_) => {
+                                        break;
+                                    },
+                                    Err(DeferError(Some(VerifierPhase::Beta))) |
+                                    Err(DeferError(Some(VerifierPhase::Omega))) => {},
+                                    Err(DeferError(_)) => {
+                                        return Err(DeferError(None));
+                                    },
+                                }
+                            }
+
+                            params.push(Rc::new(SemanticFunctionTypeParameter {
+                                kind: param_node.kind,
+                                static_type: param_type.clone(),
+                            }));
+                        }
+                    },
+                    ParameterKind::Optional => {
+                        todo();
+                    },
+                    ParameterKind::Rest => {
+                        todo();
+                    },
+                }
+                last_param_kind = param_node.kind;
             }
-            last_param_kind = param_node.kind;
+
+            partials.set_params(Some(params));
         }
 
         todo()
