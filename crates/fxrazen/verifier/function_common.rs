@@ -103,8 +103,10 @@ impl FunctionCommonSubverifier {
             None => {},
         }
 
-        // Analyse the control flow.
-        todo_here();
+        // Analyse the control flow (for block only).
+        if let Some(FunctionBody::Block(block)) = &common.body {
+            ControlFlowAnalyser::analyse_directives(&block.directives, &activation.control_flow_graph());
+        }
 
         // If the signature is fully resolved, ensure all code paths return a value.
         // Result types that do not require a return value are
