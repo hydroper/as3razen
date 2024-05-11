@@ -1653,6 +1653,7 @@ impl ExpSubverifier {
     }
 
     pub fn verify_function_exp(verifier: &mut Subverifier, exp: &FunctionExpression) -> Result<Option<Thingy>, DeferError> {
+        let kscope = verifier.scope();
         let common = exp.common.clone();
         let mut partials = verifier.deferred_function_exp.get(&NodeAsKey(common.clone()));
         if partials.is_none() {
@@ -1667,7 +1668,7 @@ impl ExpSubverifier {
             let act = verifier.host.factory().create_activation(&method);
             let cu = exp.location.compilation_unit();
             if CompilerOptions::of(&cu).inherit_this_type {
-                let super_act = verifier.scope().search_activation();
+                let super_act = kscope.search_activation();
                 let super_this_type = super_act.and_then(|a| a.this().map(|this| this.static_type(&verifier.host)));
                 act.set_this(Some(verifier.host.factory().create_this_object(&super_this_type.unwrap_or(verifier.host.any_type()))));
             } else {
@@ -1677,8 +1678,11 @@ impl ExpSubverifier {
             let partials1 = VerifierFunctionPartials::new(&act);
             verifier.deferred_function_exp.set(NodeAsKey(common.clone()), partials1.clone());
             partials = Some(partials1);
+
+            verifier.inherit_and_enter_scope(&act);
         }
         let partials = partials.unwrap();
+
         todo()
     }
 }

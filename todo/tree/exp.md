@@ -1,9 +1,9 @@
 # Expressions
 
 * [ ] `Function`
-  * [ ] Cache the VerifierFunctionPartials of the FunctionCommon in the Subverifier.
-  * [ ] Let kScope be the current scope
-  * [ ] Inherit scope and enter activation.
+  * [x] Let kScope be the current scope  
+  * [x] Cache the VerifierFunctionPartials of the FunctionCommon in the Subverifier.
+    * [x] For the first time only, inherit scope and enter activation.
   * [ ] If there is a function name
       * [ ] Set the function name's self reference to a `Function` typed variable slot if not already in there.
   * [ ] Verify the formal parameter list
