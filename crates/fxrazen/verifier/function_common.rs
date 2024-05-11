@@ -65,7 +65,23 @@ pub(crate) struct FunctionCommonSubverifier;
 
 impl FunctionCommonSubverifier {
     pub fn verify_function_exp_common(verifier: &mut Subverifier, common: &Rc<FunctionCommon>, partials: &VerifierFunctionPartials) -> Result<(), DeferError> {
+        let host = verifier.host.clone();
         verifier.set_scope(&partials.activation());
+
+        // Attempt to create signature
+        let mut signature: Option<Thingy> = None;
+        if partials.signature().is_none() && partials.result_type().is_some() {
+            let signature1 = host.factory().create_function_type(partials.params().as_ref().unwrap().clone(), partials.result_type().unwrap());
+            partials.set_signature(Some(signature1.clone()));
+            signature = Some(signature1);
+        }
+
+        if let Some(signature) = partials.signature() {
+            //
+        } else {
+            //
+        }
+
         todo()
     }
 }

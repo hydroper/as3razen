@@ -10,8 +10,7 @@
   * [x] If the result type is specified, verify it.
   * [ ] FunctionCommon
     * [x] Set current scope to the activation.
-    * [ ] If the result type is already assigned
-      * [ ] Construct the signature
+    * [ ] If the signature is fully resolved
       * [ ] Verify directives and then statements in a separate cycle context
       * [ ] Analyse the control flow
       * [ ] Ensure all code paths return a value based on the control flow graph
@@ -22,6 +21,9 @@
       * [ ] Ensure all code paths return a value based on the control flow graph
       * [ ] Let the result type be the the value type returned from all code points.
         * [ ] If result types of code paths do not implicitly coerce to that of the first code path, throw a verify error.
+      * [ ] Construct the signature.
+    * [ ] Set the activation method's signature to the last obtained signature. 
     * [ ] Cleanup the VerifierFunctionPartials cache from Subverifier.
+    * [ ] Return `Ok(())`
   * [x] Set current scope to kScope.
   * [x] Return a `LambdaObject` value.
