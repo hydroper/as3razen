@@ -9,6 +9,7 @@ impl VerifierFunctionPartials {
             activation: activation.clone(),
             params: RefCell::new(None),
             result_type: RefCell::new(None),
+            signature: RefCell::new(None),
             // directives_finished: Cell::new(false),
         }))
     }
@@ -33,6 +34,14 @@ impl VerifierFunctionPartials {
         self.0.result_type.replace(thingy);
     }
 
+    pub fn signature(&self) -> Option<Thingy> {
+        self.0.signature.borrow().as_ref().cloned()
+    }
+
+    pub fn set_signature(&self, thingy: Option<Thingy>) {
+        self.0.signature.replace(thingy);
+    }
+
     /*
     pub fn directives_finished(&self) -> bool {
         self.0.directives_finished.get()
@@ -48,6 +57,7 @@ struct VerifierFunctionPartials1 {
     pub activation: Thingy,
     pub params: RefCell<Option<Vec<Rc<SemanticFunctionTypeParameter>>>>,
     pub result_type: RefCell<Option<Thingy>>,
+    pub signature: RefCell<Option<Thingy>>,
     // pub directives_finished: Cell<bool>,
 }
 

@@ -17,6 +17,12 @@ Across all compilation units, directives should be verified first, from a packag
 
 A special pass after the initial package pass is done for resolving wildcard (`.*`) and recursive (`.**`) package concatenation directives.
 
+## Directives versus statements
+
+The `DirectiveSubverifier::verify_directive()` method will verify a directive, for certain directives and the block statement, their subdirectives until a limit (for example, from class goes until methods, and from a block statement goes until subdirectives).
+
+The `StatementSubverifier::verify_statement()` method will verify a statement or all substatements from a directive such as a class or function definition. It does not throw a defer error; anything that defers will result into a verify error.
+
 ## Variable definitions
 
 * [ ] Assign ASDoc to the first topmost variable binding's slot after full resolution.
