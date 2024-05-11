@@ -1710,7 +1710,50 @@ impl ExpSubverifier {
                             param_type = host.any_type();
                         }
 
-                        let init = verifier.cache_var_init(&param_node.destructuring.destructuring, || host.factory().create_value(&param_type));
+                        let pattern = &param_node.destructuring.destructuring;
+                        let init = verifier.cache_var_init(pattern, || host.factory().create_value(&param_type));
+
+                        if last_param_kind.may_be_followed_by(param_node.kind) {
+                            loop {
+                                match DestructuringDeclarationSubverifier::verify_pattern(verifier, pattern, &init, false, &mut activation.properties(&host), &internal_ns, &activation) {
+                                    Ok(_) => {
+                                        break;
+                                    },
+                                    Err(DeferError(Some(VerifierPhase::Beta))) |
+                                    Err(DeferError(Some(VerifierPhase::Omega))) => {},
+                                    Err(DeferError(_)) => {
+                                        return Err(DeferError(None));
+                                    },
+                                }
+                            }
+
+                            params.push(Rc::new(SemanticFunctionTypeParameter {
+                                kind: param_node.kind,
+                                static_type: param_type.clone(),
+                            }));
+
+                            verifier.cached_var_init.remove(&NodeAsKey(pattern.clone()));
+                        }
+                    },
+                    ParameterKind::Optional => {
+                        let param_type;
+                        if let Some(type_annot) = param_node.destructuring.type_annotation.as_ref() {
+                            param_type = verifier.verify_type_expression(type_annot)?.unwrap_or(host.invalidation_thingy());
+                        } else {
+                            param_type = host.any_type();
+                        }
+
+                        let pattern = &param_node.destructuring.destructuring;
+                        let mut init;
+                        if let Some(init1) = verifier.cached_var_init.get(&NodeAsKey(pattern.clone())) {
+                            init = init1.clone();
+                        } else {
+                            init = verifier.imp_coerce_exp(param_node.default_value.as_ref().unwrap(), &param_type)?.unwrap_or(host.invalidation_thingy());
+                            verifier.cached_var_init.insert(NodeAsKey(pattern.clone()), init.clone());
+                            if !init.is::<InvalidationThingy>() && !init.static_type(&host).is::<Constant>() {
+                                verifier.add_verify_error(&param_node.default_value.as_ref().unwrap().location(), FxDiagnosticKind::EntityIsNotAConstant, diagarg![]);
+                            }
+                        }
 
                         if last_param_kind.may_be_followed_by(param_node.kind) {
                             loop {
@@ -1730,13 +1773,46 @@ impl ExpSubverifier {
                                 kind: param_node.kind,
                                 static_type: param_type.clone(),
                             }));
+
+                            verifier.cached_var_init.remove(&NodeAsKey(pattern.clone()));
                         }
                     },
-                    ParameterKind::Optional => {
-                        todo();
-                    },
                     ParameterKind::Rest => {
-                        todo();
+                        let mut param_type;
+                        if let Some(type_annot) = param_node.destructuring.type_annotation.as_ref() {
+                            param_type = verifier.verify_type_expression(type_annot)?.unwrap_or(host.array_type().defer()?.type_substitution(&host, &host.array_type().defer()?.type_params().unwrap(), &shared_array![host.invalidation_thingy()]));
+                            if param_type.array_element_type(&host)?.is_none() {
+                                verifier.add_verify_error(&type_annot.location(), FxDiagnosticKind::RestParameterMustBeArray, diagarg![]);
+                                param_type = host.array_type().defer()?.type_substitution(&host, &host.array_type().defer()?.type_params().unwrap(), &shared_array![host.invalidation_thingy()]);
+                            }
+                        } else {
+                            param_type = host.array_type_of_any()?;
+                        }
+
+                        let pattern = &param_node.destructuring.destructuring;
+                        let init = verifier.cache_var_init(pattern, || host.factory().create_value(&param_type));
+
+                        if last_param_kind.may_be_followed_by(param_node.kind) && last_param_kind != ParameterKind::Rest {
+                            loop {
+                                match DestructuringDeclarationSubverifier::verify_pattern(verifier, pattern, &init, false, &mut activation.properties(&host), &internal_ns, &activation) {
+                                    Ok(_) => {
+                                        break;
+                                    },
+                                    Err(DeferError(Some(VerifierPhase::Beta))) |
+                                    Err(DeferError(Some(VerifierPhase::Omega))) => {},
+                                    Err(DeferError(_)) => {
+                                        return Err(DeferError(None));
+                                    },
+                                }
+                            }
+
+                            params.push(Rc::new(SemanticFunctionTypeParameter {
+                                kind: param_node.kind,
+                                static_type: param_type.clone(),
+                            }));
+
+                            verifier.cached_var_init.remove(&NodeAsKey(pattern.clone()));
+                        }
                     },
                 }
                 last_param_kind = param_node.kind;

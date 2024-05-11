@@ -6,7 +6,7 @@
     * [x] For the first time only, inherit scope and enter activation.
   * [x] If there is a function name
       * [x] Set the function name's self reference to a `Function` typed variable slot if not already in there.
-  * [ ] Verify the formal parameter list
+  * [x] Verify the formal parameter list
   * [ ] If the result type is specified, verify it.
   * [ ] FunctionCommon
     * [ ] Set current scope to the activation.

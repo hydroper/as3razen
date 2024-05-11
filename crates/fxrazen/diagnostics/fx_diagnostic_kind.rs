@@ -51,6 +51,7 @@ pub enum FxDiagnosticKind {
     DuplicateInterfaceDefinition = 2095,
     DuplicateFunctionDefinition = 2096,
     UnexpectedFieldNameInDestructuring = 2097,
+    EntityIsNotAConstant = 2098,
 }
 
 impl FxDiagnosticKind {
