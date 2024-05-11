@@ -42,7 +42,7 @@ impl VerifierFunctionPartials {
     }
 }
 
-pub(crate) struct VerifierFunctionPartials1 {
+struct VerifierFunctionPartials1 {
     pub activation: Thingy,
     pub params: RefCell<Option<Vec<Rc<SemanticFunctionTypeParameter>>>>,
     pub result_type: RefCell<Option<Thingy>>,

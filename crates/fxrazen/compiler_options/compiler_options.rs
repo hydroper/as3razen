@@ -15,6 +15,9 @@ pub struct CompilerOptions {
     pub warnings: CompilerWarningOptions,
     /// Used for identifying the AS3 package in a MXML source tree.
     pub source_path: Vec<String>,
+    /// Used for inheriting the type of the `this` object.
+    /// Switch it off if it breaks an existing program.
+    pub inherit_this_type: bool,
 }
 
 impl CompilerOptions {
@@ -39,6 +42,7 @@ impl Default for CompilerOptions {
             asdoc_markdown: true,
             warnings: Default::default(),
             source_path: vec![],
+            inherit_this_type: true,
         }
     }
 }

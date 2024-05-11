@@ -1653,6 +1653,32 @@ impl ExpSubverifier {
     }
 
     pub fn verify_function_exp(verifier: &mut Subverifier, exp: &FunctionExpression) -> Result<Option<Thingy>, DeferError> {
+        let common = exp.common.clone();
+        let mut partials = verifier.deferred_function_exp.get(&NodeAsKey(common.clone()));
+        if partials.is_none() {
+            let name = if let Some(name1) = &exp.name {
+                verifier.host.factory().create_qname(&verifier.host.factory().create_user_ns("".into()), name1.0.clone())
+            } else {
+                verifier.host.empty_empty_qname()
+            };
+            let method = verifier.host.factory().create_method_slot(&name, &verifier.host.unresolved_thingy());
+            method.set_is_async(common.contains_await);
+            method.set_is_generator(common.contains_yield);
+            let act = verifier.host.factory().create_activation(&method);
+            let cu = exp.location.compilation_unit();
+            if CompilerOptions::of(&cu).inherit_this_type {
+                let super_act = verifier.scope().search_activation();
+                let super_this_type = super_act.and_then(|a| a.this().map(|this| this.static_type(&verifier.host)));
+                act.set_this(Some(verifier.host.factory().create_this_object(&super_this_type.unwrap_or(verifier.host.any_type()))));
+            } else {
+                act.set_this(Some(verifier.host.factory().create_this_object(&verifier.host.any_type())));
+            }
+
+            let partials1 = VerifierFunctionPartials::new(&act);
+            verifier.deferred_function_exp.set(NodeAsKey(common.clone()), partials1.clone());
+            partials = Some(partials1);
+        }
+        let partials = partials.unwrap();
         todo()
     }
 }

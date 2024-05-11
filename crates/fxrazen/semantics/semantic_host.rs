@@ -163,7 +163,7 @@ impl SemanticHost {
         &self.node_mapping
     }
 
-    pub fn lazy_node_mapping<T>(&self, node: &Rc<T>, init: impl Fn() -> Thingy) -> Thingy
+    pub fn lazy_node_mapping<T>(&self, node: &Rc<T>, init: impl FnOnce() -> Thingy) -> Thingy
         where TreeSemantics<Thingy>: TreeSemanticsAccessor<T, Thingy>
     {
         if let Some(m) = self.node_mapping().get(node) {
