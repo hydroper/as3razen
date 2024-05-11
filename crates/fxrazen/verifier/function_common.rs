@@ -4,8 +4,9 @@ use crate::ns::*;
 pub(crate) struct VerifierFunctionPartials(Rc<VerifierFunctionPartials1>);
 
 impl VerifierFunctionPartials {
-    pub fn new(activation: &Thingy) -> Self {
+    pub fn new(activation: &Thingy, name_span: &Location) -> Self {
         Self(Rc::new(VerifierFunctionPartials1 {
+            name_span: name_span.clone(),
             activation: activation.clone(),
             params: RefCell::new(None),
             result_type: RefCell::new(None),
@@ -16,6 +17,10 @@ impl VerifierFunctionPartials {
 
     pub fn activation(&self) -> Thingy {
         self.0.activation.clone()
+    }
+
+    pub fn name_span(&self) -> Location {
+        self.0.name_span.clone()
     }
 
     pub fn params(&self) -> std::cell::Ref<Option<Vec<Rc<SemanticFunctionTypeParameter>>>> {
@@ -55,6 +60,7 @@ impl VerifierFunctionPartials {
 
 struct VerifierFunctionPartials1 {
     pub activation: Thingy,
+    pub name_span: Location,
     pub params: RefCell<Option<Vec<Rc<SemanticFunctionTypeParameter>>>>,
     pub result_type: RefCell<Option<Thingy>>,
     pub signature: RefCell<Option<Thingy>>,
@@ -64,11 +70,13 @@ struct VerifierFunctionPartials1 {
 pub(crate) struct FunctionCommonSubverifier;
 
 impl FunctionCommonSubverifier {
-    pub fn verify_function_exp_common(verifier: &mut Subverifier, common: &Rc<FunctionCommon>, name_span: &Location, partials: &VerifierFunctionPartials) -> Result<(), DeferError> {
+    pub fn verify_function_exp_common(verifier: &mut Subverifier, common: &Rc<FunctionCommon>, partials: &VerifierFunctionPartials) -> Result<(), DeferError> {
         let host = verifier.host.clone();
         let activation =  partials.activation();
         let method = activation.of_method();
         verifier.set_scope(&activation);
+
+        let name_span = partials.name_span();
 
         // Attempt to create signature
         let mut signature: Option<Thingy> = None;
@@ -77,7 +85,7 @@ impl FunctionCommonSubverifier {
 
             if common.contains_await && !result_type.promise_result_type(&host)?.is_some() {
                 verifier.add_verify_error(&name_span, FxDiagnosticKind::ReturnTypeDeclarationMustBePromise, diagarg![]);
-                result_type = host.promise_type().defer()?.type_substitution(&host, &host.promise_type(), &shared_array![host.invalidation_thingy()])
+                result_type = host.promise_type().defer()?.type_substitution(&host, &host.promise_type().defer()?.type_params().unwrap(), &shared_array![host.invalidation_thingy()])
             }
 
             let signature1 = host.factory().create_function_type(partials.params().as_ref().unwrap().clone(), result_type);

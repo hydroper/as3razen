@@ -4,6 +4,8 @@ use crate::ns::*;
 /// 
 /// - `Alpha`
 /// - `Beta`
+/// - `Delta`
+/// - `Epsilon`
 /// - `Omega`
 pub(crate) struct DestructuringDeclarationSubverifier;
 
@@ -71,6 +73,14 @@ impl DestructuringDeclarationSubverifier {
                 Err(DeferError(Some(VerifierPhase::Beta)))
             },
             VerifierPhase::Beta => {
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Delta);
+                Err(DeferError(Some(VerifierPhase::Delta)))
+            },
+            VerifierPhase::Delta => {
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Epsilon);
+                Err(DeferError(Some(VerifierPhase::Epsilon)))
+            },
+            VerifierPhase::Epsilon => {
                 verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Omega);
                 Err(DeferError(Some(VerifierPhase::Omega)))
             },
@@ -149,6 +159,14 @@ impl DestructuringDeclarationSubverifier {
                 Err(DeferError(Some(VerifierPhase::Beta)))
             },
             VerifierPhase::Beta => {
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Delta);
+                Err(DeferError(Some(VerifierPhase::Delta)))
+            },
+            VerifierPhase::Delta => {
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Epsilon);
+                Err(DeferError(Some(VerifierPhase::Epsilon)))
+            },
+            VerifierPhase::Epsilon => {
                 verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Omega);
                 Err(DeferError(Some(VerifierPhase::Omega)))
             },
@@ -323,6 +341,14 @@ impl DestructuringDeclarationSubverifier {
                 Err(DeferError(Some(VerifierPhase::Beta)))
             },
             VerifierPhase::Beta => {
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Delta);
+                Err(DeferError(Some(VerifierPhase::Delta)))
+            },
+            VerifierPhase::Delta => {
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Epsilon);
+                Err(DeferError(Some(VerifierPhase::Epsilon)))
+            },
+            VerifierPhase::Epsilon => {
                 verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Omega);
                 Err(DeferError(Some(VerifierPhase::Omega)))
             },
@@ -394,6 +420,14 @@ impl DestructuringDeclarationSubverifier {
                 Self::verify_object_pattern_alpha(verifier, literal, &slot, read_only, output, ns, parent)
             },
             VerifierPhase::Beta => {
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Delta);
+                Err(DeferError(Some(VerifierPhase::Delta)))
+            },
+            VerifierPhase::Delta => {
+                verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Epsilon);
+                Err(DeferError(Some(VerifierPhase::Epsilon)))
+            },
+            VerifierPhase::Epsilon => {
                 verifier.phase_of_thingy.insert(slot.clone(), VerifierPhase::Omega);
                 Err(DeferError(Some(VerifierPhase::Omega)))
             },

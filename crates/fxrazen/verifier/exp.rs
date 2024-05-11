@@ -1669,6 +1669,8 @@ impl ExpSubverifier {
         let cu = exp.location.compilation_unit();
         let compiler_options = CompilerOptions::of(&cu);
 
+        let name_span = exp.name.as_ref().map(|name| &name.1).unwrap_or(&exp.location);
+
         let mut partials = verifier.deferred_function_exp.get(&NodeAsKey(common.clone()));
         if partials.is_none() {
             let method = host.factory().create_method_slot(&name, &host.unresolved_thingy());
@@ -1683,7 +1685,7 @@ impl ExpSubverifier {
                 act.set_this(Some(host.factory().create_this_object(&host.any_type())));
             }
 
-            let partials1 = VerifierFunctionPartials::new(&act);
+            let partials1 = VerifierFunctionPartials::new(&act, name_span);
             verifier.deferred_function_exp.set(NodeAsKey(common.clone()), partials1.clone());
             partials = Some(partials1);
 
@@ -1721,6 +1723,9 @@ impl ExpSubverifier {
                                     Ok(_) => {
                                         break;
                                     },
+                                    Err(DeferError(Some(VerifierPhase::Beta))) |
+                                    Err(DeferError(Some(VerifierPhase::Delta))) |
+                                    Err(DeferError(Some(VerifierPhase::Epsilon))) |
                                     Err(DeferError(Some(VerifierPhase::Beta))) |
                                     Err(DeferError(Some(VerifierPhase::Omega))) => {},
                                     Err(DeferError(_)) => {
@@ -1764,6 +1769,9 @@ impl ExpSubverifier {
                                         break;
                                     },
                                     Err(DeferError(Some(VerifierPhase::Beta))) |
+                                    Err(DeferError(Some(VerifierPhase::Delta))) |
+                                    Err(DeferError(Some(VerifierPhase::Epsilon))) |
+                                    Err(DeferError(Some(VerifierPhase::Beta))) |
                                     Err(DeferError(Some(VerifierPhase::Omega))) => {},
                                     Err(DeferError(_)) => {
                                         return Err(DeferError(None));
@@ -1801,6 +1809,9 @@ impl ExpSubverifier {
                                         break;
                                     },
                                     Err(DeferError(Some(VerifierPhase::Beta))) |
+                                    Err(DeferError(Some(VerifierPhase::Delta))) |
+                                    Err(DeferError(Some(VerifierPhase::Epsilon))) |
+                                    Err(DeferError(Some(VerifierPhase::Beta))) |
                                     Err(DeferError(Some(VerifierPhase::Omega))) => {},
                                     Err(DeferError(_)) => {
                                         return Err(DeferError(None));
@@ -1823,8 +1834,6 @@ impl ExpSubverifier {
             partials.set_params(Some(params));
         }
 
-        let name_span = exp.name.as_ref().map(|name| &name.1).unwrap_or(&exp.location);
-
         if let Some(result_annot) = common.signature.result_type.as_ref() {
             if partials.result_type().is_none() {
                 let result_type = verifier.verify_type_expression(result_annot)?.unwrap_or(host.invalidation_thingy());
@@ -1835,7 +1844,7 @@ impl ExpSubverifier {
             partials.set_result_type(Some(if common.contains_await { host.promise_type_of_any()? } else { host.any_type() }));
         }
 
-        let _ = FunctionCommonSubverifier::verify_function_exp_common(verifier, &common, name_span, &partials);
+        let _ = FunctionCommonSubverifier::verify_function_exp_common(verifier, &common, &partials);
 
         verifier.set_scope(&kscope);
 
