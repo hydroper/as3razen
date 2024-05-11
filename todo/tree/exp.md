@@ -4,8 +4,8 @@
   * [x] Let kScope be the current scope  
   * [x] Cache the VerifierFunctionPartials of the FunctionCommon in the Subverifier.
     * [x] For the first time only, inherit scope and enter activation.
-  * [ ] If there is a function name
-      * [ ] Set the function name's self reference to a `Function` typed variable slot if not already in there.
+  * [x] If there is a function name
+      * [x] Set the function name's self reference to a `Function` typed variable slot if not already in there.
   * [ ] Verify the formal parameter list
   * [ ] If the result type is specified, verify it.
   * [ ] FunctionCommon

@@ -1653,26 +1653,30 @@ impl ExpSubverifier {
     }
 
     pub fn verify_function_exp(verifier: &mut Subverifier, exp: &FunctionExpression) -> Result<Option<Thingy>, DeferError> {
+        let host = verifier.host.clone();
         let kscope = verifier.scope();
+
         let common = exp.common.clone();
+
+        let name = if let Some(name1) = &exp.name {
+            verifier.host.factory().create_qname(&kscope.search_system_ns_in_scope_chain(SystemNamespaceKind::Internal).unwrap(), name1.0.clone())
+        } else {
+            verifier.host.empty_empty_qname()
+        };
+
         let mut partials = verifier.deferred_function_exp.get(&NodeAsKey(common.clone()));
         if partials.is_none() {
-            let name = if let Some(name1) = &exp.name {
-                verifier.host.factory().create_qname(&verifier.host.factory().create_user_ns("".into()), name1.0.clone())
-            } else {
-                verifier.host.empty_empty_qname()
-            };
-            let method = verifier.host.factory().create_method_slot(&name, &verifier.host.unresolved_thingy());
+            let method = host.factory().create_method_slot(&name, &host.unresolved_thingy());
             method.set_is_async(common.contains_await);
             method.set_is_generator(common.contains_yield);
-            let act = verifier.host.factory().create_activation(&method);
+            let act = host.factory().create_activation(&method);
             let cu = exp.location.compilation_unit();
             if CompilerOptions::of(&cu).inherit_this_type {
                 let super_act = kscope.search_activation();
                 let super_this_type = super_act.and_then(|a| a.this().map(|this| this.static_type(&verifier.host)));
-                act.set_this(Some(verifier.host.factory().create_this_object(&super_this_type.unwrap_or(verifier.host.any_type()))));
+                act.set_this(Some(host.factory().create_this_object(&super_this_type.unwrap_or(host.any_type()))));
             } else {
-                act.set_this(Some(verifier.host.factory().create_this_object(&verifier.host.any_type())));
+                act.set_this(Some(host.factory().create_this_object(&host.any_type())));
             }
 
             let partials1 = VerifierFunctionPartials::new(&act);
@@ -1682,6 +1686,13 @@ impl ExpSubverifier {
             verifier.inherit_and_enter_scope(&act);
         }
         let partials = partials.unwrap();
+        let activation = partials.activation();
+
+        if exp.name.is_some() && !activation.properties(&host).borrow().contains_key(&name) {
+            let this_func_var = host.factory().create_variable_slot(&name, false, &host.function_type().defer()?);
+            this_func_var.set_parent(Some(activation.clone()));
+            activation.properties(&host).set(name.clone(), this_func_var);
+        }
 
         todo()
     }
