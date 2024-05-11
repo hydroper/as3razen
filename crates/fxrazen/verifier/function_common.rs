@@ -86,10 +86,9 @@ impl FunctionCommonSubverifier {
         // Resolve directives and then statements, or just the expression body.
         match &common.body {
             Some(FunctionBody::Block(block)) => {
-                let mut deferred = false;
                 let mut block_scope = host.factory().create_scope();
                 verifier.inherit_and_enter_scope(&block_scope);
-                deferred = DirectiveSubverifier::verify_directives(&block.directives)?;
+                DirectiveSubverifier::verify_directives(&block.directives)?;
                 StatementSubverifier::verify_statements(&block.directives);
                 verifier.exit_scope();
             },
@@ -105,7 +104,7 @@ impl FunctionCommonSubverifier {
 
         // Analyse the control flow (for block only).
         if let Some(FunctionBody::Block(block)) = &common.body {
-            ControlFlowAnalyser::analyse_directives(&block.directives, &activation.control_flow_graph());
+            ControlFlowAnalyser::analyse_directives(&block.directives, &activation.control_flow_graph(), &mut vec![]);
         }
 
         // If the signature is fully resolved, ensure all code paths return a value.
