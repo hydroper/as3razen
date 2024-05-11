@@ -21,3 +21,9 @@ pub(crate) use assignment_destructuring::*;
 
 mod function_common;
 pub(crate) use function_common::*;
+
+mod directive;
+pub(crate) use directive::*;
+
+mod statement;
+pub(crate) use statement::*;
