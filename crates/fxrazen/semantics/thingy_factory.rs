@@ -483,6 +483,18 @@ impl<'a> ThingyFactory<'a> {
         Ok(NamespaceConstant::new(&self.0.arena, referenced_ns, &self.0.namespace_type().defer()?).into())
     }
 
+    pub(crate) fn create_namespace_constant_with_static_type(&self, referenced_ns: &Thingy, static_type: &Thingy) -> Thingy {
+        NamespaceConstant::new(&self.0.arena, referenced_ns, static_type).into()
+    }
+
+    pub fn create_type_constant(&self, referenced_type: &Thingy) -> Result<Thingy, DeferError> {
+        Ok(TypeConstant::new(&self.0.arena, referenced_type, &self.0.class_type().defer()?).into())
+    }
+
+    pub(crate) fn create_type_constant_with_static_type(&self, referenced_type: &Thingy, static_type: &Thingy) -> Thingy {
+        TypeConstant::new(&self.0.arena, referenced_type, static_type).into()
+    }
+
     pub fn create_number_constant(&self, value: NumberVariant, static_type: &Thingy) -> Thingy {
         NumberConstant::new(&self.0.arena, value, static_type).into()
     }
@@ -497,10 +509,6 @@ impl<'a> ThingyFactory<'a> {
 
     pub fn create_this_object(&self, static_type: &Thingy) -> Thingy {
         ThisObject::new(&self.0.arena, static_type).into()
-    }
-
-    pub fn create_type_as_reference_value(&self, referenced_type: &Thingy) -> Result<Thingy, DeferError> {
-        Ok(TypeAsReferenceValue::new(&self.0.arena, referenced_type, &self.0.class_type().defer()?).into())
     }
 
     pub fn create_xml_reference_value(&self, base: &Thingy, qualifier: Option<Thingy>, key: &Thingy) -> Thingy {

@@ -518,7 +518,7 @@ smodel! {
                 self.is::<NullableType>() ||
                 self.is::<NonNullableType>() ||
                 self.is::<TypeAfterSubstitution>()) {
-                return host.factory().create_type_as_reference_value(self);
+                return host.factory().create_type_constant(self);
             }
             if self.is::<Namespace>() {
                 return host.factory().create_namespace_constant(self);
@@ -872,7 +872,7 @@ smodel! {
         }
 
         pub fn as_type(&self) -> Option<Thingy> {
-            if self.is::<TypeAsReferenceValue>() {
+            if self.is::<TypeConstant>() {
                 return Some(self.referenced_type());
             }
             if self.is::<FixtureReferenceValue>() {
@@ -3173,6 +3173,27 @@ smodel! {
         pub override fn is_namespace_or_ns_constant(&self) -> bool {
             true
         }
+
+        pub override fn clone_constant(&self, host: &SemanticHost) -> Thingy {
+            host.factory().create_namespace_constant_with_static_type(&self.referenced_ns(), &self.static_type(host))
+        }
+    }
+
+    pub struct TypeConstant: Constant {
+        let ref m_type: Option<Thingy> = None;
+
+        pub(crate) fn TypeConstant(referenced_type: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_type(Some(referenced_type.clone()));
+        }
+
+        pub override fn referenced_type(&self) -> Thingy {
+            self.m_type().unwrap()
+        }
+
+        pub override fn clone_constant(&self, host: &SemanticHost) -> Thingy {
+            host.factory().create_type_constant_with_static_type(&self.referenced_type(), &self.static_type(host))
+        }
     }
 
     pub struct NumberConstant: Constant {
@@ -3249,31 +3270,6 @@ smodel! {
     pub struct ReferenceValue: Value {
         pub(crate) fn ReferenceValue(static_type: &Thingy) {
             super(static_type);
-        }
-    }
-
-    pub struct TypeAsReferenceValue: ReferenceValue {
-        let ref m_type: Option<Thingy> = None;
-
-        pub(crate) fn TypeAsReferenceValue(referenced_type: &Thingy, static_type: &Thingy) {
-            super(static_type);
-            self.set_m_type(Some(referenced_type.clone()));
-        }
-
-        pub override fn referenced_type(&self) -> Thingy {
-            self.m_type().unwrap()
-        }
-
-        pub override fn read_only(&self, host: &SemanticHost) -> bool {
-            true
-        }
-
-        pub override fn write_only(&self, host: &SemanticHost) -> bool {
-            false
-        }
-
-        pub override fn deletable(&self, host: &SemanticHost) -> bool {
-            false
         }
     }
 
