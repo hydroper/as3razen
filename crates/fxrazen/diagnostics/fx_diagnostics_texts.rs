@@ -57,6 +57,7 @@ lazy_static! {
         FxDiagnosticKind::UnexpectedFieldNameInDestructuring.id() => "Unexpected field name in destructuring.".into(),
         FxDiagnosticKind::EntityIsNotAConstant.id() => "Entity is not a constant.".into(),
         FxDiagnosticKind::ReturnValueHasNoTypeDeclaration.id() => "Return value has no type declaration.".into(),
+        FxDiagnosticKind::ReturnTypeDeclarationMustBePromise.id() => "Return type declaration must be Promise.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

@@ -64,7 +64,7 @@ struct VerifierFunctionPartials1 {
 pub(crate) struct FunctionCommonSubverifier;
 
 impl FunctionCommonSubverifier {
-    pub fn verify_function_exp_common(verifier: &mut Subverifier, common: &Rc<FunctionCommon>, partials: &VerifierFunctionPartials) -> Result<(), DeferError> {
+    pub fn verify_function_exp_common(verifier: &mut Subverifier, common: &Rc<FunctionCommon>, name_span: &Location, partials: &VerifierFunctionPartials) -> Result<(), DeferError> {
         let host = verifier.host.clone();
         let activation =  partials.activation();
         let method = activation.of_method();
@@ -73,7 +73,14 @@ impl FunctionCommonSubverifier {
         // Attempt to create signature
         let mut signature: Option<Thingy> = None;
         if partials.signature().is_none() && partials.result_type().is_some() {
-            let signature1 = host.factory().create_function_type(partials.params().as_ref().unwrap().clone(), partials.result_type().unwrap());
+            let mut result_type = partials.result_type().unwrap(); 
+
+            if common.contains_await && !result_type.promise_result_type(&host)?.is_some() {
+                verifier.add_verify_error(&name_span, FxDiagnosticKind::ReturnTypeDeclarationMustBePromise, diagarg![]);
+                result_type = host.promise_type().defer()?.type_substitution(&host, &host.promise_type(), &shared_array![host.invalidation_thingy()])
+            }
+
+            let signature1 = host.factory().create_function_type(partials.params().as_ref().unwrap().clone(), result_type);
             partials.set_signature(Some(signature1.clone()));
             signature = Some(signature1);
         }
@@ -116,6 +123,9 @@ impl FunctionCommonSubverifier {
         // collect the result value types returned from all code paths,
         // ensure the result of all code paths implicitly coerce to the first code path's
         // result's type, and construct the signature into the signature local.
+        //
+        // If the result type does not match a Promise for an asynchronous method,
+        // change it to Promise.<INVALIDATED> and report an error.
         } else {
             todo_here();
         }

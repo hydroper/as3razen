@@ -53,6 +53,7 @@ pub enum FxDiagnosticKind {
     UnexpectedFieldNameInDestructuring = 2097,
     EntityIsNotAConstant = 2098,
     ReturnValueHasNoTypeDeclaration = 2099,
+    ReturnTypeDeclarationMustBePromise = 2100,
 }
 
 impl FxDiagnosticKind {

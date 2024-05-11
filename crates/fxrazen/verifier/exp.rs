@@ -1823,17 +1823,19 @@ impl ExpSubverifier {
             partials.set_params(Some(params));
         }
 
+        let name_span = exp.name.as_ref().map(|name| &name.1).unwrap_or(&exp.location);
+
         if let Some(result_annot) = common.signature.result_type.as_ref() {
             if partials.result_type().is_none() {
                 let result_type = verifier.verify_type_expression(result_annot)?.unwrap_or(host.invalidation_thingy());
                 partials.set_result_type(Some(result_type));
             }
         } else if !compiler_options.infer_types && partials.result_type().is_none() {
-            verifier.add_warning(exp.name.as_ref().map(|name| &name.1).unwrap_or(&exp.location), FxDiagnosticKind::ReturnValueHasNoTypeDeclaration, diagarg![]);
-            partials.set_result_type(Some(host.any_type()));
+            verifier.add_warning(name_span, FxDiagnosticKind::ReturnValueHasNoTypeDeclaration, diagarg![]);
+            partials.set_result_type(Some(if common.contains_await { host.promise_type_of_any()? } else { host.any_type() }));
         }
 
-        let _ = FunctionCommonSubverifier::verify_function_exp_common(verifier, &common, &partials);
+        let _ = FunctionCommonSubverifier::verify_function_exp_common(verifier, &common, name_span, &partials);
 
         verifier.set_scope(&kscope);
 
