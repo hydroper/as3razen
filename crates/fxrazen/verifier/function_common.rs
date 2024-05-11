@@ -66,7 +66,9 @@ pub(crate) struct FunctionCommonSubverifier;
 impl FunctionCommonSubverifier {
     pub fn verify_function_exp_common(verifier: &mut Subverifier, common: &Rc<FunctionCommon>, partials: &VerifierFunctionPartials) -> Result<(), DeferError> {
         let host = verifier.host.clone();
-        verifier.set_scope(&partials.activation());
+        let activation =  partials.activation();
+        let method = activation.of_method();
+        verifier.set_scope(&activation);
 
         // Attempt to create signature
         let mut signature: Option<Thingy> = None;
@@ -76,12 +78,24 @@ impl FunctionCommonSubverifier {
             signature = Some(signature1);
         }
 
-        if let Some(signature) = partials.signature() {
-            //
-        } else {
-            //
+        // Set the activation method's signature to the last obtained signature if any.
+        if let Some(signature) = signature.clone() {
+            method.set_signature(&signature);
         }
 
-        todo()
+        // Resolve directives and then statements.
+        todo_here();
+
+        // If the signature is fully resolved, analyse the control flow,
+        // and ensure all code paths return a value.
+        if let Some(signature) = partials.signature() {
+            todo_here();
+        // If the signature is not fully resolved due to unknown result type,
+        // .
+        } else {
+            todo_here();
+        }
+
+        todo_here()
     }
 }
