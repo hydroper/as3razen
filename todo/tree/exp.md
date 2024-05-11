@@ -16,6 +16,7 @@
       * [ ] Verify directives and then statements in a separate cycle context
       * [ ] Analyse the control flow
       * [ ] Ensure all code paths return a value based on the control flow graph
+        * [ ] Result types that do not require a return value are `*`, `void`, `Promise.<*>`, and `Promise.<void>`.
     * [ ] Otherwise
       * [ ] Verify directives and then statements in a separate cycle context
       * [ ] Analyse the control flow

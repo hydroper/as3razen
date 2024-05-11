@@ -522,6 +522,16 @@ impl Subverifier {
             self.add_verify_error(&loc, FxDiagnosticKind::AConflictExistsWithDefinition, diagarg![name.local_name(), name.namespace()]);
         }
     }
+
+    pub fn cache_var_init(&mut self, pattern: &Rc<Expression>, callback: impl FnOnce() -> Thingy) -> Thingy {
+        if let Some(init) = self.cached_var_init.get(&NodeAsKey(pattern.clone())) {
+            init.clone()
+        } else {
+            let init = callback();
+            self.cached_var_init.insert(NodeAsKey(pattern.clone()), init.clone());
+            init
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]

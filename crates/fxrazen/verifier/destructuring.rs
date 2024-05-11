@@ -1,5 +1,10 @@
 use crate::ns::*;
 
+/// # Phases
+/// 
+/// - `Alpha`
+/// - `Beta`
+/// - `Omega`
 pub(crate) struct DestructuringDeclarationSubverifier;
 
 impl DestructuringDeclarationSubverifier {
