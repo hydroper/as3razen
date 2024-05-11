@@ -11,6 +11,10 @@
 
 Set scopes carefully within directive sequences. Sometimes inherit and enter; sometimes just overwrite it.
 
+## Across compilation units
+
+Across all compilation units, directives should be verified first, from a package to a class or method, and from a class to a method or property. After all directives are solved in these ranges, statements may be verified in one pass.
+
 ## Variable definitions
 
 * [ ] Assign ASDoc to the first topmost variable binding's slot after full resolution.

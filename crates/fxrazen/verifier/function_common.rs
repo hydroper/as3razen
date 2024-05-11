@@ -55,6 +55,7 @@ pub(crate) struct FunctionCommonSubverifier;
 
 impl FunctionCommonSubverifier {
     pub fn verify_function_exp_common(verifier: &mut Subverifier, common: &Rc<FunctionCommon>, partials: &VerifierFunctionPartials) -> Result<(), DeferError> {
+        verifier.set_scope(&partials.activation());
         todo()
     }
 }

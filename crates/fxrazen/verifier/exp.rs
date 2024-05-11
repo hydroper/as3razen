@@ -1828,7 +1828,8 @@ impl ExpSubverifier {
                 let result_type = verifier.verify_type_expression(result_annot)?.unwrap_or(host.invalidation_thingy());
                 partials.set_result_type(Some(result_type));
             }
-        } else if !compiler_options.infer_types {
+        } else if !compiler_options.infer_types && partials.result_type().is_none() {
+            verifier.add_warning(exp.name.as_ref().map(|name| &name.1).unwrap_or(&exp.location), FxDiagnosticKind::ReturnValueHasNoTypeDeclaration, diagarg![]);
             partials.set_result_type(Some(host.any_type()));
         }
 

@@ -56,6 +56,7 @@ lazy_static! {
         FxDiagnosticKind::DuplicateFunctionDefinition.id() => "Duplicate function definition: {1}.".into(),
         FxDiagnosticKind::UnexpectedFieldNameInDestructuring.id() => "Unexpected field name in destructuring.".into(),
         FxDiagnosticKind::EntityIsNotAConstant.id() => "Entity is not a constant.".into(),
+        FxDiagnosticKind::ReturnValueHasNoTypeDeclaration.id() => "Return value has no type declaration.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

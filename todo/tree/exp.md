@@ -9,9 +9,8 @@
   * [x] Verify the formal parameter list
   * [x] If the result type is specified, verify it.
   * [ ] FunctionCommon
-    * [ ] Set current scope to the activation.
-    * [ ] If the result type is specified or the inferTypes option is off
-      * [ ] If the result type is not specified, default to `*` and report a warning.
+    * [x] Set current scope to the activation.
+    * [ ] If the result type is already assigned
       * [ ] Construct the signature
       * [ ] Verify directives and then statements in a separate cycle context
       * [ ] Analyse the control flow

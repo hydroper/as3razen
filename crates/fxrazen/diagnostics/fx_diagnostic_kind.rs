@@ -52,6 +52,7 @@ pub enum FxDiagnosticKind {
     DuplicateFunctionDefinition = 2096,
     UnexpectedFieldNameInDestructuring = 2097,
     EntityIsNotAConstant = 2098,
+    ReturnValueHasNoTypeDeclaration = 2099,
 }
 
 impl FxDiagnosticKind {
