@@ -1666,14 +1666,16 @@ impl ExpSubverifier {
             verifier.host.empty_empty_qname()
         };
 
+        let cu = exp.location.compilation_unit();
+        let compiler_options = CompilerOptions::of(&cu);
+
         let mut partials = verifier.deferred_function_exp.get(&NodeAsKey(common.clone()));
         if partials.is_none() {
             let method = host.factory().create_method_slot(&name, &host.unresolved_thingy());
             method.set_is_async(common.contains_await);
             method.set_is_generator(common.contains_yield);
             let act = host.factory().create_activation(&method);
-            let cu = exp.location.compilation_unit();
-            if CompilerOptions::of(&cu).inherit_this_type {
+            if compiler_options.inherit_this_type {
                 let super_act = kscope.search_activation();
                 let super_this_type = super_act.and_then(|a| a.this().map(|this| this.static_type(&verifier.host)));
                 act.set_this(Some(host.factory().create_this_object(&super_this_type.unwrap_or(host.any_type()))));
@@ -1744,7 +1746,7 @@ impl ExpSubverifier {
                         }
 
                         let pattern = &param_node.destructuring.destructuring;
-                        let mut init;
+                        let init;
                         if let Some(init1) = verifier.cached_var_init.get(&NodeAsKey(pattern.clone())) {
                             init = init1.clone();
                         } else {
@@ -1821,6 +1823,19 @@ impl ExpSubverifier {
             partials.set_params(Some(params));
         }
 
-        todo()
+        if let Some(result_annot) = common.signature.result_type.as_ref() {
+            if partials.result_type().is_none() {
+                let result_type = verifier.verify_type_expression(result_annot)?.unwrap_or(host.invalidation_thingy());
+                partials.set_result_type(Some(result_type));
+            }
+        } else if !compiler_options.infer_types {
+            partials.set_result_type(Some(host.any_type()));
+        }
+
+        let _ = FunctionCommonSubverifier::verify_function_exp_common(verifier, &common, &partials);
+
+        verifier.set_scope(&kscope);
+
+        Ok(Some(host.factory().create_lambda_object(&activation)?))
     }
 }

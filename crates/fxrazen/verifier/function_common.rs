@@ -9,7 +9,7 @@ impl VerifierFunctionPartials {
             activation: activation.clone(),
             params: RefCell::new(None),
             result_type: RefCell::new(None),
-            directives_finished: Cell::new(false),
+            // directives_finished: Cell::new(false),
         }))
     }
 
@@ -33,6 +33,7 @@ impl VerifierFunctionPartials {
         self.0.result_type.replace(thingy);
     }
 
+    /*
     pub fn directives_finished(&self) -> bool {
         self.0.directives_finished.get()
     }
@@ -40,19 +41,20 @@ impl VerifierFunctionPartials {
     pub fn set_directives_finished(&self, value: bool) {
         self.0.directives_finished.set(value);
     }
+    */
 }
 
 struct VerifierFunctionPartials1 {
     pub activation: Thingy,
     pub params: RefCell<Option<Vec<Rc<SemanticFunctionTypeParameter>>>>,
     pub result_type: RefCell<Option<Thingy>>,
-    pub directives_finished: Cell<bool>,
+    // pub directives_finished: Cell<bool>,
 }
 
 pub(crate) struct FunctionCommonSubverifier;
 
 impl FunctionCommonSubverifier {
-    pub fn verify_function_exp_common(verifier: &mut Subverifier, common: &Rc<FunctionCommon>, data: &VerifierFunctionPartials) -> Result<(), DeferError> {
+    pub fn verify_function_exp_common(verifier: &mut Subverifier, common: &Rc<FunctionCommon>, partials: &VerifierFunctionPartials) -> Result<(), DeferError> {
         todo()
     }
 }
