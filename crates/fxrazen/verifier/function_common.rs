@@ -135,6 +135,8 @@ impl FunctionCommonSubverifier {
         // If the result type does not match a Promise for an asynchronous method,
         // change it to Promise.<INVALIDATED> and report an error.
         } else {
+            let result_type = Self::deduce_result_type(verifier, None);
+
             todo_here();
         }
 
@@ -145,5 +147,9 @@ impl FunctionCommonSubverifier {
         verifier.deferred_function_exp.remove(&NodeAsKey(common.clone()));
 
         Ok(())
+    }
+
+    fn deduce_result_type(verifier: &mut Subverifier, first_result_type: Option<Thingy>) -> Thingy {
+        todo_here();
     }
 }
