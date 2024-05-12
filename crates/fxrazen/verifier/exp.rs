@@ -127,6 +127,8 @@ impl ExpSubverifier {
         verifier.host.config_constants_eval().set(name.clone(), verifier.host.invalidation_thingy());
         cdata = cdata.trim().to_owned();
 
+        // Prevent creating an expression in general.
+
         if ["true", "false"].contains(&cdata.as_str()) {
             let boolean_type = verifier.host.boolean_type();
             if boolean_type.is::<UnresolvedThingy>() {
@@ -160,10 +162,11 @@ impl ExpSubverifier {
             return Some(v);
         }
 
-        let cu = CompilationUnit::new(None, cdata);
+        let cu = CompilationUnit::new(Some(name.clone()), cdata);
         cu.set_compiler_options(location.compilation_unit().compiler_options());
+        location.compilation_unit().add_nested_compilation_unit(cu.clone());
 
-        // An expression is always built for the inline constant,
+        // Build an expression for the constant,
         // which must be a compile-time constant.
         let exp = ParserFacade(&cu, ParserOptions::default()).parse_expression();
         if cu.invalidated() {
