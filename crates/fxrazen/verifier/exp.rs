@@ -49,7 +49,7 @@ impl ExpSubverifier {
             verifier.host.string_type().defer()?;
             verifier.host.non_null_primitive_types()?;
 
-            return Ok(Self::verify_inline_constant(verifier, &id.location, name, cdata));
+            return Ok(Self::eval_config_constant(verifier, &id.location, name, cdata));
         }
 
         let qn = Self::verify_qualified_identifier(verifier, id)?;
@@ -115,7 +115,7 @@ impl ExpSubverifier {
         None
     }
 
-    pub fn verify_inline_constant(verifier: &mut Subverifier, location: &Location, name: String, mut cdata: String) -> Option<Thingy> {
+    pub fn eval_config_constant(verifier: &mut Subverifier, location: &Location, name: String, mut cdata: String) -> Option<Thingy> {
         if let Some(v) = verifier.host.config_constants_eval().get(&name) {
             if v.is::<InvalidationThingy>() {
                 verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
@@ -134,6 +134,28 @@ impl ExpSubverifier {
                 return None;
             }
             let v = verifier.host.factory().create_boolean_constant(cdata == "true", &boolean_type);
+            verifier.host.config_constants_eval().set(name.clone(), v.clone());
+            return Some(v);
+        }
+
+        if cdata == "Infinity" {
+            let number_type = verifier.host.number_type();
+            if number_type.is::<UnresolvedThingy>() {
+                verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
+                return None;
+            }
+            let v = verifier.host.factory().create_number_constant(NumberVariant::Number(f64::INFINITY), &number_type);
+            verifier.host.config_constants_eval().set(name.clone(), v.clone());
+            return Some(v);
+        }
+
+        if cdata == "NaN" {
+            let number_type = verifier.host.number_type();
+            if number_type.is::<UnresolvedThingy>() {
+                verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
+                return None;
+            }
+            let v = verifier.host.factory().create_number_constant(NumberVariant::Number(f64::NAN), &number_type);
             verifier.host.config_constants_eval().set(name.clone(), v.clone());
             return Some(v);
         }

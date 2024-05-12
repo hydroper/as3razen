@@ -20,7 +20,7 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [ ] Use namespace directive
 * [ ] Include directive
 * [ ] Normal configuration directive
-  * [ ] Evaluate constants with `ExpressionSubverifier::verify_inline_constant()`
+  * [ ] Evaluate constant with `ExpressionSubverifier::eval_config_constant()`
 * [ ] Package concatenation directive
 * [ ] Directive injection
 * [ ] Variable definition
