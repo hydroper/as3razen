@@ -67,6 +67,7 @@ impl Verifier {
                 phase_of_thingy: HashMap::new(),
                 phase_of_directive: HashMap::new(),
                 deferred_function_exp: SharedMap::new(),
+                definition_conflicts: SharedArray::new(),
                 invalidated: false,
                 external: false,
                 // deferred_counter: 0,
@@ -92,6 +93,10 @@ impl Verifier {
 
         // * [ ] Remember to handle deferred function commons together.
         todo_here();
+
+        for (old, new) in self.verifier.definition_conflicts.clone().iter() {
+            self.verifier.finish_definition_conflict(&old, &new);
+        }
     }
 
     /// Verifies an expression. Returns `None` if verification failed.
@@ -121,6 +126,9 @@ impl Verifier {
             for (common, _) in self.verifier.deferred_function_exp.clone().borrow().iter() {
                 let loc = (*common).location.clone();
                 self.verifier.add_verify_error(&loc, FxDiagnosticKind::ReachedMaximumCycles, diagarg![]);
+            }
+            for (old, new) in self.verifier.definition_conflicts.clone().iter() {
+                self.verifier.finish_definition_conflict(&old, &new);
             }
             return v;
         }
@@ -165,6 +173,8 @@ pub(crate) struct Subverifier {
 
     /// Mapping used for function expressions.
     pub deferred_function_exp: SharedMap<NodeAsKey<Rc<FunctionCommon>>, VerifierFunctionPartials>,
+
+    pub definition_conflicts: SharedArray<(Thingy, Thingy)>,
 
     invalidated: bool,
     // pub deferred_counter: usize,
@@ -505,26 +515,33 @@ impl Subverifier {
 
     /// Handles definition conflict, returning any equivalent variable or method slot back, or invalidation.
     pub fn handle_definition_conflict(&mut self, prev: &Thingy, new: &Thingy) -> Thingy {
+        self.definition_conflicts.push((prev.clone(), new.clone()));
+        let parent = new.parent().unwrap();
+        if new.is::<VariableSlot>() && !parent.is::<FixtureScope>() && prev.is::<VariableSlot>() {
+            return prev.clone();
+        } else if prev.is::<VariableSlot>() && !parent.is::<FixtureScope>() && new.is::<MethodSlot>() {
+            return prev.clone();
+        }
+        self.host.invalidation_thingy()
+    }
+
+    pub fn finish_definition_conflict(&mut self, prev: &Thingy, new: &Thingy) {
         let name = new.name();
         let parent = new.parent().unwrap();
+        let host = self.host.clone();
         if new.is::<VariableSlot>() && !parent.is::<FixtureScope>() {
-            if prev.is::<VariableSlot>() {
+            if prev.is::<VariableSlot>() && TypeConversions(&host).implicit(&host.factory().create_value(&new.static_type(&host)), &prev.static_type(&host), false).unwrap().is_some() {
                 self.add_warning(&new.location().unwrap(), FxDiagnosticKind::DuplicateVariableDefinition, diagarg![name.local_name()]);
-                return prev.clone();
-            } else {
-                self.report_definition_conflict_for_thingy(prev);
-                self.report_definition_conflict_for_thingy(new);
-                return self.host.invalidation_thingy();
+                return;
             }
         } else if prev.is::<VariableSlot>() && !parent.is::<FixtureScope>() {
-            if new.is::<MethodSlot>() {
+            if new.is::<MethodSlot>() && TypeConversions(&host).implicit(&host.factory().create_value(&host.function_type()), &prev.static_type(&host), false).unwrap().is_some() {
                 self.add_warning(&new.location().unwrap(), FxDiagnosticKind::DuplicateVariableDefinition, diagarg![name.local_name()]);
-                return prev.clone();
+                return;
             }
         }
         self.report_definition_conflict_for_thingy(prev);
         self.report_definition_conflict_for_thingy(new);
-        self.host.invalidation_thingy()
     }
 
     fn report_definition_conflict_for_thingy(&mut self, thingy: &Thingy) {

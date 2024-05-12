@@ -2,10 +2,17 @@
 
 Tip: use a mapping from directive to phase for certain of the following directives. Clear that mapping on `reset_state()`.
 
+* [ ] Variable definition
+* [ ] Function definition
+* [ ] Class definition
+* [ ] Enum definition
+* [ ] Interface definition
+* [ ] Type definition
+* [ ] Namespace definition
 * [x] Block
-* [ ] Labeled statement
-* [ ] If statement
-* [ ] Switch statement
+* [x] Labeled statement
+* [x] If statement
+* [x] Switch statement
 * [ ] Switch type statement
 * [ ] Do statement
 * [ ] While statement
@@ -23,10 +30,3 @@ Tip: use a mapping from directive to phase for certain of the following directiv
   * [ ] Evaluate constant with `ExpressionSubverifier::eval_config_constant()`
 * [ ] Package concatenation directive
 * [ ] Directive injection
-* [ ] Variable definition
-* [ ] Function definition
-* [ ] Class definition
-* [ ] Enum definition
-* [ ] Interface definition
-* [ ] Type definition
-* [ ] Namespace definition

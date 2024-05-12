@@ -16,3 +16,13 @@
   * [ ] If no value is specified
     * [ ] If `E` is not `void` or `*`
       * [ ] Report a verify error
+
+## Switch type statement
+
+* [ ] Reuse scope from block for the parenthesized binding in cases.
+* [ ] Handle any name conflict for the parenthesized binding in cases.
+
+## Try statement
+
+* [ ] Reuse scope from block for the parenthesized binding in catch clauses.
+* [ ] Handle any name conflict for the parenthesized binding in catch clauses.

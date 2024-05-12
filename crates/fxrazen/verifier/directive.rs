@@ -33,6 +33,28 @@ impl DirectiveSubverifier {
                     Ok(())
                 }
             },
+            Directive::LabeledStatement(lstmt) => {
+                Self::verify_directive(verifier, &lstmt.substatement)
+            },
+            Directive::IfStatement(ifstmt) => {
+                let mut any_defer = Self::verify_directive(verifier, &ifstmt.consequent).is_err();
+                if let Some(alt) = &ifstmt.alternative {
+                    let r = Self::verify_directive(verifier, alt).is_err();
+                    any_defer = any_defer || r;
+                }
+                if any_defer { Err(DeferError(None)) } else { Ok(()) }
+            },
+            Directive::SwitchStatement(swstmt) => {
+                let mut any_defer = false;
+                for case in &swstmt.cases {
+                    let r = Self::verify_directives(verifier, &case.directives).is_err();
+                    any_defer = any_defer || r;
+                }
+                if any_defer { Err(DeferError(None)) } else { Ok(()) }
+            },
+            Directive::SwitchTypeStatement(swstmt) => {
+                todo_here();
+            },
             _ => Ok(()),
         }
     }
