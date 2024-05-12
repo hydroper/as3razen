@@ -89,7 +89,7 @@ impl FunctionCommonSubverifier {
         // Resolve directives and then statements, or just the expression body.
         match &common.body {
             Some(FunctionBody::Block(block)) => {
-                let mut block_scope = host.factory().create_scope();
+                let block_scope = host.factory().create_scope();
                 verifier.inherit_and_enter_scope(&block_scope);
                 DirectiveSubverifier::verify_directives(&block.directives)?;
                 StatementSubverifier::verify_statements(&block.directives);
@@ -113,7 +113,7 @@ impl FunctionCommonSubverifier {
         // If the signature is fully resolved, ensure all code paths return a value.
         // Result types that do not require a return value are
         // `*`, `void`, `Promise.<*>`, and `Promise.<void>`.
-        if let Some(signature) = partials.signature() {
+        if let Some(_signature) = partials.signature() {
             ControlFlowAnalysisIsUnimplemented::unimplemented();
         // If the signature is not fully resolved due to unknown result type,
         // collect the result value types returned from all code paths,
