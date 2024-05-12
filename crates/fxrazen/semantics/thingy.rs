@@ -338,6 +338,10 @@ smodel! {
             panic!();
         }
 
+        pub fn scope(&self) -> Thingy {
+            panic!();
+        }
+
         pub fn getter(&self, host: &SemanticHost) -> Option<Thingy> {
             panic!();
         }
@@ -3641,6 +3645,20 @@ smodel! {
         // Returns a `Some(activation)` value.
         pub override fn activation(&self) -> Option<Thingy> {
             self.m_activation()
+        }
+    }
+
+    /// Represents the direct value of a filter expression, holding back its scope.
+    pub struct FilterValue: Value {
+        let ref m_scope: Option<Thingy> = None;
+
+        pub(crate) fn FilterValue(scope: &Thingy, static_type: &Thingy) {
+            super(static_type);
+            self.set_m_scope(Some(scope.clone()));
+        }
+
+        pub override fn scope(&self) -> Thingy {
+            self.m_scope().unwrap()
         }
     }
 

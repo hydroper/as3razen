@@ -589,6 +589,10 @@ impl<'a> ThingyFactory<'a> {
         Ok(LambdaObject::new(&self.0.arena, activation, &self.0.function_type().defer()?).into())
     }
 
+    pub fn create_filter_value(&self, scope: &Thingy, static_type: &Thingy) -> Thingy {
+        FilterValue::new(&self.0.arena, scope, static_type).into()
+    }
+
     pub fn create_field_resolution(&self) -> Thingy {
         FieldResolution::new(&self.0.arena).into()
     }

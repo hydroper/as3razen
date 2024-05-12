@@ -634,10 +634,10 @@ impl ExpSubverifier {
         }
 
         if [verifier.host.any_type(), verifier.host.object_type()].contains(&base_st_esc) {
-            return Ok(Some(verifier.host.factory().create_value(&verifier.host.any_type())));
+            return Ok(Some(verifier.host.factory().create_filter_value(&scope, &verifier.host.any_type())));
         }
 
-        Ok(Some(verifier.host.factory().create_value(&verifier.host.xml_list_type())))
+        Ok(Some(verifier.host.factory().create_filter_value(&scope, &verifier.host.xml_list_type())))
     }
 
     pub fn verify_super_exp(verifier: &mut Subverifier, super_exp: &SuperExpression) -> Result<Option<Thingy>, DeferError> {
@@ -1726,7 +1726,6 @@ impl ExpSubverifier {
                                     Err(DeferError(Some(VerifierPhase::Beta))) |
                                     Err(DeferError(Some(VerifierPhase::Delta))) |
                                     Err(DeferError(Some(VerifierPhase::Epsilon))) |
-                                    Err(DeferError(Some(VerifierPhase::Beta))) |
                                     Err(DeferError(Some(VerifierPhase::Omega))) => {},
                                     Err(DeferError(_)) => {
                                         return Err(DeferError(None));
@@ -1771,7 +1770,6 @@ impl ExpSubverifier {
                                     Err(DeferError(Some(VerifierPhase::Beta))) |
                                     Err(DeferError(Some(VerifierPhase::Delta))) |
                                     Err(DeferError(Some(VerifierPhase::Epsilon))) |
-                                    Err(DeferError(Some(VerifierPhase::Beta))) |
                                     Err(DeferError(Some(VerifierPhase::Omega))) => {},
                                     Err(DeferError(_)) => {
                                         return Err(DeferError(None));
@@ -1811,7 +1809,6 @@ impl ExpSubverifier {
                                     Err(DeferError(Some(VerifierPhase::Beta))) |
                                     Err(DeferError(Some(VerifierPhase::Delta))) |
                                     Err(DeferError(Some(VerifierPhase::Epsilon))) |
-                                    Err(DeferError(Some(VerifierPhase::Beta))) |
                                     Err(DeferError(Some(VerifierPhase::Omega))) => {},
                                     Err(DeferError(_)) => {
                                         return Err(DeferError(None));
