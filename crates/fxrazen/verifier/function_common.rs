@@ -114,7 +114,7 @@ impl FunctionCommonSubverifier {
         // Result types that do not require a return value are
         // `*`, `void`, `Promise.<*>`, and `Promise.<void>`.
         if let Some(signature) = partials.signature() {
-            todo_here();
+            ControlFlowAnalysisIsUnimplemented::unimplemented();
         // If the signature is not fully resolved due to unknown result type,
         // collect the result value types returned from all code paths,
         // ensure the result of all code paths implicitly coerce to the first code path's
@@ -123,9 +123,20 @@ impl FunctionCommonSubverifier {
         // If the result type does not match a Promise for an asynchronous method,
         // change it to Promise.<INVALIDATED> and report an error.
         } else {
-            let result_type = Self::deduce_result_type(verifier, None);
+            let promise_type = host.promise_type().defer()?;
 
-            todo_here();
+            let mut result_type = Self::deduce_result_type(verifier, None);
+
+            if common.contains_await {
+                if result_type.is::<InvalidationThingy>() {
+                    result_type = promise_type.type_substitution(&host, &promise_type.type_params().unwrap(), &shared_array![host.invalidation_thingy()]);
+                } else if result_type.promise_result_type(&host)?.is_none() {
+                    verifier.add_verify_error(&name_span, FxDiagnosticKind::ReturnTypeDeclarationMustBePromise, diagarg![]);
+                    result_type = promise_type.type_substitution(&host, &promise_type.type_params().unwrap(), &shared_array![host.invalidation_thingy()]);
+                }
+            }
+
+            signature = Some(host.factory().create_function_type(partials.params().as_ref().unwrap().clone(), result_type));
         }
 
         // Set the activation method's signature to the last obtained signature. 
