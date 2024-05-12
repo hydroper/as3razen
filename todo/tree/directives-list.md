@@ -14,11 +14,11 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [x] If statement
 * [x] Switch statement
 * [x] Switch type statement
-* [ ] Do statement
-* [ ] While statement
-* [ ] For statement
-* [ ] For..in statement
-* [ ] With statement
+* [x] Do statement
+* [x] While statement
+* [x] For statement
+* [x] For..in statement
+* [x] With statement
 * [ ] Try statement
 * [ ] Invalidated directive
 * [ ] Configuration directive

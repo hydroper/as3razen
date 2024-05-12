@@ -60,6 +60,21 @@ impl DirectiveSubverifier {
                 }
                 if any_defer { Err(DeferError(None)) } else { Ok(()) }
             },
+            Directive::DoStatement(dostmt) => {
+                Self::verify_directive(verifier, &dostmt.body)
+            },
+            Directive::WhileStatement(whilestmt) => {
+                Self::verify_directive(verifier, &whilestmt.body)
+            },
+            Directive::ForStatement(forstmt) => {
+                Self::verify_directive(verifier, &forstmt.body)
+            },
+            Directive::ForInStatement(forstmt) => {
+                Self::verify_directive(verifier, &forstmt.body)
+            },
+            Directive::WithStatement(withstmt) => {
+                Self::verify_directive(verifier, &withstmt.body)
+            },
             _ => Ok(()),
         }
     }
