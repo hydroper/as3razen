@@ -54,6 +54,7 @@ pub enum FxDiagnosticKind {
     EntityIsNotAConstant = 2098,
     ReturnValueHasNoTypeDeclaration = 2099,
     ReturnTypeDeclarationMustBePromise = 2100,
+    ReturnTypeInferenceIsNotImplemented = 2101,
 }
 
 impl FxDiagnosticKind {

@@ -125,7 +125,9 @@ impl FunctionCommonSubverifier {
         } else {
             let promise_type = host.promise_type().defer()?;
 
-            let mut result_type = Self::deduce_result_type(verifier, None);
+            // let mut result_type = Self::deduce_result_type(verifier, None);
+            verifier.add_warning(&name_span, FxDiagnosticKind::ReturnTypeInferenceIsNotImplemented, diagarg![]);
+            let mut result_type = if common.contains_await { host.promise_type_of_any()? } else { host.any_type() };
 
             if common.contains_await {
                 if result_type.is::<InvalidationThingy>() {
@@ -148,7 +150,7 @@ impl FunctionCommonSubverifier {
         Ok(())
     }
 
-    fn deduce_result_type(verifier: &mut Subverifier, first_result_type: Option<Thingy>) -> Thingy {
-        todo_here();
+    fn deduce_result_type(_verifier: &mut Subverifier, _first_result_type: Option<Thingy>) -> Thingy {
+        todo!();
     }
 }

@@ -58,6 +58,7 @@ lazy_static! {
         FxDiagnosticKind::EntityIsNotAConstant.id() => "Entity is not a constant.".into(),
         FxDiagnosticKind::ReturnValueHasNoTypeDeclaration.id() => "Return value has no type declaration.".into(),
         FxDiagnosticKind::ReturnTypeDeclarationMustBePromise.id() => "Return type declaration must be Promise.".into(),
+        FxDiagnosticKind::ReturnTypeInferenceIsNotImplemented.id() => "Return type inference is not implemented in the present. Using an untyped type.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }
