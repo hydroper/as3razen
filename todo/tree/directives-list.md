@@ -15,7 +15,7 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [ ] Try statement
 * [ ] Invalidated directive
 * [ ] Configuration directive
-  * [ ] Do not evaluate constants for `configuration {}`; use their character data instead.
+  * [ ] Evaluate the expression expecting a Boolean constant (possibly defer)
 * [ ] Import directive
 * [ ] Use namespace directive
 * [ ] Include directive
