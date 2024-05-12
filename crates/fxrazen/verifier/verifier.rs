@@ -1,5 +1,6 @@
 use crate::ns::*;
 
+/// Directive or binding phase.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
 pub enum VerifierPhase {
     Alpha = 0,
@@ -9,6 +10,7 @@ pub enum VerifierPhase {
     Eta = 4,
     Theta = 5,
     Omega = 6,
+    Finished = 7,
 }
 
 /// ActionScript 3 and MXML verifier.
