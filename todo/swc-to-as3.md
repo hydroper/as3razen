@@ -6,4 +6,8 @@ It is simple since method bodies do not have to be visited; just native code wou
 
 ## Namespaces
 
-Namespaces are assumed to be aliased somewhere in a namespace slot trait, so that they are used as control access modifiers in annotatable directives, otherwise an error should be reported.
+User namespaces are identified as `flash_proxy`, or `AS3`, and any unrecognized ones should cause an error, and definitions for them are implicitly generated in the resulting AS3 code.
+
+## Imports
+
+Packages are imported by wildcard based in the open namespace set. It should not cause any conflict for the AIR globals, so it is assumed to be safe to do this.

@@ -1224,6 +1224,13 @@ impl ExpSubverifier {
                     verifier.add_warning(&exp.location, FxDiagnosticKind::ComparisonBetweenUnrelatedTypes, diagarg![left_st.clone(), right_st.clone()]);
                 }
 
+                // Generate warning for NaN comparison
+                if left.is::<NumberConstant>() && left.number_value().is_nan() {
+                    verifier.add_warning(&exp.location, FxDiagnosticKind::NanComparison, diagarg![]);
+                } else if right.is::<NumberConstant>() && right.number_value().is_nan() {
+                    verifier.add_warning(&exp.location, FxDiagnosticKind::NanComparison, diagarg![]);
+                }
+
                 if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
                     return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() == right.number_value(), &boolean_type)));
                 }
@@ -1246,6 +1253,13 @@ impl ExpSubverifier {
                 // Generate warning for unrelated types
                 if left.is_comparison_between_unrelated_types(&right, &verifier.host)? {
                     verifier.add_warning(&exp.location, FxDiagnosticKind::ComparisonBetweenUnrelatedTypes, diagarg![left_st.clone(), right_st.clone()]);
+                }
+
+                // Generate warning for NaN comparison
+                if left.is::<NumberConstant>() && left.number_value().is_nan() {
+                    verifier.add_warning(&exp.location, FxDiagnosticKind::NanComparison, diagarg![]);
+                } else if right.is::<NumberConstant>() && right.number_value().is_nan() {
+                    verifier.add_warning(&exp.location, FxDiagnosticKind::NanComparison, diagarg![]);
                 }
 
                 if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
