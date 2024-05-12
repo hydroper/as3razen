@@ -2,7 +2,7 @@
 
 Tip: use a mapping from directive to phase for certain of the following directives. Clear that mapping on `reset_state()`.
 
-* [ ] Block
+* [x] Block
 * [ ] Labeled statement
 * [ ] If statement
 * [ ] Switch statement

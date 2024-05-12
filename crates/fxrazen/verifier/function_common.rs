@@ -91,8 +91,8 @@ impl FunctionCommonSubverifier {
             Some(FunctionBody::Block(block)) => {
                 let block_scope = host.factory().create_scope();
                 verifier.inherit_and_enter_scope(&block_scope);
-                DirectiveSubverifier::verify_directives(&block.directives)?;
-                StatementSubverifier::verify_statements(&block.directives);
+                DirectiveSubverifier::verify_directives(verifier, &block.directives)?;
+                StatementSubverifier::verify_statements(verifier, &block.directives);
                 verifier.exit_scope();
             },
             Some(FunctionBody::Expression(exp)) => {

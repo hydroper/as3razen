@@ -65,6 +65,7 @@ impl Verifier {
                 host: host.clone(),
                 cached_var_init: HashMap::new(),
                 phase_of_thingy: HashMap::new(),
+                phase_of_directive: HashMap::new(),
                 deferred_function_exp: SharedMap::new(),
                 invalidated: false,
                 external: false,
@@ -159,6 +160,9 @@ pub(crate) struct Subverifier {
     /// Temporary mapping of things to phases.
     pub phase_of_thingy: HashMap<Thingy, VerifierPhase>,
 
+    /// Temporary mapping of directives to phases.
+    pub phase_of_directive: HashMap<NodeAsKey<Rc<Directive>>, VerifierPhase>,
+
     /// Mapping used for function expressions.
     pub deferred_function_exp: SharedMap<NodeAsKey<Rc<FunctionCommon>>, VerifierFunctionPartials>,
 
@@ -183,7 +187,21 @@ impl Subverifier {
     pub fn reset_state(&mut self) {
         self.cached_var_init.clear();
         self.phase_of_thingy.clear();
+        self.phase_of_directive.clear();
         self.deferred_function_exp.clear();
+    }
+
+    pub fn lazy_init_drtv_phase(&mut self, drtv: &Rc<Directive>, initial_phase: VerifierPhase) -> VerifierPhase {
+        if let Some(k) = self.phase_of_directive.get(&NodeAsKey(drtv.clone())) {
+            *k
+        } else {
+            self.phase_of_directive.insert(NodeAsKey(drtv.clone()), initial_phase);
+            initial_phase
+        }
+    }
+
+    pub fn set_drtv_phase(&mut self, drtv: &Rc<Directive>, phase: VerifierPhase) {
+        self.phase_of_directive.insert(NodeAsKey(drtv.clone()), phase);
     }
 
     pub fn add_syntax_error(&mut self, location: &Location, kind: FxDiagnosticKind, arguments: Vec<Rc<dyn DiagnosticArgument>>) {
