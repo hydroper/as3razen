@@ -13,7 +13,7 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [x] Labeled statement
 * [x] If statement
 * [x] Switch statement
-* [ ] Switch type statement
+* [x] Switch type statement
 * [ ] Do statement
 * [ ] While statement
 * [ ] For statement

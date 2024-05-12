@@ -53,9 +53,34 @@ impl DirectiveSubverifier {
                 if any_defer { Err(DeferError(None)) } else { Ok(()) }
             },
             Directive::SwitchTypeStatement(swstmt) => {
-                todo_here();
+                let mut any_defer = false;
+                for case in &swstmt.cases {
+                    let r = Self::verify_block(verifier, &case.block).is_err();
+                    any_defer = any_defer || r;
+                }
+                if any_defer { Err(DeferError(None)) } else { Ok(()) }
             },
             _ => Ok(()),
+        }
+    }
+
+    pub fn verify_block(verifier: &mut Subverifier, block: &Rc<Block>) -> Result<(), DeferError> {
+        let phase = verifier.lazy_init_block_phase(block, VerifierPhase::Alpha);
+        if phase == VerifierPhase::Finished {
+            return Ok(());
+        }
+        let host = verifier.host.clone();
+        let scope = host.lazy_node_mapping(block, || {
+            host.factory().create_scope()
+        });
+        verifier.inherit_and_enter_scope(&scope);
+        let any_defer = Self::verify_directives(verifier, &block.directives).is_err();
+        verifier.exit_scope();
+        if any_defer {
+            Err(DeferError(None))
+        } else {
+            verifier.set_block_phase(block, VerifierPhase::Finished);
+            Ok(())
         }
     }
 }

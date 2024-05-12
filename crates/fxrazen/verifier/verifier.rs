@@ -65,7 +65,8 @@ impl Verifier {
                 host: host.clone(),
                 cached_var_init: HashMap::new(),
                 phase_of_thingy: HashMap::new(),
-                phase_of_directive: HashMap::new(),
+                phase_of_drtv: HashMap::new(),
+                phase_of_block: HashMap::new(),
                 deferred_function_exp: SharedMap::new(),
                 definition_conflicts: SharedArray::new(),
                 invalidated: false,
@@ -165,13 +166,10 @@ pub(crate) struct Subverifier {
     /// Temporary cache of variable binding initializers.
     pub cached_var_init: HashMap<NodeAsKey<Rc<Expression>>, Thingy>,
 
-    /// Temporary mapping of things to phases.
     pub phase_of_thingy: HashMap<Thingy, VerifierPhase>,
+    pub phase_of_drtv: HashMap<NodeAsKey<Rc<Directive>>, VerifierPhase>,
+    pub phase_of_block: HashMap<NodeAsKey<Rc<Block>>, VerifierPhase>,
 
-    /// Temporary mapping of directives to phases.
-    pub phase_of_directive: HashMap<NodeAsKey<Rc<Directive>>, VerifierPhase>,
-
-    /// Mapping used for function expressions.
     pub deferred_function_exp: SharedMap<NodeAsKey<Rc<FunctionCommon>>, VerifierFunctionPartials>,
 
     pub definition_conflicts: SharedArray<(Thingy, Thingy)>,
@@ -197,21 +195,35 @@ impl Subverifier {
     pub fn reset_state(&mut self) {
         self.cached_var_init.clear();
         self.phase_of_thingy.clear();
-        self.phase_of_directive.clear();
+        self.phase_of_drtv.clear();
+        self.phase_of_block.clear();
         self.deferred_function_exp.clear();
     }
 
     pub fn lazy_init_drtv_phase(&mut self, drtv: &Rc<Directive>, initial_phase: VerifierPhase) -> VerifierPhase {
-        if let Some(k) = self.phase_of_directive.get(&NodeAsKey(drtv.clone())) {
+        if let Some(k) = self.phase_of_drtv.get(&NodeAsKey(drtv.clone())) {
             *k
         } else {
-            self.phase_of_directive.insert(NodeAsKey(drtv.clone()), initial_phase);
+            self.phase_of_drtv.insert(NodeAsKey(drtv.clone()), initial_phase);
+            initial_phase
+        }
+    }
+
+    pub fn lazy_init_block_phase(&mut self, block: &Rc<Block>, initial_phase: VerifierPhase) -> VerifierPhase {
+        if let Some(k) = self.phase_of_block.get(&NodeAsKey(block.clone())) {
+            *k
+        } else {
+            self.phase_of_block.insert(NodeAsKey(block.clone()), initial_phase);
             initial_phase
         }
     }
 
     pub fn set_drtv_phase(&mut self, drtv: &Rc<Directive>, phase: VerifierPhase) {
-        self.phase_of_directive.insert(NodeAsKey(drtv.clone()), phase);
+        self.phase_of_drtv.insert(NodeAsKey(drtv.clone()), phase);
+    }
+
+    pub fn set_block_phase(&mut self, block: &Rc<Block>, phase: VerifierPhase) {
+        self.phase_of_block.insert(NodeAsKey(block.clone()), phase);
     }
 
     pub fn add_syntax_error(&mut self, location: &Location, kind: FxDiagnosticKind, arguments: Vec<Rc<dyn DiagnosticArgument>>) {
