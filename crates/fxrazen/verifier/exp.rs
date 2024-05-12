@@ -170,7 +170,11 @@ impl ExpSubverifier {
             verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
             return None;
         }
-        let Ok(cval) = verifier.verify_expression(&exp, &default()) else {
+        let kscope = verifier.scope();
+        verifier.set_scope(&verifier.host.const_eval_scope());
+        let cval = verifier.verify_expression(&exp, &default());
+        verifier.set_scope(&kscope);
+        let Ok(cval) = cval else {
             verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
             return None;
         };

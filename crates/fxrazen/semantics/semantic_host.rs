@@ -42,6 +42,7 @@ pub struct SemanticHost {
     flash_proxy_ns: RefCell<Option<Thingy>>,
     as3_ns: RefCell<Option<Thingy>>,
     empty_empty_qname: RefCell<Option<QName>>,
+    const_eval_scope: RefCell<Option<Thingy>>,
 
     meta_prop: Thingy,
     meta_env_prop: Thingy,
@@ -120,6 +121,7 @@ impl SemanticHost {
             flash_proxy_ns: RefCell::new(None),
             as3_ns: RefCell::new(None),
             empty_empty_qname: RefCell::new(None),
+            const_eval_scope: RefCell::new(None),
 
             primitive_types: RefCell::new(None),
             non_null_primitive_types: RefCell::new(None),
@@ -148,6 +150,12 @@ impl SemanticHost {
 
         // Initialize empty-empty QName
         host.empty_empty_qname.replace(Some(host.factory().create_qname(&host.factory().create_user_ns("".into()), "".into())));
+
+        // Initialize the scope for constant evaluation
+        let const_eval_scope = host.factory().create_scope();
+        const_eval_scope.import_list().push(host.factory().create_package_wildcard_import(&host.top_level_package(), None));
+        const_eval_scope.open_ns_set().push(host.as3_ns());
+        host.const_eval_scope.replace(Some(const_eval_scope));
 
         host
     }
@@ -194,6 +202,11 @@ impl SemanticHost {
 
     pub fn empty_empty_qname(&self) -> QName {
         self.empty_empty_qname.borrow().as_ref().unwrap().clone()
+    }
+
+    /// Default scope used for the evaluation of configuration constants.
+    pub fn const_eval_scope(&self) -> Thingy {
+        self.const_eval_scope.borrow().as_ref().unwrap().clone()
     }
 
     pub fn top_level_package(&self) -> Thingy {
