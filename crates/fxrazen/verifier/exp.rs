@@ -49,7 +49,7 @@ impl ExpSubverifier {
             verifier.host.string_type().defer()?;
             verifier.host.non_null_primitive_types()?;
 
-            return Ok(Self::verify_inline_constant(verifier, &id.location, name, cdata, context));
+            return Ok(Self::verify_inline_constant(verifier, &id.location, name, cdata));
         }
 
         let qn = Self::verify_qualified_identifier(verifier, id)?;
@@ -115,7 +115,16 @@ impl ExpSubverifier {
         None
     }
 
-    fn verify_inline_constant(verifier: &mut Subverifier, location: &Location, name: String, mut cdata: String, context: &VerifierExpressionContext) -> Option<Thingy> {
+    pub fn verify_inline_constant(verifier: &mut Subverifier, location: &Location, name: String, mut cdata: String) -> Option<Thingy> {
+        if let Some(v) = verifier.host.config_constants_eval().get(&name) {
+            if v.is::<InvalidationThingy>() {
+                verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
+                return None;
+            }
+            return Some(v);
+        }
+
+        verifier.host.config_constants_eval().set(name.clone(), verifier.host.invalidation_thingy());
         cdata = cdata.trim().to_owned();
 
         if ["true", "false"].contains(&cdata.as_str()) {
@@ -124,18 +133,13 @@ impl ExpSubverifier {
                 verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
                 return None;
             }
-            return Some(verifier.host.factory().create_boolean_constant(cdata == "true", &boolean_type));
+            let v = verifier.host.factory().create_boolean_constant(cdata == "true", &boolean_type);
+            verifier.host.config_constants_eval().set(name.clone(), v.clone());
+            return Some(v);
         }
 
-        // Cache compilation unit for less memory usage
-        let cu: Rc<CompilationUnit>;
-        if let Some(cu1) = verifier.host.config_constants_cu().get(&name) {
-            cu = cu1;
-        } else {
-            cu = CompilationUnit::new(None, cdata);
-            cu.set_compiler_options(location.compilation_unit().compiler_options());
-            verifier.host.config_constants_cu().set(name, cu.clone());
-        }
+        let cu = CompilationUnit::new(None, cdata);
+        cu.set_compiler_options(location.compilation_unit().compiler_options());
 
         // An expression is always built for the inline constant,
         // which must be a compile-time constant.
@@ -144,7 +148,7 @@ impl ExpSubverifier {
             verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
             return None;
         }
-        let Ok(cval) = verifier.verify_expression(&exp, context) else {
+        let Ok(cval) = verifier.verify_expression(&exp, &default()) else {
             verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
             return None;
         };
@@ -153,6 +157,10 @@ impl ExpSubverifier {
                 verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
                 return None;
             }
+            verifier.host.config_constants_eval().set(name.clone(), cval.clone());
+        } else {
+            verifier.add_verify_error(location, FxDiagnosticKind::CouldNotExpandInlineConstant, diagarg![]);
+            return None;
         }
         cval
     }

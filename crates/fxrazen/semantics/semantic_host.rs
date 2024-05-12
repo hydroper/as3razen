@@ -5,7 +5,7 @@ pub struct SemanticHost {
     node_mapping: TreeSemantics<Thingy>,
     project_path: Option<String>,
     config_constants: SharedMap<String, String>,
-    config_constants_cu: SharedMap<String, Rc<CompilationUnit>>,
+    config_constants_eval: SharedMap<String, Thingy>,
     env_cache: RefCell<Option<Rc<HashMap<String, String>>>>,
 
     unused_things: Rc<RefCell<Vec<Thingy>>>,
@@ -80,7 +80,7 @@ impl SemanticHost {
             node_mapping: TreeSemantics::new(),
             project_path: options.project_path.clone(),
             config_constants: SharedMap::new(),
-            config_constants_cu: SharedMap::new(),
+            config_constants_eval: SharedMap::new(),
             env_cache: RefCell::new(None),
 
             explicit_namespaces,
@@ -182,9 +182,14 @@ impl SemanticHost {
         self.config_constants.clone()
     }
 
+    pub fn clear_config_constants(&self) {
+        self.config_constants.clone().clear();
+        self.config_constants_eval.clone().clear();
+    }
+
     #[inline(always)]
-    pub(crate) fn config_constants_cu(&self) -> SharedMap<String, Rc<CompilationUnit>> {
-        self.config_constants_cu.clone()
+    pub(crate) fn config_constants_eval(&self) -> SharedMap<String, Thingy> {
+        self.config_constants_eval.clone()
     }
 
     pub fn empty_empty_qname(&self) -> QName {

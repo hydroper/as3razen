@@ -15,10 +15,12 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [ ] Try statement
 * [ ] Invalidated directive
 * [ ] Configuration directive
+  * [ ] Evaluate constants with `ExpressionSubverifier::verify_inline_constant()`
 * [ ] Import directive
 * [ ] Use namespace directive
 * [ ] Include directive
 * [ ] Normal configuration directive
+  * [ ] Evaluate constants with `ExpressionSubverifier::verify_inline_constant()`
 * [ ] Package concatenation directive
 * [ ] Directive injection
 * [ ] Variable definition
