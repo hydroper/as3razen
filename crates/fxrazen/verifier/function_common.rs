@@ -119,7 +119,7 @@ impl FunctionCommonSubverifier {
 
         // Analyse the control flow (for block only).
         if let Some(FunctionBody::Block(block)) = &common.body {
-            ControlFlowAnalyser::analyse_directives(&block.directives, &activation.control_flow_graph(), &mut vec![]);
+            ControlFlowAnalyser::analyse_directives(&block.directives, &activation.control_flow_graph(), &mut vec![], &[]);
         }
 
         // If the signature is fully resolved, ensure all code paths return a value.
