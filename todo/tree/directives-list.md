@@ -15,7 +15,7 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [ ] Try statement
 * [ ] Invalidated directive
 * [ ] Configuration directive
-  * [ ] Evaluate constants with `ExpressionSubverifier::verify_inline_constant()`
+  * [ ] Do not evaluate constants for `configuration {}`; use their character data instead.
 * [ ] Import directive
 * [ ] Use namespace directive
 * [ ] Include directive
