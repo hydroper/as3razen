@@ -11,7 +11,6 @@ impl VerifierFunctionPartials {
             params: RefCell::new(None),
             result_type: RefCell::new(None),
             signature: RefCell::new(None),
-            // directives_finished: Cell::new(false),
         }))
     }
 
@@ -46,16 +45,6 @@ impl VerifierFunctionPartials {
     pub fn set_signature(&self, thingy: Option<Thingy>) {
         self.0.signature.replace(thingy);
     }
-
-    /*
-    pub fn directives_finished(&self) -> bool {
-        self.0.directives_finished.get()
-    }
-
-    pub fn set_directives_finished(&self, value: bool) {
-        self.0.directives_finished.set(value);
-    }
-    */
 }
 
 struct VerifierFunctionPartials1 {
@@ -64,7 +53,6 @@ struct VerifierFunctionPartials1 {
     pub params: RefCell<Option<Vec<Rc<SemanticFunctionTypeParameter>>>>,
     pub result_type: RefCell<Option<Thingy>>,
     pub signature: RefCell<Option<Thingy>>,
-    // pub directives_finished: Cell<bool>,
 }
 
 pub(crate) struct FunctionCommonSubverifier;
