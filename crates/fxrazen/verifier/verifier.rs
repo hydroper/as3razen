@@ -92,8 +92,25 @@ impl Verifier {
 
         self.verifier.reset_state();
 
-        // * [ ] Remember to handle deferred function commons together.
+        // * [ ] Eliminate programs that were fully solved from directive verification,
+        //       but still visit them later for statement verification.
         todo_here();
+
+        // * [ ] Handle deferred function commons for lambdas.
+        for _ in 0..Verifier::MAX_CYCLES {
+            let mut any_defer = false;
+            for (common, partials) in self.verifier.deferred_function_exp.clone().borrow().iter() {
+                let common = (**common).clone();
+                any_defer = FunctionCommonSubverifier::verify_function_exp_common(&mut self.verifier, &common, partials).is_err();
+            }
+            if !any_defer {
+                break;
+            }
+        }
+        for (common, _) in self.verifier.deferred_function_exp.clone().borrow().iter() {
+            let loc = (*common).location.clone();
+            self.verifier.add_verify_error(&loc, FxDiagnosticKind::ReachedMaximumCycles, diagarg![]);
+        }
 
         for (old, new) in self.verifier.definition_conflicts.clone().iter() {
             self.verifier.finish_definition_conflict(&old, &new);

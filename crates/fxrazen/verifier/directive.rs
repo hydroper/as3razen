@@ -75,6 +75,18 @@ impl DirectiveSubverifier {
             Directive::WithStatement(withstmt) => {
                 Self::verify_directive(verifier, &withstmt.body)
             },
+            Directive::TryStatement(trystmt) => {
+                let mut any_defer = Self::verify_block(verifier, &trystmt.block).is_err();
+                for catch_clause in &trystmt.catch_clauses {
+                    let r = Self::verify_block(verifier, &catch_clause.block).is_err();
+                    any_defer = any_defer || r;
+                }
+                if let Some(finally_clause) = trystmt.finally_clause.as_ref() {
+                    let r = Self::verify_block(verifier, &finally_clause.block).is_err();
+                    any_defer = any_defer || r;
+                }
+                if any_defer { Err(DeferError(None)) } else { Ok(()) }
+            },
             _ => Ok(()),
         }
     }

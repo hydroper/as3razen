@@ -19,8 +19,7 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [x] For statement
 * [x] For..in statement
 * [x] With statement
-* [ ] Try statement
-* [ ] Invalidated directive
+* [x] Try statement
 * [ ] Configuration directive
   * [ ] Evaluate the expression expecting a Boolean constant (possibly defer)
 * [ ] Import directive
