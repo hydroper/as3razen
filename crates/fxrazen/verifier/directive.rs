@@ -145,6 +145,9 @@ impl DirectiveSubverifier {
 
         match phase {
             VerifierPhase::Alpha => {
+                // Mark unused
+                Unused(&verifier.host).add(&imp);
+
                 // Contribute to import list
                 todo_here();
             },
