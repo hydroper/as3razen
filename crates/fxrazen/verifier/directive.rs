@@ -159,7 +159,25 @@ impl DirectiveSubverifier {
                 match &impdrtv.import_specifier {
                     ImportSpecifier::Identifier(name) => {
                         // Resolve a property import
-                        todo_here();
+                        let open_ns_set = verifier.scope().concat_open_ns_set_of_scope_chain();
+                        let pckg = host.factory().create_package(impdrtv.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
+                        match pckg.properties(&host).get_in_ns_set_or_any_public_ns(&open_ns_set, &name.0) {
+                            Ok(Some(prop)) => {
+                                to_do_here();
+                            },
+                            Ok(None) => {
+                                // Error
+                                to_do_here();
+
+                                imp.set_property(&host.invalidation_thingy());
+                            },
+                            Err(AmbiguousReferenceError(name)) => {
+                                // Error
+                                to_do_here();
+
+                                imp.set_property(&host.invalidation_thingy());
+                            },
+                        }
                     },
                     ImportSpecifier::Wildcard(_) => {
                         // Check for empty package (including concatenations) to report a warning.

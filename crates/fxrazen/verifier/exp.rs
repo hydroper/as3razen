@@ -551,14 +551,18 @@ impl ExpSubverifier {
             }
         } else {
             assert!(import.is::<PackagePropertyImport>());
-            import.property().defer()?;
-            if &dot_seq[0..(dot_seq.len() - 1)] != &import.property().parent().unwrap().fully_qualified_name_list()
-            || dot_seq.last().unwrap() != &import.property().name().local_name()
+            let prop = import.property();
+            prop.defer()?;
+            if prop.is::<InvalidationThingy>() {
+                return Ok(None);
+            }
+            if &dot_seq[0..(dot_seq.len() - 1)] != &prop.parent().unwrap().fully_qualified_name_list()
+            || dot_seq.last().unwrap() != &prop.name().local_name()
             {
                 return Ok(None);
             }
             Unused(&verifier.host).mark_used(import);
-            Ok(Some(import.property().resolve_alias().wrap_property_reference(&verifier.host)?))
+            Ok(Some(prop.resolve_alias().wrap_property_reference(&verifier.host)?))
         }
     }
 

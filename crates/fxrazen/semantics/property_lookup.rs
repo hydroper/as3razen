@@ -423,6 +423,9 @@ impl<'a> PropertyLookup<'a> {
                     } else {
                         assert!(import.is::<PackagePropertyImport>());
                         let prop = map_defer_error(import.property().defer())?;
+                        if prop.is::<InvalidationThingy>() {
+                            continue;
+                        }
                         if prop.name().matches_in_ns_set_or_any_public_ns(&open_ns_set, &local_name) {
                             Unused(self.0).mark_used(&import);
 

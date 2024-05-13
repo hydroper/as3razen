@@ -58,6 +58,7 @@ pub enum FxDiagnosticKind {
     NanComparison = 2102,
     NotABooleanConstant = 2103,
     EmptyPackage = 2104,
+    ImportOfUndefined = 2105,
 }
 
 impl FxDiagnosticKind {
