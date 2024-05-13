@@ -40,6 +40,7 @@ The `StatementSubverifier::verify_statement()` method will verify a statement or
 
 * [ ] Assign ASDoc
 * [ ] Assign location
+* [ ] Read the `[Options]` meta-data and apply `Options` classes restrictions
 * [ ] Assign every `[Event]` semantics to the class
 * [ ] Handle the `[Bindable]` meta-data right after variables are declared
 * [ ] Mark unused
