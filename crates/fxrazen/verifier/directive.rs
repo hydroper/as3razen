@@ -128,8 +128,8 @@ impl DirectiveSubverifier {
         }
         let host = verifier.host.clone();
         let imp = host.lazy_node_mapping(drtv, || {
-            match impdrtv.import_specifier {
-                ImportSpecifier::Identifier(name) => {
+            match &impdrtv.import_specifier {
+                ImportSpecifier::Identifier(_) => {
                     // Initially unresolved import; resolve it in Beta phase.
                     host.factory().create_package_property_import(&host.unresolved_thingy(), Some(drtv.location()))
                 },
@@ -156,12 +156,21 @@ impl DirectiveSubverifier {
                 Err(DeferError(None))
             },
             VerifierPhase::Beta => {
-                // Check for empty package (wildcard or recursive) to report
-                // a warning.
-                todo_here();
-
-                // Resolve a property import
-                todo_here();
+                match &impdrtv.import_specifier {
+                    ImportSpecifier::Identifier(name) => {
+                        // Resolve a property import
+                        todo_here();
+                    },
+                    ImportSpecifier::Wildcard(_) => {
+                        // Check for empty package (including concatenations) to report a warning.
+                        todo_here();
+                    },
+                    ImportSpecifier::Recursive(_) => {
+                        // Check for empty package, recursively, (including concatenations) to report
+                        // a warning.
+                        todo_here();
+                    },
+                }
 
                 verifier.set_drtv_phase(drtv, VerifierPhase::Finished);
                 Ok(())
