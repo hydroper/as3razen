@@ -150,7 +150,7 @@ impl DirectiveSubverifier {
                 Unused(&verifier.host).add(&imp);
 
                 // Contribute to import list
-                todo_here();
+                verifier.scope().search_hoist_scope().import_list().push(imp);
 
                 verifier.set_drtv_phase(drtv, VerifierPhase::Beta);
                 Err(DeferError(None))

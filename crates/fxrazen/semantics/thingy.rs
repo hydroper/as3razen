@@ -975,6 +975,17 @@ smodel! {
             panic!();
         }
 
+        pub fn search_hoist_scope(&self) -> Thingy {
+            let mut scope = Some(self.clone());
+            while let Some(scope1) = scope {
+                if scope1.is::<FixtureScope>() || scope1.is::<Activation>() {
+                    return scope1;
+                }
+                scope = scope1.parent();
+            }
+            scope.unwrap()
+        }
+
         fn to_string_1(&self) -> String {
             "".into()
         }
