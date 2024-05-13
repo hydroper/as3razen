@@ -616,6 +616,10 @@ smodel! {
             panic!();
         }
 
+        pub fn set_alias_of(&self, value: &Thingy) {
+            panic!();
+        }
+
         pub fn resolve_alias(&self) -> Thingy {
             self.clone()
         }
@@ -1177,6 +1181,10 @@ smodel! {
 
         pub override fn alias_of(&self) -> Thingy {
             self.m_alias_of().unwrap()
+        }
+
+        pub override fn set_alias_of(&self, value: &Thingy) {
+            self.m_alias_of().replace(Some(value.clone()));
         }
 
         pub override fn location(&self) -> Option<Location> {

@@ -22,9 +22,11 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [x] Try statement
 * [x] Configuration directive
 * [ ] Import directive
+  * [ ] Some aliases should result in unresolved temporarily
 * [ ] Use namespace directive
 * [ ] Include directive
 * [ ] Normal configuration directive
   * [ ] Evaluate constant with `ExpressionSubverifier::eval_config_constant()`
 * [ ] Package concatenation directive
+  * [ ] Some aliases should result in unresolved temporarily
 * [ ] Directive injection

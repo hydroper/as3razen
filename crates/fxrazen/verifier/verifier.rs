@@ -90,8 +90,6 @@ impl Verifier {
             panic!("Verifier already invalidated.");
         }
 
-        self.verifier.reset_state();
-
         // * [ ] Eliminate programs that were fully solved from directive verification,
         //       but still visit them later for statement verification.
         todo_here();
@@ -115,6 +113,8 @@ impl Verifier {
         for (old, new) in self.verifier.definition_conflicts.clone().iter() {
             self.verifier.finish_definition_conflict(&old, &new);
         }
+
+        self.verifier.reset_state();
     }
 
     /// Verifies an expression. Returns `None` if verification failed.
@@ -126,8 +126,6 @@ impl Verifier {
         if self.verifier.invalidated {
             panic!("Verifier already invalidated.");
         }
-
-        self.verifier.reset_state();
 
         let v = self.verifier.verify_expression(exp, context);
         if let Ok(v) = v {
@@ -148,10 +146,12 @@ impl Verifier {
             for (old, new) in self.verifier.definition_conflicts.clone().iter() {
                 self.verifier.finish_definition_conflict(&old, &new);
             }
+            self.verifier.reset_state();
             return v;
         }
 
         self.verifier.add_verify_error(&exp.location(), FxDiagnosticKind::ReachedMaximumCycles, diagarg![]);
+        self.verifier.reset_state();
         None
     }
 

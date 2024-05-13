@@ -15,8 +15,6 @@ Set scopes carefully within directive sequences. Sometimes inherit and enter; so
 
 Across all compilation units, directives should be verified first, from a package to a class or method, and from a class to a method or property. After all directives are solved in these ranges, statements may be verified in one pass.
 
-A special pass after the initial package pass is done for resolving wildcard (`.*`) and recursive (`.**`) package concatenation directives.
-
 ## Directives versus statements
 
 The `DirectiveSubverifier::verify_directive()` method will verify a directive, for certain directives and the block statement, their subdirectives until a limit (for example, from class goes until methods, and from a block statement goes until subdirectives).
