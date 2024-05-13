@@ -56,6 +56,7 @@ pub enum FxDiagnosticKind {
     ReturnTypeDeclarationMustBePromise = 2100,
     ReturnTypeInferenceIsNotImplemented = 2101,
     NanComparison = 2102,
+    NotABooleanConstant = 2103,
 }
 
 impl FxDiagnosticKind {

@@ -60,6 +60,7 @@ lazy_static! {
         FxDiagnosticKind::ReturnTypeDeclarationMustBePromise.id() => "Return type declaration must be Promise.".into(),
         FxDiagnosticKind::ReturnTypeInferenceIsNotImplemented.id() => "Return type inference is not implemented in the present. Using an untyped type.".into(),
         FxDiagnosticKind::NanComparison.id() => "Comparison involving NaN. Use isNaN() or !isNaN() instead.".into(),
+        FxDiagnosticKind::NotABooleanConstant.id() => "Not a Boolean constant.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

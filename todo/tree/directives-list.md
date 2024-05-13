@@ -20,8 +20,7 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [x] For..in statement
 * [x] With statement
 * [x] Try statement
-* [ ] Configuration directive
-  * [ ] Evaluate the expression expecting a Boolean constant (possibly defer)
+* [x] Configuration directive
 * [ ] Import directive
 * [ ] Use namespace directive
 * [ ] Include directive

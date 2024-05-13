@@ -87,7 +87,52 @@ impl DirectiveSubverifier {
                 }
                 if any_defer { Err(DeferError(None)) } else { Ok(()) }
             },
+            Directive::ConfigurationDirective(cfgdrtv) => {
+                let phase = verifier.lazy_init_drtv_phase(drtv, VerifierPhase::Alpha);
+                if phase == VerifierPhase::Finished {
+                    return Ok(());
+                }
+                if Self::verify_config_subdirective(verifier, &cfgdrtv.directive).is_err() {
+                    Err(DeferError(None))
+                } else {
+                    verifier.set_drtv_phase(drtv, VerifierPhase::Finished);
+                    Ok(())
+                }
+            },
             _ => Ok(()),
+        }
+    }
+
+    pub fn verify_config_subdirective(verifier: &mut Subverifier, drtv: &Rc<Directive>) -> Result<(), DeferError> {
+        match drtv.as_ref() {
+            Directive::Block(block) => {
+                Self::verify_directives(verifier, &block.directives)
+            },
+            Directive::IfStatement(ifstmt) => {
+                let Ok(cval) = verifier.verify_expression(&ifstmt.test, &default()) else {
+                    verifier.add_verify_error(&ifstmt.test.location(), FxDiagnosticKind::ReachedMaximumCycles, diagarg![]);
+                    return Ok(());
+                };
+                let Some(cval) = cval else {
+                    return Ok(());
+                };
+                if !cval.is::<BooleanConstant>() {
+                    verifier.host.node_mapping().set(&ifstmt.test, None);
+                    verifier.add_verify_error(&ifstmt.test.location(), FxDiagnosticKind::NotABooleanConstant, diagarg![]);
+                    return Ok(());
+                }
+                let bv = cval.boolean_value();
+                if bv {
+                    Self::verify_config_subdirective(verifier, &ifstmt.consequent)
+                } else {
+                    if let Some(alt) = &ifstmt.alternative {
+                        Self::verify_config_subdirective(verifier, alt)
+                    } else {
+                        Ok(())
+                    }
+                }
+            },
+            _ => panic!(),
         }
     }
 
