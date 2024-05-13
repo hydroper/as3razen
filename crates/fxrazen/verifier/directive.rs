@@ -130,7 +130,8 @@ impl DirectiveSubverifier {
         let imp = host.lazy_node_mapping(drtv, || {
             match impdrtv.import_specifier {
                 ImportSpecifier::Identifier(name) => {
-                    // Initially unresolved import; resolve it in Beta phase.
+                    // Initially unresolved import; resolve it in Beta phase,
+                    // handling any name conflict.
                     todo_here()
                 },
                 ImportSpecifier::Wildcard(_) => {
@@ -150,6 +151,9 @@ impl DirectiveSubverifier {
 
                 // Contribute to import list
                 todo_here();
+                
+                verifier.set_drtv_phase(drtv, VerifierPhase::Beta);
+                Err(DeferError(None))
             },
             VerifierPhase::Beta => {
                 // Check for empty package (wildcard or recursive) to report
@@ -158,10 +162,12 @@ impl DirectiveSubverifier {
 
                 // Resolve an alias import
                 todo_here();
-            },
-        }
 
-        todo_here();
+                verifier.set_drtv_phase(drtv, VerifierPhase::Finished);
+                Ok(())
+            },
+            _ => panic!(),
+        }
     }
 
     pub fn verify_import_alias_directive(verifier: &mut Subverifier, drtv: &Rc<Directive>, impdrtv: &ImportDirective) -> Result<(), DeferError> {
