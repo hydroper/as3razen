@@ -208,7 +208,55 @@ impl DirectiveSubverifier {
     }
 
     pub fn verify_import_alias_directive(verifier: &mut Subverifier, drtv: &Rc<Directive>, impdrtv: &ImportDirective) -> Result<(), DeferError> {
-        todo_here();
+        let phase = verifier.lazy_init_drtv_phase(drtv, VerifierPhase::Alpha);
+        if phase == VerifierPhase::Finished {
+            return Ok(());
+        }
+        let alias_name = impdrtv.alias.as_ref().unwrap();
+        let host = verifier.host.clone();
+
+        let internal_ns = verifier.scope().search_system_ns_in_scope_chain(SystemNamespaceKind::Internal).unwrap();
+        let alias_qname = host.factory().create_qname(&internal_ns, alias_name.0.clone());
+
+        let alias = host.lazy_node_mapping(drtv, || {
+            let alias;
+            match &impdrtv.import_specifier {
+                ImportSpecifier::Identifier(_) => {
+                    // Initially unresolved import; resolve it in Beta phase.
+                    alias = host.factory().create_alias(alias_qname, host.unresolved_thingy());
+                },
+                ImportSpecifier::Wildcard(_) => {
+                    let pckg = host.factory().create_package(impdrtv.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
+                    let imp = host.factory().create_package_wildcard_import(&pckg, None);
+                    alias = host.factory().create_alias(alias_qname, imp);
+                },
+                ImportSpecifier::Recursive(_) => {
+                    let pckg = host.factory().create_package(impdrtv.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
+                    let imp = host.factory().create_package_recursive_import(&pckg, None);
+                    alias = host.factory().create_alias(alias_qname, imp);
+                },
+            }
+            alias.set_location(Some(alias_name.1.clone()));
+            alias
+        });
+
+        match phase {
+            VerifierPhase::Alpha => {
+                // Mark unused
+                Unused(&verifier.host).add(&alias);
+
+                // Define the alias, handling any conflict.
+                todo_here();
+
+                verifier.set_drtv_phase(drtv, VerifierPhase::Beta);
+                Err(DeferError(None))
+            },
+            VerifierPhase::Beta => {
+                // Resolve property or make sure an aliased package is not empty.
+
+                todo_here()
+            },
+        }
     }
 
     pub fn verify_config_subdirective(verifier: &mut Subverifier, drtv: &Rc<Directive>) -> Result<(), DeferError> {
