@@ -105,6 +105,9 @@ impl Verifier {
         //       but still visit them later for statement verification.
         todo_here();
 
+        // Verify statements
+        todo_here();
+
         // * [ ] Handle deferred function commons for lambdas.
         for _ in 0..Verifier::MAX_CYCLES {
             let mut any_defer = false;
