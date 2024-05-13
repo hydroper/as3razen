@@ -218,7 +218,7 @@ impl DirectiveSubverifier {
         let internal_ns = verifier.scope().search_system_ns_in_scope_chain(SystemNamespaceKind::Internal).unwrap();
         let alias_qname = host.factory().create_qname(&internal_ns, alias_name.0.clone());
 
-        let alias = host.lazy_node_mapping(drtv, || {
+        let mut alias = host.lazy_node_mapping(drtv, || {
             let alias;
             match &impdrtv.import_specifier {
                 ImportSpecifier::Identifier(_) => {
@@ -240,13 +240,24 @@ impl DirectiveSubverifier {
             alias
         });
 
+        if alias.is::<InvalidationThingy>() {
+            verifier.set_drtv_phase(drtv, VerifierPhase::Finished);
+            return Ok(());
+        }
+
         match phase {
             VerifierPhase::Alpha => {
                 // Mark unused
                 Unused(&verifier.host).add(&alias);
 
                 // Define the alias, handling any conflict.
-                todo_here();
+                let out_names = verifier.scope().search_hoist_scope().properties(&host);
+                if let Some(prev) = out_names.get(&alias_qname) {
+                    alias = verifier.handle_definition_conflict(&prev, &alias);
+                    host.node_mapping().set(drtv, Some(alias));
+                } else {
+                    out_names.set(alias_qname, alias);
+                }
 
                 verifier.set_drtv_phase(drtv, VerifierPhase::Beta);
                 Err(DeferError(None))
@@ -256,6 +267,7 @@ impl DirectiveSubverifier {
 
                 todo_here()
             },
+            _ => panic!(),
         }
     }
 

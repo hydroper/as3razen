@@ -182,4 +182,8 @@ impl NameMap {
     pub fn clear(&mut self) {
         self.0.clear();
     }
+
+    pub fn has(&self, name: &QName) -> bool {
+        self.0.borrow().contains_key(name)
+    }
 }
