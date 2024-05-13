@@ -223,17 +223,17 @@ impl DirectiveSubverifier {
             match &impdrtv.import_specifier {
                 ImportSpecifier::Identifier(_) => {
                     // Initially unresolved import; resolve it in Beta phase.
-                    alias = host.factory().create_alias(alias_qname, host.unresolved_thingy());
+                    alias = host.factory().create_alias(alias_qname.clone(), host.unresolved_thingy());
                 },
                 ImportSpecifier::Wildcard(_) => {
                     let pckg = host.factory().create_package(impdrtv.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
                     let imp = host.factory().create_package_wildcard_import(&pckg, None);
-                    alias = host.factory().create_alias(alias_qname, imp);
+                    alias = host.factory().create_alias(alias_qname.clone(), imp);
                 },
                 ImportSpecifier::Recursive(_) => {
                     let pckg = host.factory().create_package(impdrtv.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
                     let imp = host.factory().create_package_recursive_import(&pckg, None);
-                    alias = host.factory().create_alias(alias_qname, imp);
+                    alias = host.factory().create_alias(alias_qname.clone(), imp);
                 },
             }
             alias.set_location(Some(alias_name.1.clone()));
@@ -251,7 +251,7 @@ impl DirectiveSubverifier {
                 Unused(&verifier.host).add(&alias);
 
                 // Define the alias, handling any conflict.
-                let out_names = verifier.scope().search_hoist_scope().properties(&host);
+                let mut out_names = verifier.scope().search_hoist_scope().properties(&host);
                 if let Some(prev) = out_names.get(&alias_qname) {
                     alias = verifier.handle_definition_conflict(&prev, &alias);
                     host.node_mapping().set(drtv, Some(alias));
@@ -265,7 +265,52 @@ impl DirectiveSubverifier {
             VerifierPhase::Beta => {
                 // Resolve property or make sure an aliased package is not empty.
 
-                todo_here()
+                match &impdrtv.import_specifier {
+                    ImportSpecifier::Identifier(name) => {
+                        let name_loc = name.1.clone();
+
+                        // Resolve a property import
+                        let open_ns_set = verifier.scope().concat_open_ns_set_of_scope_chain();
+                        let pckg = host.factory().create_package(impdrtv.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
+                        match pckg.properties(&host).get_in_ns_set_or_any_public_ns(&open_ns_set, &name.0) {
+                            Ok(Some(prop)) => {
+                                Unused(&host).mark_used(&prop);
+                                alias.set_alias_of(&prop);
+                            },
+                            Ok(None) => {
+                                verifier.add_verify_error(&impdrtv.package_name[0].1.combine_with(name.1.clone()), FxDiagnosticKind::ImportOfUndefined, diagarg![
+                                    format!("{}.{}", impdrtv.package_name.iter().map(|name| name.0.clone()).collect::<Vec<_>>().join("."), name.0)]);
+
+                                alias.set_alias_of(&host.invalidation_thingy());
+                            },
+                            Err(AmbiguousReferenceError(name)) => {
+                                verifier.add_verify_error(&name_loc, FxDiagnosticKind::AmbiguousReference, diagarg![name]);
+
+                                alias.set_alias_of(&host.invalidation_thingy());
+                            },
+                        }
+                    },
+                    ImportSpecifier::Wildcard(_) => {
+                        // Check for empty package (including concatenations) to report a warning.
+                        if alias.alias_of().package().is_empty_package(&host) {
+                            verifier.add_verify_error(&impdrtv.package_name[0].1.combine_with(impdrtv.package_name.last().unwrap().1.clone()),
+                                FxDiagnosticKind::EmptyPackage,
+                                diagarg![impdrtv.package_name.iter().map(|name| name.0.clone()).collect::<Vec<_>>().join(".")]);
+                        }
+                    },
+                    ImportSpecifier::Recursive(_) => {
+                        // Check for empty package, recursively, (including concatenations) to report
+                        // a warning.
+                        if alias.alias_of().package().is_empty_package_recursive(&host) {
+                            verifier.add_verify_error(&impdrtv.package_name[0].1.combine_with(impdrtv.package_name.last().unwrap().1.clone()),
+                                FxDiagnosticKind::EmptyPackage,
+                                diagarg![impdrtv.package_name.iter().map(|name| name.0.clone()).collect::<Vec<_>>().join(".")]);
+                        }
+                    },
+                }
+
+                verifier.set_drtv_phase(drtv, VerifierPhase::Finished);
+                Ok(())
             },
             _ => panic!(),
         }

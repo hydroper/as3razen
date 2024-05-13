@@ -21,8 +21,7 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [x] With statement
 * [x] Try statement
 * [x] Configuration directive
-* [ ] Import directive
-  * [x] Some aliases should result in unresolved temporarily
+* [x] Import directive
 * [ ] Use namespace directive
 * [ ] Include directive
 * [ ] Normal configuration directive
