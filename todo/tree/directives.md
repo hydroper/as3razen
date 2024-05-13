@@ -43,6 +43,7 @@ The `StatementSubverifier::verify_statement()` method will verify a statement or
 * [ ] Read the `[Options]` meta-data and apply `Options` classes restrictions
 * [ ] Assign every `[Event]` semantics to the class
 * [ ] Handle the `[Bindable]` meta-data right after variables are declared
+* [ ] Assign attributes correctly (`static`, `dynamic`, `abstract`, and `final`)
 * [ ] Mark unused
 
 ## Interface definitions

@@ -163,7 +163,8 @@ impl DirectiveSubverifier {
                         let pckg = host.factory().create_package(impdrtv.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
                         match pckg.properties(&host).get_in_ns_set_or_any_public_ns(&open_ns_set, &name.0) {
                             Ok(Some(prop)) => {
-                                to_do_here();
+                                Unused(&host).mark_used(&prop);
+                                imp.set_property(&prop);
                             },
                             Ok(None) => {
                                 // Error
