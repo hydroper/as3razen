@@ -90,7 +90,15 @@ impl Verifier {
             panic!("Verifier already invalidated.");
         }
 
-        // * [ ] Eliminate programs that were fully solved from directive verification,
+        // Collect package definitions, including these from top-level include directives.
+        todo_here();
+
+        // Do a first pass in every package to declare them.
+        todo_here();
+
+        // Verify directives across packages
+        //
+        // * [ ] Eliminate packages that were fully solved from directive verification,
         //       but still visit them later for statement verification.
         todo_here();
 
