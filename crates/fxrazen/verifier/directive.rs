@@ -130,9 +130,8 @@ impl DirectiveSubverifier {
         let imp = host.lazy_node_mapping(drtv, || {
             match impdrtv.import_specifier {
                 ImportSpecifier::Identifier(name) => {
-                    // Initially unresolved import; resolve it in Beta phase,
-                    // handling any name conflict.
-                    todo_here()
+                    // Initially unresolved import; resolve it in Beta phase.
+                    host.factory().create_package_property_import(&host.unresolved_thingy(), Some(drtv.location()))
                 },
                 ImportSpecifier::Wildcard(_) => {
                     let pckg = host.factory().create_package(impdrtv.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
@@ -152,7 +151,7 @@ impl DirectiveSubverifier {
 
                 // Contribute to import list
                 todo_here();
-                
+
                 verifier.set_drtv_phase(drtv, VerifierPhase::Beta);
                 Err(DeferError(None))
             },
@@ -161,7 +160,7 @@ impl DirectiveSubverifier {
                 // a warning.
                 todo_here();
 
-                // Resolve an alias import
+                // Resolve a property import
                 todo_here();
 
                 verifier.set_drtv_phase(drtv, VerifierPhase::Finished);

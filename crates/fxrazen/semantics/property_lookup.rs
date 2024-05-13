@@ -406,7 +406,7 @@ impl<'a> PropertyLookup<'a> {
                         amb = self.lookup_in_object(&import.package(), &open_ns_set, qual.clone(), key)?;
                         if let Some(amb) = amb {
                             Unused(self.0).mark_used(&import);
-                            if r.is_some() {
+                            if r.is_some() && !r.as_ref().unwrap().fixture_reference_value_equals(&amb) {
                                 return Err(PropertyLookupError::AmbiguousReference(local_name));
                             }
                             r = Some(amb);
@@ -415,7 +415,7 @@ impl<'a> PropertyLookup<'a> {
                         amb = self.lookup_in_package_recursive(&import.package(), &open_ns_set, qual.clone(), key)?;
                         if let Some(amb) = amb {
                             Unused(self.0).mark_used(&import);
-                            if r.is_some() {
+                            if r.is_some() && !r.as_ref().unwrap().fixture_reference_value_equals(&amb) {
                                 return Err(PropertyLookupError::AmbiguousReference(local_name));
                             }
                             r = Some(amb);
@@ -426,7 +426,7 @@ impl<'a> PropertyLookup<'a> {
                         if prop.name().matches_in_ns_set_or_any_public_ns(&open_ns_set, &local_name) {
                             Unused(self.0).mark_used(&import);
 
-                            if r.is_some() {
+                            if r.is_some() && !r.as_ref().unwrap().fixture_reference_value_equals(&prop) {
                                 return Err(PropertyLookupError::AmbiguousReference(local_name));
                             }
 

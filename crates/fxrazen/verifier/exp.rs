@@ -487,7 +487,7 @@ impl ExpSubverifier {
             let mut r: Option<Thingy> = None;
             for import in scope1.import_list().iter() {
                 if let Some(r1) = Self::import_shadowing_package_name(verifier, &open_ns_set, &dot_seq, &import, &member_exp.identifier.location)? {
-                    if r.is_some() && r.as_ref().unwrap() != &r1 {
+                    if r.is_some() && !r.as_ref().unwrap().fixture_reference_value_equals(&r1) {
                         verifier.add_verify_error(&member_exp.identifier.location, FxDiagnosticKind::AmbiguousReference, diagarg![dot_seq.last().unwrap().clone()]);
                         return Ok(None);
                     }

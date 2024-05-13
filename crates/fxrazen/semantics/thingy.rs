@@ -892,6 +892,20 @@ smodel! {
             }
             if self.is::<Type>() { Some(self.clone()) } else { None }
         }
+        
+        pub fn fixture_reference_value_equals(&self, other: &Thingy) -> bool {
+            if other.is::<FixtureReferenceValue>() {
+                if self.is::<FixtureReferenceValue>() {
+                    self.property() == other.property()
+                } else {
+                    self == &other.property()
+                }
+            } else if self.is::<FixtureReferenceValue>() {
+                &self.property() == other
+            } else {
+                self == other
+            }
+        }
 
         pub fn control_flow_graph(&self) -> ControlFlowGraph {
             panic!();
