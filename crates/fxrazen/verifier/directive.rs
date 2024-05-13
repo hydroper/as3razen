@@ -135,11 +135,12 @@ impl DirectiveSubverifier {
                     todo_here()
                 },
                 ImportSpecifier::Wildcard(_) => {
-                    todo_here()
+                    let pckg = host.factory().create_package(impdrtv.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
+                    host.factory().create_package_wildcard_import(&pckg, Some(drtv.location()))
                 },
                 ImportSpecifier::Recursive(_) => {
                     let pckg = host.factory().create_package(impdrtv.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
-                    todo_here()
+                    host.factory().create_package_recursive_import(&pckg, Some(drtv.location()))
                 },
             }
         });
