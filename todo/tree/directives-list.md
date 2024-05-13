@@ -9,6 +9,7 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [ ] Interface definition
 * [ ] Type definition
 * [ ] Namespace definition
+  * [ ] If right-hand side is a string literal, then declare namespace directly instead of resolving the constant.
 * [x] Block
 * [x] Labeled statement
 * [x] If statement

@@ -95,17 +95,21 @@ impl Verifier {
         for program in programs.iter() {
             packages.extend(Self::collect_package_definitions(program));
         }
+        let mut rem_pckg_list = packages.clone();
 
         // Do a first pass in every package to declare them.
         todo_here();
 
-        // Verify directives across packages
+        // Verify directives across packages ("rem_pckg_list")
         //
-        // * [ ] Eliminate packages that were fully solved from directive verification,
+        // * [ ] Eliminate packages from "rem_pckg_list" that were fully solved from directive verification,
         //       but still visit them later for statement verification.
         todo_here();
 
-        // Verify statements
+        // Verify statements across packages
+        todo_here();
+
+        // Verify directives and then statements in the top-level of all programs.
         todo_here();
 
         // * [ ] Handle deferred function commons for lambdas.
