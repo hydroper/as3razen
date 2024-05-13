@@ -67,10 +67,22 @@ impl DirectiveSubverifier {
                 Self::verify_directive(verifier, &whilestmt.body)
             },
             Directive::ForStatement(forstmt) => {
-                Self::verify_directive(verifier, &forstmt.body)
+                let scope = verifier.host.lazy_node_mapping(drtv, || {
+                    verifier.host.factory().create_scope()
+                });
+                verifier.inherit_and_enter_scope(&scope);
+                let r = Self::verify_directive(verifier, &forstmt.body);
+                verifier.exit_scope();
+                r
             },
             Directive::ForInStatement(forstmt) => {
-                Self::verify_directive(verifier, &forstmt.body)
+                let scope = verifier.host.lazy_node_mapping(drtv, || {
+                    verifier.host.factory().create_scope()
+                });
+                verifier.inherit_and_enter_scope(&scope);
+                let r = Self::verify_directive(verifier, &forstmt.body);
+                verifier.exit_scope();
+                r
             },
             Directive::WithStatement(withstmt) => {
                 Self::verify_directive(verifier, &withstmt.body)
@@ -125,6 +137,7 @@ impl DirectiveSubverifier {
                     todo_here()
                 },
                 ImportSpecifier::Recursive(_) => {
+                    let pckg = host.factory().create_package(impdrtv.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
                     todo_here()
                 },
             }
@@ -133,6 +146,14 @@ impl DirectiveSubverifier {
         match phase {
             VerifierPhase::Alpha => {
                 // Contribute to import list
+                todo_here();
+            },
+            VerifierPhase::Beta => {
+                // Check for empty package (wildcard or recursive) to report
+                // a warning.
+                todo_here();
+
+                // Resolve an alias import
                 todo_here();
             },
         }

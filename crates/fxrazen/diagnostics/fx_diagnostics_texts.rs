@@ -61,6 +61,7 @@ lazy_static! {
         FxDiagnosticKind::ReturnTypeInferenceIsNotImplemented.id() => "Return type inference is not implemented in the present. Using an untyped type.".into(),
         FxDiagnosticKind::NanComparison.id() => "Comparison involving NaN. Use isNaN() or !isNaN() instead.".into(),
         FxDiagnosticKind::NotABooleanConstant.id() => "Not a Boolean constant.".into(),
+        FxDiagnosticKind::EmptyPackage.id() => "Package {1} is empty.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }
