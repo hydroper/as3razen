@@ -91,7 +91,10 @@ impl Verifier {
         }
 
         // Collect package definitions, including these from top-level include directives.
-        todo_here();
+        let mut packages: Vec<Rc<PackageDefinition>> = vec![];
+        for program in programs.iter() {
+            packages.extend(Self::collect_package_definitions(program));
+        }
 
         // Do a first pass in every package to declare them.
         todo_here();
@@ -161,6 +164,26 @@ impl Verifier {
         self.verifier.add_verify_error(&exp.location(), FxDiagnosticKind::ReachedMaximumCycles, diagarg![]);
         self.verifier.reset_state();
         None
+    }
+
+    fn collect_package_definitions(program: &Rc<Program>) -> Vec<Rc<PackageDefinition>> {
+        let mut r = program.packages.clone();
+        for drtv in &program.directives {
+            if let Directive::IncludeDirective(drtv) = drtv.as_ref() {
+                r.extend(Self::collect_package_definitions_from_include(drtv));
+            }
+        }
+        r
+    }
+
+    fn collect_package_definitions_from_include(drtv: &IncludeDirective) -> Vec<Rc<PackageDefinition>> {
+        let mut r = drtv.nested_packages.clone();
+        for drtv in &drtv.nested_directives {
+            if let Directive::IncludeDirective(drtv) = drtv.as_ref() {
+                r.extend(Self::collect_package_definitions_from_include(drtv));
+            }
+        }
+        r
     }
 
     #[inline(always)]
