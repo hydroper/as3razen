@@ -628,6 +628,10 @@ smodel! {
             panic!();
         }
 
+        pub fn set_property(&self, value: &Thingy) {
+            panic!();
+        }
+
         pub fn includes_undefined(&self, host: &SemanticHost) -> Result<bool, DeferError> {
             panic!();
         }
@@ -1184,7 +1188,7 @@ smodel! {
         }
 
         pub override fn set_alias_of(&self, value: &Thingy) {
-            self.m_alias_of().replace(Some(value.clone()));
+            self.set_m_alias_of(Some(value.clone()));
         }
 
         pub override fn location(&self) -> Option<Location> {
@@ -3092,6 +3096,10 @@ smodel! {
 
         pub override fn property(&self) -> Thingy {
             self.m_property().unwrap()
+        }
+
+        pub override fn set_property(&self, value: &Thingy) {
+            self.set_m_property(Some(value.clone()));
         }
 
         pub override fn location(&self) -> Option<Location> {

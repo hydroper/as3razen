@@ -551,6 +551,7 @@ impl ExpSubverifier {
             }
         } else {
             assert!(import.is::<PackagePropertyImport>());
+            import.property().defer()?;
             if &dot_seq[0..(dot_seq.len() - 1)] != &import.property().parent().unwrap().fully_qualified_name_list()
             || dot_seq.last().unwrap() != &import.property().name().local_name()
             {

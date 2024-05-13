@@ -99,8 +99,49 @@ impl DirectiveSubverifier {
                     Ok(())
                 }
             },
+            Directive::ImportDirective(impdrtv) => {
+                Self::verify_import_directive(verifier, drtv, impdrtv)
+            },
             _ => Ok(()),
         }
+    }
+
+    pub fn verify_import_directive(verifier: &mut Subverifier, drtv: &Rc<Directive>, impdrtv: &ImportDirective) -> Result<(), DeferError> {
+        let phase = verifier.lazy_init_drtv_phase(drtv, VerifierPhase::Alpha);
+        if phase == VerifierPhase::Finished {
+            return Ok(());
+        }
+        if impdrtv.alias.is_some() {
+            return Self::verify_import_alias_directive(verifier, drtv, impdrtv);
+        }
+        let host = verifier.host.clone();
+        let imp = host.lazy_node_mapping(drtv, || {
+            match impdrtv.import_specifier {
+                ImportSpecifier::Identifier(name) => {
+                    // Initially unresolved import; resolve it in Beta phase.
+                    todo_here()
+                },
+                ImportSpecifier::Wildcard(_) => {
+                    todo_here()
+                },
+                ImportSpecifier::Recursive(_) => {
+                    todo_here()
+                },
+            }
+        });
+
+        match phase {
+            VerifierPhase::Alpha => {
+                // Contribute to import list
+                todo_here();
+            },
+        }
+
+        todo_here();
+    }
+
+    pub fn verify_import_alias_directive(verifier: &mut Subverifier, drtv: &Rc<Directive>, impdrtv: &ImportDirective) -> Result<(), DeferError> {
+        todo_here();
     }
 
     pub fn verify_config_subdirective(verifier: &mut Subverifier, drtv: &Rc<Directive>) -> Result<(), DeferError> {
