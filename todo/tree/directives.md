@@ -36,13 +36,23 @@ The `StatementSubverifier::verify_statement()` method will verify a statement or
 ## Inheritance
 
 * [ ] For classes and interfaces, right after the phase in which the inheritance is solved, ensure the inheritance is not circular (an inherited type must not be equals to or a subtype of the inheritor type) by reporting a verify error in such case.
+* [ ] For definitions within classes and interfaces, ensure they either override a method or do not redefine a previously defined property.
 
 ## Class definitions
 
 * [ ] Assign ASDoc
 * [ ] Assign location
 * [ ] Assign every `[Event]` semantics to the class
+* [ ] Handle the `[Bindable]` meta-data right after variables are declared
 * [ ] Mark unused
+
+## Interface definitions
+
+* [ ] Assign ASDoc
+* [ ] Assign location
+* [ ] Assign every `[Event]` semantics to the interface
+* [ ] Mark unused
+* [ ] For the interface block, verify only top-level function definitions
 
 ## Function definitions
 

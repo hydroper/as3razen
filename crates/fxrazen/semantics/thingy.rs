@@ -1598,6 +1598,7 @@ smodel! {
     pub struct InterfaceType: Type {
         let ref m_name: Option<QName> = None;
         let ref m_type_params: Option<SharedArray<Thingy>> = None;
+        let ref m_flex_events: SharedMap<String, Thingy> = SharedMap::new();
         let ref m_extends_interfaces: SharedArray<Thingy> = SharedArray::new();
         let ref m_known_implementors: SharedArray<Thingy> = SharedArray::new();
         let ref m_parent: Option<Thingy> = None;
@@ -1633,6 +1634,11 @@ smodel! {
 
         pub override fn set_type_params(&self, list: Option<SharedArray<Thingy>>) {
             self.set_m_type_params(list);
+        }
+
+        #[inheritdoc]
+        pub override fn flex_events(&self) -> SharedMap<String, Thingy> {
+            self.m_flex_events()
         }
 
         pub override fn known_implementors(&self) -> SharedArray<Thingy> {
