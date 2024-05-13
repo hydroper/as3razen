@@ -158,6 +158,8 @@ impl DirectiveSubverifier {
             VerifierPhase::Beta => {
                 match &impdrtv.import_specifier {
                     ImportSpecifier::Identifier(name) => {
+                        let name_loc = name.1.clone();
+
                         // Resolve a property import
                         let open_ns_set = verifier.scope().concat_open_ns_set_of_scope_chain();
                         let pckg = host.factory().create_package(impdrtv.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
@@ -167,14 +169,13 @@ impl DirectiveSubverifier {
                                 imp.set_property(&prop);
                             },
                             Ok(None) => {
-                                // Error
-                                to_do_here();
+                                verifier.add_verify_error(&impdrtv.package_name[0].1.combine_with(name.1.clone()), FxDiagnosticKind::ImportOfUndefined, diagarg![
+                                    format!("{}.{}", impdrtv.package_name.iter().map(|name| name.0.clone()).collect::<Vec<_>>().join("."), name.0)]);
 
                                 imp.set_property(&host.invalidation_thingy());
                             },
                             Err(AmbiguousReferenceError(name)) => {
-                                // Error
-                                to_do_here();
+                                verifier.add_verify_error(&name_loc, FxDiagnosticKind::AmbiguousReference, diagarg![name]);
 
                                 imp.set_property(&host.invalidation_thingy());
                             },
@@ -182,12 +183,20 @@ impl DirectiveSubverifier {
                     },
                     ImportSpecifier::Wildcard(_) => {
                         // Check for empty package (including concatenations) to report a warning.
-                        todo_here();
+                        if imp.package().is_empty_package(&host) {
+                            verifier.add_verify_error(&impdrtv.package_name[0].1.combine_with(impdrtv.package_name.last().unwrap().1.clone()),
+                                FxDiagnosticKind::EmptyPackage,
+                                diagarg![impdrtv.package_name.iter().map(|name| name.0.clone()).collect::<Vec<_>>().join(".")]);
+                        }
                     },
                     ImportSpecifier::Recursive(_) => {
                         // Check for empty package, recursively, (including concatenations) to report
                         // a warning.
-                        todo_here();
+                        if imp.package().is_empty_package_recursive(&host) {
+                            verifier.add_verify_error(&impdrtv.package_name[0].1.combine_with(impdrtv.package_name.last().unwrap().1.clone()),
+                                FxDiagnosticKind::EmptyPackage,
+                                diagarg![impdrtv.package_name.iter().map(|name| name.0.clone()).collect::<Vec<_>>().join(".")]);
+                        }
                     },
                 }
 

@@ -986,6 +986,30 @@ smodel! {
             scope.unwrap()
         }
 
+        pub fn is_empty_package(&self, host: &SemanticHost) -> bool {
+            if self.properties(host).length() != 0 {
+                return false;
+            }
+            for pckg in self.package_concats().iter() {
+                if !pckg.is_empty_package(host) {
+                    return false;
+                }
+            }
+            true
+        }
+
+        pub fn is_empty_package_recursive(&self, host: &SemanticHost) -> bool {
+            if !self.is_empty_package(host) {
+                return false;
+            }
+            for (_, pckg) in self.subpackages().borrow().iter() {
+                if !pckg.is_empty_package_recursive(host) {
+                    return false;
+                }
+            }
+            true
+        }
+
         fn to_string_1(&self) -> String {
             "".into()
         }
