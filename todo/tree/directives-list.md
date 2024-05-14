@@ -27,8 +27,7 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [x] Import directive
 * [x] Use namespace directive
 * [x] Include directive
-* [ ] Normal configuration directive
-  * [ ] Evaluate constant with `ExpressionSubverifier::eval_config_constant()`
+* [x] Normal configuration directive
 * [ ] Package concatenation directive
   * [ ] Do not allow adding circular packages (i.e. parent packages or the same package)
   * [ ] Some aliases should result in unresolved temporarily

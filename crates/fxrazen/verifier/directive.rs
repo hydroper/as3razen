@@ -147,7 +147,45 @@ impl DirectiveSubverifier {
                     Ok(())
                 }
             },
+            Directive::NormalConfigurationDirective(cfgdrtv) =>
+                Self::verify_normal_config_drtv(verifier, drtv, cfgdrtv),
             _ => Ok(()),
+        }
+    }
+
+    fn verify_normal_config_drtv(verifier: &mut Subverifier, drtv: &Rc<Directive>, cfgdrtv: &NormalConfigurationDirective) -> Result<(), DeferError> {
+        let phase = verifier.lazy_init_drtv_phase(drtv, VerifierPhase::Alpha);
+        if phase == VerifierPhase::Finished {
+            return Ok(());
+        }
+        let host = verifier.host.clone();
+        let concatenated_name = format!("{}::{}", cfgdrtv.namespace.0, cfgdrtv.constant_name.0);
+        let cval = host.lazy_node_mapping(drtv, || {
+            let loc = cfgdrtv.namespace.1.combine_with(cfgdrtv.constant_name.1.clone());
+            if let Some(cdata) = verifier.host.config_constants().get(&concatenated_name) {
+                let cval = ExpSubverifier::eval_config_constant(verifier, &loc, concatenated_name, cdata).unwrap_or(host.invalidation_thingy());
+                if !(cval.is::<BooleanConstant>() || cval.is::<InvalidationThingy>()) {
+                    verifier.add_verify_error(&loc, FxDiagnosticKind::NotABooleanConstant, diagarg![]);
+                    return host.invalidation_thingy();
+                }
+                cval
+            } else {
+                verifier.add_verify_error(&loc, FxDiagnosticKind::CannotResolveConfigConstant, diagarg![concatenated_name.clone()]);
+                host.invalidation_thingy()
+            }
+        });
+
+        if cval.is::<InvalidationThingy>() || !cval.boolean_value() {
+            verifier.set_drtv_phase(drtv, VerifierPhase::Finished);
+            return Ok(());
+        }
+
+        // Do not just resolve the directive; if it is a block,
+        // resolve it without creating a block scope for it.
+        if let Directive::Block(block) = cfgdrtv.directive.as_ref() {
+            Self::verify_directives(verifier, &block.directives)
+        } else {
+            Self::verify_directive(verifier, &cfgdrtv.directive)
         }
     }
 

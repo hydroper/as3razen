@@ -60,6 +60,7 @@ pub enum FxDiagnosticKind {
     EmptyPackage = 2104,
     ImportOfUndefined = 2105,
     NotANamespaceConstant = 2106,
+    CannotResolveConfigConstant = 2107,
 }
 
 impl FxDiagnosticKind {
