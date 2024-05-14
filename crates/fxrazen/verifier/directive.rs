@@ -149,8 +149,14 @@ impl DirectiveSubverifier {
             },
             Directive::NormalConfigurationDirective(cfgdrtv) =>
                 Self::verify_normal_config_drtv(verifier, drtv, cfgdrtv),
+            Directive::PackageConcatDirective(pckgcat) =>
+                Self::verify_package_concat_drtv(verifier, drtv, pckgcat),
             _ => Ok(()),
         }
+    }
+
+    fn verify_package_concat_drtv(verifier: &mut Subverifier, drtv: &Rc<Directive>, pckgcat: &PackageConcatDirective) -> Result<(), DeferError> {
+        todo_here()
     }
 
     fn verify_normal_config_drtv(verifier: &mut Subverifier, drtv: &Rc<Directive>, cfgdrtv: &NormalConfigurationDirective) -> Result<(), DeferError> {
