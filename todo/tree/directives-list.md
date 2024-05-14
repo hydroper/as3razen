@@ -28,5 +28,5 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [x] Use namespace directive
 * [x] Include directive
 * [x] Normal configuration directive
-* [ ] Package concatenation directive
+* [x] Package concatenation directive
 * [ ] Directive injection

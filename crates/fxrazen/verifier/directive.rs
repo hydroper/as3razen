@@ -188,16 +188,15 @@ impl DirectiveSubverifier {
                         return host.invalidation_thingy();
                     };
                     let qname = host.factory().create_qname(&public_ns, name.0.clone());
-                    let mut alias = host.factory().create_alias(qname, resolvee);
+                    let mut alias = host.factory().create_alias(qname.clone(), resolvee);
                     alias.set_location(Some(drtv.location()));
 
                     // Define the alias, handling any conflict.
                     let mut out_names = verifier.scope().search_hoist_scope().properties(&host);
                     if let Some(prev) = out_names.get(&qname) {
                         alias = verifier.handle_definition_conflict(&prev, &alias);
-                        host.node_mapping().set(drtv, Some(alias));
                     } else {
-                        out_names.set(qname, alias);
+                        out_names.set(qname, alias.clone());
                     }
 
                     alias
@@ -251,7 +250,24 @@ impl DirectiveSubverifier {
             VerifierPhase::Beta => {
                 match &pckgcat.import_specifier {
                     ImportSpecifier::Identifier(name) => {
-                        todo_here();
+                        let name_loc = name.1.clone();
+                        let pckg = host.factory().create_package(pckgcat.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
+                        let open_ns_set = verifier.scope().concat_open_ns_set_of_scope_chain();
+                        match pckg.properties(&host).get_in_ns_set_or_any_public_ns(&open_ns_set, &name.0) {
+                            Ok(Some(resolvee)) => {
+                                Unused(&host).mark_used(&resolvee);
+                                alias_or_pckg.set_alias_of(&resolvee);
+                            },
+                            Ok(None) => {
+                                verifier.add_verify_error(&pckgcat.package_name[0].1.combine_with(name.1.clone()), FxDiagnosticKind::ImportOfUndefined, diagarg![
+                                    format!("{}.{}", pckgcat.package_name.iter().map(|name| name.0.clone()).collect::<Vec<_>>().join("."), name.0)]);
+                                alias_or_pckg.set_alias_of(&host.invalidation_thingy());
+                            },
+                            Err(AmbiguousReferenceError(name)) => {
+                                verifier.add_verify_error(&name_loc, FxDiagnosticKind::AmbiguousReference, diagarg![name]);
+                                alias_or_pckg.set_alias_of(&host.invalidation_thingy());
+                            },
+                        }
                     },
                     ImportSpecifier::Wildcard(_) => {
                         // Check for empty package (including concatenations) to report a warning.
