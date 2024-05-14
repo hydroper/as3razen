@@ -29,15 +29,6 @@ impl PropertyLookupKey {
     pub fn local_name(&self) -> Option<String> {
         match self {
             Self::LocalName(s) => Some(s.clone()),
-            /*
-            Self::Computed(s) => {
-                if s.is::<StringConstant>() {
-                    Some(s.local_name())
-                } else {
-                    None
-                }
-            },
-            */
             _ => None,
         }
     }
@@ -46,13 +37,7 @@ impl PropertyLookupKey {
         Ok(match self {
             Self::Computed(d) => {
                 if d.is::<NumberConstant>() {
-                    let v = d.number_value();
-                    Some(match &v {
-                        NumberVariant::Number(d) => *d,
-                        NumberVariant::Float(_) |
-                        NumberVariant::Uint(_) |
-                        NumberVariant::Int(_) => v.convert_type(&host.number_type().defer()?, host)?.as_double().unwrap(),
-                    })
+                    Some(d.number_value().to_double())
                 } else {
                     None
                 }

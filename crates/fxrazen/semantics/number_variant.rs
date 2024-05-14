@@ -21,19 +21,19 @@ impl Add for NumberVariant {
     fn add(self, rhs: Self) -> Self::Output {
         match self {
             Self::Float(v) => {
-                let rhs = rhs.as_float().unwrap();
+                let rhs = rhs.to_float();
                 Self::Float(v + rhs)
             },
             Self::Number(v) => {
-                let rhs = rhs.as_double().unwrap();
+                let rhs = rhs.to_double();
                 Self::Number(v + rhs)
             },
             Self::Int(v) => {
-                let rhs = rhs.as_int().unwrap();
+                let rhs = rhs.to_int();
                 Self::Int(v.checked_add(rhs).unwrap_or(0))
             },
             Self::Uint(v) => {
-                let rhs = rhs.as_uint().unwrap();
+                let rhs = rhs.to_uint();
                 Self::Uint(v.checked_add(rhs).unwrap_or(0))
             },
         }
@@ -45,19 +45,19 @@ impl Sub for NumberVariant {
     fn sub(self, rhs: Self) -> Self::Output {
         match self {
             Self::Float(v) => {
-                let rhs = rhs.as_float().unwrap();
+                let rhs = rhs.to_float();
                 Self::Float(v - rhs)
             },
             Self::Number(v) => {
-                let rhs = rhs.as_double().unwrap();
+                let rhs = rhs.to_double();
                 Self::Number(v - rhs)
             },
             Self::Int(v) => {
-                let rhs = rhs.as_int().unwrap();
+                let rhs = rhs.to_int();
                 Self::Int(v.checked_sub(rhs).unwrap_or(0))
             },
             Self::Uint(v) => {
-                let rhs = rhs.as_uint().unwrap();
+                let rhs = rhs.to_uint();
                 Self::Uint(v.checked_sub(rhs).unwrap_or(0))
             },
         }
@@ -69,19 +69,19 @@ impl Mul for NumberVariant {
     fn mul(self, rhs: Self) -> Self::Output {
         match self {
             Self::Float(v) => {
-                let rhs = rhs.as_float().unwrap();
+                let rhs = rhs.to_float();
                 Self::Float(v * rhs)
             },
             Self::Number(v) => {
-                let rhs = rhs.as_double().unwrap();
+                let rhs = rhs.to_double();
                 Self::Number(v * rhs)
             },
             Self::Int(v) => {
-                let rhs = rhs.as_int().unwrap();
+                let rhs = rhs.to_int();
                 Self::Int(v.checked_mul(rhs).unwrap_or(0))
             },
             Self::Uint(v) => {
-                let rhs = rhs.as_uint().unwrap();
+                let rhs = rhs.to_uint();
                 Self::Uint(v.checked_mul(rhs).unwrap_or(0))
             },
         }
@@ -93,19 +93,19 @@ impl Div for NumberVariant {
     fn div(self, rhs: Self) -> Self::Output {
         match self {
             Self::Float(v) => {
-                let rhs = rhs.as_float().unwrap();
+                let rhs = rhs.to_float();
                 Self::Float(v / rhs)
             },
             Self::Number(v) => {
-                let rhs = rhs.as_double().unwrap();
+                let rhs = rhs.to_double();
                 Self::Number(v / rhs)
             },
             Self::Int(v) => {
-                let rhs = rhs.as_int().unwrap();
+                let rhs = rhs.to_int();
                 Self::Int(v.checked_div(rhs).unwrap_or(0))
             },
             Self::Uint(v) => {
-                let rhs = rhs.as_uint().unwrap();
+                let rhs = rhs.to_uint();
                 Self::Uint(v.checked_div(rhs).unwrap_or(0))
             },
         }
@@ -117,19 +117,19 @@ impl Rem for NumberVariant {
     fn rem(self, rhs: Self) -> Self::Output {
         match self {
             Self::Float(v) => {
-                let rhs = rhs.as_float().unwrap();
+                let rhs = rhs.to_float();
                 Self::Float(v % rhs)
             },
             Self::Number(v) => {
-                let rhs = rhs.as_double().unwrap();
+                let rhs = rhs.to_double();
                 Self::Number(v % rhs)
             },
             Self::Int(v) => {
-                let rhs = rhs.as_int().unwrap();
+                let rhs = rhs.to_int();
                 Self::Int(v.checked_rem(rhs).unwrap_or(0))
             },
             Self::Uint(v) => {
-                let rhs = rhs.as_uint().unwrap();
+                let rhs = rhs.to_uint();
                 Self::Uint(v.checked_rem(rhs).unwrap_or(0))
             },
         }
@@ -153,19 +153,19 @@ impl BitAnd for NumberVariant {
     fn bitand(self, rhs: Self) -> Self::Output {
         match self {
             Self::Float(v) => {
-                let rhs = rhs.as_float().unwrap();
+                let rhs = rhs.to_float();
                 Self::Float(f32::from_u32(unsafe { v.to_int_unchecked::<u32>() } & unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0.0))
             },
             Self::Number(v) => {
-                let rhs = rhs.as_double().unwrap();
+                let rhs = rhs.to_double();
                 Self::Number(f64::from_u32(unsafe { v.to_int_unchecked::<u32>() } & unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0.0))
             },
             Self::Int(v) => {
-                let rhs = rhs.as_int().unwrap();
+                let rhs = rhs.to_int();
                 Self::Int(v & rhs)
             },
             Self::Uint(v) => {
-                let rhs = rhs.as_uint().unwrap();
+                let rhs = rhs.to_uint();
                 Self::Uint(v & rhs)
             },
         }
@@ -177,19 +177,19 @@ impl BitXor for NumberVariant {
     fn bitxor(self, rhs: Self) -> Self::Output {
         match self {
             Self::Float(v) => {
-                let rhs = rhs.as_float().unwrap();
+                let rhs = rhs.to_float();
                 Self::Float(f32::from_u32(unsafe { v.to_int_unchecked::<u32>() } ^ unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0.0))
             },
             Self::Number(v) => {
-                let rhs = rhs.as_double().unwrap();
+                let rhs = rhs.to_double();
                 Self::Number(f64::from_u32(unsafe { v.to_int_unchecked::<u32>() } ^ unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0.0))
             },
             Self::Int(v) => {
-                let rhs = rhs.as_int().unwrap();
+                let rhs = rhs.to_int();
                 Self::Int(v ^ rhs)
             },
             Self::Uint(v) => {
-                let rhs = rhs.as_uint().unwrap();
+                let rhs = rhs.to_uint();
                 Self::Uint(v ^ rhs)
             },
         }
@@ -201,19 +201,19 @@ impl BitOr for NumberVariant {
     fn bitor(self, rhs: Self) -> Self::Output {
         match self {
             Self::Float(v) => {
-                let rhs = rhs.as_float().unwrap();
+                let rhs = rhs.to_float();
                 Self::Float(f32::from_u32(unsafe { v.to_int_unchecked::<u32>() } | unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0.0))
             },
             Self::Number(v) => {
-                let rhs = rhs.as_double().unwrap();
+                let rhs = rhs.to_double();
                 Self::Number(f64::from_u32(unsafe { v.to_int_unchecked::<u32>() } | unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0.0))
             },
             Self::Int(v) => {
-                let rhs = rhs.as_int().unwrap();
+                let rhs = rhs.to_int();
                 Self::Int(v | rhs)
             },
             Self::Uint(v) => {
-                let rhs = rhs.as_uint().unwrap();
+                let rhs = rhs.to_uint();
                 Self::Uint(v | rhs)
             },
         }
@@ -225,19 +225,19 @@ impl Shl for NumberVariant {
     fn shl(self, rhs: Self) -> Self::Output {
         match self {
             Self::Float(v) => {
-                let rhs = rhs.as_float().unwrap();
+                let rhs = rhs.to_float();
                 Self::Float(f32::from_u32(unsafe { v.to_int_unchecked::<u32>() }.checked_shl(unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0)).unwrap_or(0.0))
             },
             Self::Number(v) => {
-                let rhs = rhs.as_double().unwrap();
+                let rhs = rhs.to_double();
                 Self::Number(f64::from_u32(unsafe { v.to_int_unchecked::<u32>() }.checked_shl(unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0)).unwrap_or(0.0))
             },
             Self::Int(v) => {
-                let rhs = rhs.as_int().unwrap();
+                let rhs = rhs.to_int();
                 Self::Int(v.checked_shl(rhs.try_into().unwrap_or(0)).unwrap_or(0))
             },
             Self::Uint(v) => {
-                let rhs = rhs.as_uint().unwrap();
+                let rhs = rhs.to_uint();
                 Self::Uint(v.checked_shl(rhs).unwrap_or(0))
             },
         }
@@ -249,19 +249,19 @@ impl Shr for NumberVariant {
     fn shr(self, rhs: Self) -> Self::Output {
         match self {
             Self::Float(v) => {
-                let rhs = rhs.as_float().unwrap();
+                let rhs = rhs.to_float();
                 Self::Float(f32::from_u32(unsafe { v.to_int_unchecked::<u32>() }.checked_shr(unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0)).unwrap_or(0.0))
             },
             Self::Number(v) => {
-                let rhs = rhs.as_double().unwrap();
+                let rhs = rhs.to_double();
                 Self::Number(f64::from_u32(unsafe { v.to_int_unchecked::<u32>() }.checked_shr(unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0)).unwrap_or(0.0))
             },
             Self::Int(v) => {
-                let rhs = rhs.as_int().unwrap();
+                let rhs = rhs.to_int();
                 Self::Int(v.checked_shr(rhs.try_into().unwrap_or(0)).unwrap_or(0))
             },
             Self::Uint(v) => {
-                let rhs = rhs.as_uint().unwrap();
+                let rhs = rhs.to_uint();
                 Self::Uint(v.checked_shr(rhs).unwrap_or(0))
             },
         }
@@ -413,15 +413,15 @@ impl NumberVariant {
     pub fn shift_right_unsigned(&self, rhs: &Self) -> Self {
         match self {
             Self::Float(v) => {
-                let rhs = rhs.as_float().unwrap();
+                let rhs = rhs.to_float();
                 Self::Float(f32::from_u32(unsafe { v.to_int_unchecked::<u32>() }.checked_shr(unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0)).unwrap_or(0.0))
             },
             Self::Number(v) => {
-                let rhs = rhs.as_double().unwrap();
+                let rhs = rhs.to_double();
                 Self::Number(f64::from_u32(unsafe { v.to_int_unchecked::<u32>() }.checked_shr(unsafe { rhs.to_int_unchecked::<u32>() }).unwrap_or(0)).unwrap_or(0.0))
             },
             Self::Int(v) => {
-                let rhs = rhs.as_int().unwrap();
+                let rhs = rhs.to_int();
                 let uint1: u32 = (*v).try_into().unwrap_or(0);
                 let uint2: u32 = rhs.try_into().unwrap_or(0);
                 let v = uint1.checked_shr(uint2).unwrap_or(0);
@@ -429,7 +429,7 @@ impl NumberVariant {
                 Self::Int(v)
             },
             Self::Uint(v) => {
-                let rhs = rhs.as_uint().unwrap();
+                let rhs = rhs.to_uint();
                 Self::Uint(v.checked_shr(rhs).unwrap_or(0))
             },
         }
@@ -488,79 +488,15 @@ impl NumberVariant {
         let float_type = host.float_type().defer()?;
         let int_type = host.int_type().defer()?;
         let uint_type = host.int_type().defer()?;
-        // let big_int_type = host.big_int_type().defer()?;
 
         Ok(if target_type == &number_type {
-            match self {
-                Self::Float(v) => Self::Number(*v as f64),
-                Self::Number(v) => Self::Number(*v),
-                /*
-                Self::BigInt(v) => {
-                    let v: Result<u32, _> = v.try_into();
-                    Self::Number(v.map(|v| v as f64).unwrap_or(f64::NAN))
-                },
-                */
-                Self::Int(v) => {
-                    let v: Result<i32, _> = (*v).try_into();
-                    Self::Number(v.map(|v| v as f64).unwrap_or(f64::NAN))
-                },
-                Self::Uint(v) => {
-                    let v: Result<u32, _> = (*v).try_into();
-                    Self::Number(v.map(|v| v as f64).unwrap_or(f64::NAN))
-                },
-            }
+            Self::Number(self.to_double())
         } else if target_type == &float_type {
-            match self {
-                Self::Float(v) => Self::Float(*v),
-                Self::Number(v) => Self::Float(*v as f32),
-                /*
-                Self::BigInt(v) => {
-                    let v: Result<u32, _> = v.try_into();
-                    Self::Float(v.map(|v| v as f32).unwrap_or(f32::NAN))
-                },
-                */
-                Self::Int(v) => {
-                    let v: Result<i32, _> = (*v).try_into();
-                    Self::Float(v.map(|v| v as f32).unwrap_or(f32::NAN))
-                },
-                Self::Uint(v) => {
-                    let v: Result<u32, _> = (*v).try_into();
-                    Self::Float(v.map(|v| v as f32).unwrap_or(f32::NAN))
-                },
-            }
+            Self::Float(self.to_float())
         } else if target_type == &int_type {
-            match self {
-                Self::Float(v) => Self::Int(if v.is_infinite() {
-                    if v.is_sign_negative() { i32::MIN } else { i32::MAX }
-                } else if v.is_nan() { 0 } else { unsafe { v.to_int_unchecked() } }),
-                Self::Number(v) => Self::Int(if v.is_infinite() {
-                    if v.is_sign_negative() { i32::MIN } else { i32::MAX }
-                } else if v.is_nan() { 0 } else { unsafe { v.to_int_unchecked() } }),
-                // Self::BigInt(v) => Self::Int(v.try_into().unwrap_or(0)),
-                Self::Int(v) => Self::Int((*v).try_into().unwrap_or(0)),
-                Self::Uint(v) => Self::Int((*v).try_into().unwrap_or(0)),
-            }
+            Self::Int(self.to_int())
         } else if target_type == &uint_type {
-            match self {
-                Self::Float(v) => Self::Uint(if v.is_infinite() {
-                    if v.is_sign_negative() { u32::MIN } else { u32::MAX }
-                } else if v.is_nan() { 0 } else { unsafe { v.to_int_unchecked() } }),
-                Self::Number(v) => Self::Uint(if v.is_infinite() {
-                    if v.is_sign_negative() { u32::MIN } else { u32::MAX }
-                } else if v.is_nan() { 0 } else { unsafe { v.to_int_unchecked() } }),
-                // Self::BigInt(v) => Self::Int(v.try_into().unwrap_or(0)),
-                Self::Int(v) => Self::Uint((*v).try_into().unwrap_or(0)),
-                Self::Uint(v) => Self::Uint((*v).try_into().unwrap_or(0)),
-            }
-        /*
-        } else if target_type == &big_int_type {
-            match self {
-                Self::Float(v) => Self::BigInt(BigInt::from_f32(*v).unwrap_or(BigInt::zero())),
-                Self::Number(v) => Self::BigInt(BigInt::from_f64(*v).unwrap_or(BigInt::zero())),
-                Self::BigInt(v) => Self::BigInt(v.clone()),
-                Self::Int(v) => Self::BigInt((*v).into()),
-            }
-        */
+            Self::Uint(self.to_uint())
         } else {
             panic!()
         })
@@ -604,5 +540,66 @@ impl NumberVariant {
 
     pub fn as_uint(&self) -> Option<u32> {
         if let NumberVariant::Uint(v) = self { Some(*v) } else { None }
+    }
+
+    pub fn to_double(&self) -> f64 {
+        match self {
+            Self::Number(v) => *v,
+            Self::Float(v) => *v as f64,
+            Self::Int(v) => {
+                let v: Result<i32, _> = (*v).try_into();
+                v.map(|v| v as f64).unwrap_or(f64::NAN)
+            },
+            Self::Uint(v) => {
+                let v: Result<u32, _> = (*v).try_into();
+                v.map(|v| v as f64).unwrap_or(f64::NAN)
+            },
+        }
+    }
+
+    pub fn to_float(&self) -> f32 {
+        match self {
+            Self::Float(v) => *v,
+            Self::Number(v) => *v as f32,
+            Self::Int(v) => {
+                let v: Result<i32, _> = (*v).try_into();
+                v.map(|v| v as f32).unwrap_or(f32::NAN)
+            },
+            Self::Uint(v) => {
+                let v: Result<u32, _> = (*v).try_into();
+                v.map(|v| v as f32).unwrap_or(f32::NAN)
+            },
+        }
+    }
+
+    pub fn to_int(&self) -> i32 {
+        match self {
+            Self::Float(v) =>
+                if v.is_infinite() {
+                    if v.is_sign_negative() { i32::MIN } else { i32::MAX }
+                } else if v.is_nan() { 0 } else { unsafe { v.to_int_unchecked() } },
+            Self::Number(v) =>
+                if v.is_infinite() {
+                    if v.is_sign_negative() { i32::MIN } else { i32::MAX }
+                } else if v.is_nan() { 0 } else { unsafe { v.to_int_unchecked() } },
+            Self::Int(v) => (*v).try_into().unwrap_or(0),
+            Self::Uint(v) => (*v).try_into().unwrap_or(0),
+        }
+    }
+
+    pub fn to_uint(&self) -> u32 {
+        match self {
+            Self::Float(v) =>
+                if v.is_infinite() {
+                    if v.is_sign_negative() { u32::MIN } else { u32::MAX }
+                } else if v.is_nan() { 0 } else { unsafe { v.to_int_unchecked() } },
+            Self::Number(v) =>
+                if v.is_infinite() {
+                    if v.is_sign_negative() { u32::MIN } else { u32::MAX }
+                } else if v.is_nan() { 0 } else { unsafe { v.to_int_unchecked() } },
+            // Self::BigInt(v) => Self::Int(v.try_into().unwrap_or(0)),
+            Self::Int(v) => (*v).try_into().unwrap_or(0),
+            Self::Uint(v) => (*v).try_into().unwrap_or(0),
+        }
     }
 }
