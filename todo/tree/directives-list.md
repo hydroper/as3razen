@@ -25,9 +25,7 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [x] Try statement
 * [x] Configuration directive
 * [x] Import directive
-* [ ] Use namespace directive
-  * [ ] Alpha (do nothing)
-  * [ ] Beta (resolve or defer and then finish)
+* [x] Use namespace directive
 * [ ] Include directive
 * [ ] Normal configuration directive
   * [ ] Evaluate constant with `ExpressionSubverifier::eval_config_constant()`

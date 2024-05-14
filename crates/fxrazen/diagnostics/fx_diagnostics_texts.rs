@@ -63,6 +63,7 @@ lazy_static! {
         FxDiagnosticKind::NotABooleanConstant.id() => "Not a Boolean constant.".into(),
         FxDiagnosticKind::EmptyPackage.id() => "Package {1} is empty.".into(),
         FxDiagnosticKind::ImportOfUndefined.id() => "Import of undefined property {1}.".into(),
+        FxDiagnosticKind::NotANamespaceConstant.id() => "Not a Namespace constant.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

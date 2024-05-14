@@ -497,6 +497,9 @@ impl Subverifier {
 
     pub fn verify_type_expression(&mut self, exp: &Rc<Expression>) -> Result<Option<Thingy>, DeferError> {
         // Cache-result - prevents diagnostic duplication
+        if self.host.node_invalidation_mapping().has(exp) {
+            return Ok(None);
+        }
         if self.host.node_mapping().has(exp) {
             return Ok(self.host.node_mapping().get(exp));
         }
@@ -509,7 +512,7 @@ impl Subverifier {
         let v = v.expect_type();
         if v.is_err() {
             self.add_verify_error(&exp.location(), FxDiagnosticKind::EntityIsNotAType, diagarg![]);
-            self.host.node_mapping().set(exp, None);
+            self.host.node_invalidation_mapping().set(exp, Some(()));
             return Ok(None);
         }
         let v = v.unwrap();
@@ -520,6 +523,9 @@ impl Subverifier {
     /// Implicitly coerce expression to a type.
     pub fn imp_coerce_exp(&mut self, exp: &Rc<Expression>, target_type: &Thingy) -> Result<Option<Thingy>, DeferError> {
         // Cache-result - prevents diagnostic duplication
+        if self.host.node_invalidation_mapping().has(exp) {
+            return Ok(None);
+        }
         if self.host.node_mapping().has(exp) {
             return Ok(self.host.node_mapping().get(exp));
         }
@@ -536,7 +542,7 @@ impl Subverifier {
         let v = TypeConversions(&self.host).implicit(&v, target_type, false)?;
         if v.is_none() {
             self.add_verify_error(&exp.location(), FxDiagnosticKind::ImplicitCoercionToUnrelatedType, diagarg![got_type, target_type.clone()]);
-            self.host.node_mapping().set(exp, None);
+            self.host.node_invalidation_mapping().set(exp, Some(()));
             return Ok(None);
         }
         let v = v.unwrap();

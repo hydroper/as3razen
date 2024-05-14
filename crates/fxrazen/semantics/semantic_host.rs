@@ -3,6 +3,7 @@ use crate::ns::*;
 pub struct SemanticHost {
     pub(crate) arena: ThingyArena,
     node_mapping: TreeSemantics<Thingy>,
+    node_invalidation_mapping: TreeSemantics<()>,
     project_path: Option<String>,
     config_constants: SharedMap<String, String>,
     config_constants_eval: SharedMap<String, Thingy>,
@@ -79,6 +80,7 @@ impl SemanticHost {
         let host = Self {
             arena,
             node_mapping: TreeSemantics::new(),
+            node_invalidation_mapping: TreeSemantics::new(),
             project_path: options.project_path.clone(),
             config_constants: SharedMap::new(),
             config_constants_eval: SharedMap::new(),
@@ -169,6 +171,12 @@ impl SemanticHost {
     #[inline(always)]
     pub fn node_mapping(&self) -> &TreeSemantics<Thingy> {
         &self.node_mapping
+    }
+
+    /// Mapping from a node to an unit indicating invalidation.
+    #[inline(always)]
+    pub fn node_invalidation_mapping(&self) -> &TreeSemantics<()> {
+        &self.node_invalidation_mapping
     }
 
     pub fn lazy_node_mapping<T>(&self, node: &Rc<T>, init: impl FnOnce() -> Thingy) -> Thingy

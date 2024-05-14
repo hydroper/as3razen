@@ -114,11 +114,47 @@ impl DirectiveSubverifier {
             Directive::ImportDirective(impdrtv) => {
                 Self::verify_import_directive(verifier, drtv, impdrtv)
             },
+            Directive::UseNamespaceDirective(usedrtv) => {
+                let phase = verifier.lazy_init_drtv_phase(drtv, VerifierPhase::Alpha);
+                if phase == VerifierPhase::Finished {
+                    return Ok(());
+                }
+                match phase {
+                    VerifierPhase::Alpha => {
+                        verifier.set_drtv_phase(drtv, VerifierPhase::Beta);
+                        Err(DeferError(None))
+                    },
+                    VerifierPhase::Beta => {
+                        Self::verify_use_ns_ns(verifier, &usedrtv.expression)?;
+                        verifier.set_drtv_phase(drtv, VerifierPhase::Finished);
+                        Ok(())
+                    },
+                    _ => panic!(),
+                }
+            },
             _ => Ok(()),
         }
     }
 
-    pub fn verify_import_directive(verifier: &mut Subverifier, drtv: &Rc<Directive>, impdrtv: &ImportDirective) -> Result<(), DeferError> {
+    fn verify_use_ns_ns(verifier: &mut Subverifier, exp: &Rc<Expression>) -> Result<(), DeferError> {
+        if let Expression::Sequence(seq) = exp.as_ref() {
+            Self::verify_use_ns_ns(verifier, &seq.left)?;
+            Self::verify_use_ns_ns(verifier, &seq.right)?;
+            return Ok(());
+        }
+        let Some(cval) = verifier.verify_expression(exp, &default())? else {
+            return Ok(());
+        };
+        if !cval.is::<NamespaceConstant>() {
+            verifier.add_verify_error(&exp.location(), FxDiagnosticKind::NotANamespaceConstant, diagarg![]);
+            return Ok(());
+        }
+        let ns = cval.referenced_ns();
+        verifier.scope().open_ns_set().push(ns);
+        Ok(())
+    }
+
+    fn verify_import_directive(verifier: &mut Subverifier, drtv: &Rc<Directive>, impdrtv: &ImportDirective) -> Result<(), DeferError> {
         let phase = verifier.lazy_init_drtv_phase(drtv, VerifierPhase::Alpha);
         if phase == VerifierPhase::Finished {
             return Ok(());
@@ -207,7 +243,7 @@ impl DirectiveSubverifier {
         }
     }
 
-    pub fn verify_import_alias_directive(verifier: &mut Subverifier, drtv: &Rc<Directive>, impdrtv: &ImportDirective) -> Result<(), DeferError> {
+    fn verify_import_alias_directive(verifier: &mut Subverifier, drtv: &Rc<Directive>, impdrtv: &ImportDirective) -> Result<(), DeferError> {
         let phase = verifier.lazy_init_drtv_phase(drtv, VerifierPhase::Alpha);
         if phase == VerifierPhase::Finished {
             return Ok(());
@@ -316,7 +352,7 @@ impl DirectiveSubverifier {
         }
     }
 
-    pub fn verify_config_subdirective(verifier: &mut Subverifier, drtv: &Rc<Directive>) -> Result<(), DeferError> {
+    fn verify_config_subdirective(verifier: &mut Subverifier, drtv: &Rc<Directive>) -> Result<(), DeferError> {
         match drtv.as_ref() {
             Directive::Block(block) => {
                 Self::verify_directives(verifier, &block.directives)
