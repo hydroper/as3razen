@@ -1076,11 +1076,10 @@ impl ExpSubverifier {
                 })? else {
                     return Ok(None);
                 };
-                let right_st = right.static_type(&verifier.host);
                 let object_type = verifier.host.object_type().defer()?;
                 let numeric_types = verifier.host.numeric_types()?;
 
-                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
                     return Ok(Some(verifier.host.factory().create_number_constant(left.number_value() + right.number_value(), &left_st)));
                 }
                 if left.is::<StringConstant>() && right.is::<StringConstant>() {
@@ -1273,7 +1272,7 @@ impl ExpSubverifier {
                     verifier.add_warning(&exp.location, FxDiagnosticKind::NanComparison, diagarg![]);
                 }
 
-                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
                     return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() == right.number_value(), &boolean_type)));
                 }
                 if left.is::<StringConstant>() && right.is::<StringConstant>() {
@@ -1304,7 +1303,7 @@ impl ExpSubverifier {
                     verifier.add_warning(&exp.location, FxDiagnosticKind::NanComparison, diagarg![]);
                 }
 
-                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
                     return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() != right.number_value(), &boolean_type)));
                 }
                 if left.is::<StringConstant>() && right.is::<StringConstant>() {
@@ -1331,7 +1330,7 @@ impl ExpSubverifier {
                     verifier.add_warning(&exp.location, FxDiagnosticKind::ComparisonBetweenUnrelatedTypes, diagarg![left_st.clone(), right_st.clone()]);
                 }
 
-                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
                     return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() < right.number_value(), &boolean_type)));
                 }
                 Ok(Some(verifier.host.factory().create_value(&boolean_type)))
@@ -1352,7 +1351,7 @@ impl ExpSubverifier {
                     verifier.add_warning(&exp.location, FxDiagnosticKind::ComparisonBetweenUnrelatedTypes, diagarg![left_st.clone(), right_st.clone()]);
                 }
 
-                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
                     return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() > right.number_value(), &boolean_type)));
                 }
                 Ok(Some(verifier.host.factory().create_value(&boolean_type)))
@@ -1373,7 +1372,7 @@ impl ExpSubverifier {
                     verifier.add_warning(&exp.location, FxDiagnosticKind::ComparisonBetweenUnrelatedTypes, diagarg![left_st.clone(), right_st.clone()]);
                 }
 
-                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
                     return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() <= right.number_value(), &boolean_type)));
                 }
                 Ok(Some(verifier.host.factory().create_value(&boolean_type)))
@@ -1394,7 +1393,7 @@ impl ExpSubverifier {
                     verifier.add_warning(&exp.location, FxDiagnosticKind::ComparisonBetweenUnrelatedTypes, diagarg![left_st.clone(), right_st.clone()]);
                 }
 
-                if left.is::<NumberConstant>() && right.is::<NumberConstant>() && left_st == right_st {
+                if left.is::<NumberConstant>() && right.is::<NumberConstant>() {
                     return Ok(Some(verifier.host.factory().create_boolean_constant(left.number_value() >= right.number_value(), &boolean_type)));
                 }
                 Ok(Some(verifier.host.factory().create_value(&boolean_type)))

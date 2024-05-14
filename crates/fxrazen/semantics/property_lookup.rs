@@ -37,7 +37,7 @@ impl PropertyLookupKey {
         Ok(match self {
             Self::Computed(d) => {
                 if d.is::<NumberConstant>() {
-                    Some(d.number_value().to_double())
+                    Some(d.number_value().force_double())
                 } else {
                     None
                 }
