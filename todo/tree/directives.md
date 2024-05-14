@@ -30,6 +30,7 @@ The `StatementSubverifier::verify_statement()` method will verify a statement or
 * [ ] Assign ASDoc to the first topmost variable binding's slot after full resolution.
 * [ ] Assign meta-data to the first variable binding's slot after full resolution.
 * [ ] Assign `[Bindable]` semantics to topmost variable slots after full resolution.
+* [ ] If the variable's parent is a fixture, do not allow destructuring.
 
 ## Inheritance
 
