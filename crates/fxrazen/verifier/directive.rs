@@ -165,12 +165,30 @@ impl DirectiveSubverifier {
         let alias_or_pckg = host.lazy_node_mapping(drtv, || {
             match &pckgcat.import_specifier {
                 ImportSpecifier::Identifier(name) => {
-                    // Initially unresolved import; resolve it in Beta phase.
+                    let name_loc = name.1.clone();
+
+                    // Initially unresolved if deferred;
+                    // resolve any unresolved form in Beta phase.
+                    let mut resolvee = host.unresolved_thingy();
+                    let pckg = host.factory().create_package(pckgcat.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
+                    let open_ns_set = verifier.scope().concat_open_ns_set_of_scope_chain();
+                    match pckg.properties(&host).get_in_ns_set_or_any_public_ns(&open_ns_set, &name.0) {
+                        Ok(Some(resolvee1)) => {
+                            Unused(&host).mark_used(&resolvee1);
+                            resolvee = resolvee1;
+                        },
+                        Ok(None) => {},
+                        Err(AmbiguousReferenceError(name)) => {
+                            verifier.add_verify_error(&name_loc, FxDiagnosticKind::AmbiguousReference, diagarg![name]);
+                            resolvee = host.invalidation_thingy();
+                        },
+                    }
+
                     let Some(public_ns) = verifier.scope().search_system_ns_in_scope_chain(SystemNamespaceKind::Public) else {
                         return host.invalidation_thingy();
                     };
                     let qname = host.factory().create_qname(&public_ns, name.0.clone());
-                    let mut alias = host.factory().create_alias(qname, host.unresolved_thingy());
+                    let mut alias = host.factory().create_alias(qname, resolvee);
                     alias.set_location(Some(drtv.location()));
 
                     // Define the alias, handling any conflict.
@@ -194,7 +212,7 @@ impl DirectiveSubverifier {
                     pckg
                 },
                 ImportSpecifier::Recursive(_) => {
-                    let pckg = host.factory().create_package(pckgcat.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>())
+                    let pckg = host.factory().create_package(pckgcat.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
                     let scope = verifier.scope().search_hoist_scope();
                     if !scope.is::<PackageScope>() {
                         return host.invalidation_thingy();
@@ -210,7 +228,8 @@ impl DirectiveSubverifier {
                 },
             }
         });
-        if alias_or_pckg.is::<InvalidationThingy>() {
+        let resolved_alias = alias_or_pckg.is::<Alias>() && !alias_or_pckg.alias_of().is::<UnresolvedThingy>();
+        if alias_or_pckg.is::<InvalidationThingy>() || resolved_alias {
             verifier.set_drtv_phase(drtv, VerifierPhase::Finished);
             return Ok(());
         }
