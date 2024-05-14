@@ -117,7 +117,7 @@ impl Verifier {
             let mut any_defer = false;
             for (common, partials) in self.verifier.deferred_function_exp.clone().borrow().iter() {
                 let common = (**common).clone();
-                any_defer = FunctionCommonSubverifier::verify_function_exp_common(&mut self.verifier, &common, partials).is_err();
+                any_defer = any_defer || FunctionCommonSubverifier::verify_function_exp_common(&mut self.verifier, &common, partials).is_err();
             }
             if !any_defer {
                 break;
@@ -151,7 +151,7 @@ impl Verifier {
                 let mut any_defer = false;
                 for (common, partials) in self.verifier.deferred_function_exp.clone().borrow().iter() {
                     let common = (**common).clone();
-                    any_defer = FunctionCommonSubverifier::verify_function_exp_common(&mut self.verifier, &common, partials).is_err();
+                    any_defer = any_defer || FunctionCommonSubverifier::verify_function_exp_common(&mut self.verifier, &common, partials).is_err();
                 }
                 if !any_defer {
                     break;
