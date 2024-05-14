@@ -244,12 +244,35 @@ impl DirectiveSubverifier {
         match phase {
             VerifierPhase::Alpha => {
                 verifier.set_drtv_phase(drtv, VerifierPhase::Beta);
-                return Err(DeferError(None))
+                Err(DeferError(None))
             },
-            // In Beta, ensure either the alias is resolved, or
+            // In Beta, resolve the alias, or ensure
             // the concatenated package is non-empty.
             VerifierPhase::Beta => {
-                todo_here();
+                match &pckgcat.import_specifier {
+                    ImportSpecifier::Identifier(name) => {
+                        todo_here();
+                    },
+                    ImportSpecifier::Wildcard(_) => {
+                        // Check for empty package (including concatenations) to report a warning.
+                        if alias_or_pckg.is_empty_package(&host) {
+                            verifier.add_verify_error(&pckgcat.package_name[0].1.combine_with(pckgcat.package_name.last().unwrap().1.clone()),
+                                FxDiagnosticKind::EmptyPackage,
+                                diagarg![pckgcat.package_name.iter().map(|name| name.0.clone()).collect::<Vec<_>>().join(".")]);
+                        }
+                    },
+                    ImportSpecifier::Recursive(_) => {
+                        // Check for empty package recursively (including concatenations) to report a warning.
+                        if alias_or_pckg.is_empty_package_recursive(&host) {
+                            verifier.add_verify_error(&pckgcat.package_name[0].1.combine_with(pckgcat.package_name.last().unwrap().1.clone()),
+                                FxDiagnosticKind::EmptyPackage,
+                                diagarg![pckgcat.package_name.iter().map(|name| name.0.clone()).collect::<Vec<_>>().join(".")]);
+                        }
+                    },
+                }
+
+                verifier.set_drtv_phase(drtv, VerifierPhase::Finished);
+                Ok(())
             },
             _ => panic!(),
         }
