@@ -274,7 +274,19 @@ smodel! {
             }
         }
 
-
+        pub fn is_package_self_referential(&self, pckg: &Thingy) -> bool {
+            if self == pckg {
+                return true;
+            }
+            let mut p = self.parent();
+            while let Some(p1) = p {
+                if &p1 == pckg {
+                    return true;
+                }
+                p = p1.parent();
+            }
+            false
+        }
 
         pub fn is_global_initialization(&self) -> bool {
             panic!();

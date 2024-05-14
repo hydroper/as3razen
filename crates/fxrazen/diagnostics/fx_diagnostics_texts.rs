@@ -65,6 +65,7 @@ lazy_static! {
         FxDiagnosticKind::ImportOfUndefined.id() => "Import of undefined property {1}.".into(),
         FxDiagnosticKind::NotANamespaceConstant.id() => "Not a Namespace constant.".into(),
         FxDiagnosticKind::CannotResolveConfigConstant.id() => "Can not resolve configuration constant: '{1}'".into(),
+        FxDiagnosticKind::ConcatenatingSelfReferentialPackage.id() => "Concatenating a self referential package.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }

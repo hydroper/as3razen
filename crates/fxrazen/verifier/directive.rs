@@ -218,11 +218,18 @@ impl DirectiveSubverifier {
                         return host.invalidation_thingy();
                     }
 
+                    let out_pckg = scope.package();
+
                     // Concatenate packages recursively, however
                     // ensure the packages to be concatenated are not
                     // circular.
+                    if out_pckg.is_package_self_referential(&pckg) {
+                        let err_loc = pckgcat.package_name[0].1.combine_with(pckgcat.package_name.last().unwrap().1.clone());
+                        verifier.add_verify_error(&err_loc, FxDiagnosticKind::ConcatenatingSelfReferentialPackage, diagarg![]);
+                        return host.invalidation_thingy();
+                    }
                     let recursive_pckgs = pckg.list_packages_recursively();
-                    todo_here();
+                    scope.package().package_concats().extend(recursive_pckgs);
 
                     pckg
                 },
@@ -234,9 +241,18 @@ impl DirectiveSubverifier {
             return Ok(());
         }
 
-        // In Beta, ensure either the alias is resolved, or
-        // the concatenated package is non-empty.
-        todo_here()
+        match phase {
+            VerifierPhase::Alpha => {
+                verifier.set_drtv_phase(drtv, VerifierPhase::Beta);
+                return Err(DeferError(None))
+            },
+            // In Beta, ensure either the alias is resolved, or
+            // the concatenated package is non-empty.
+            VerifierPhase::Beta => {
+                todo_here();
+            },
+            _ => panic!(),
+        }
     }
 
     fn verify_normal_config_drtv(verifier: &mut Subverifier, drtv: &Rc<Directive>, cfgdrtv: &NormalConfigurationDirective) -> Result<(), DeferError> {

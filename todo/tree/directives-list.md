@@ -29,6 +29,4 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [x] Include directive
 * [x] Normal configuration directive
 * [ ] Package concatenation directive
-  * [ ] Do not allow adding circular packages (i.e. parent packages or the same package)
-  * [ ] Aliases should result in unresolved temporarily by default if deferred
 * [ ] Directive injection
