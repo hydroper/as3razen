@@ -234,6 +234,8 @@ impl DirectiveSubverifier {
             return Ok(());
         }
 
+        // In Beta, ensure either the alias is resolved, or
+        // the concatenated package is non-empty.
         todo_here()
     }
 
