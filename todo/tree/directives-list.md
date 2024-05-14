@@ -9,7 +9,7 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [ ] Interface definition
 * [ ] Type definition
 * [ ] Namespace definition
-  * [ ] If right-hand side is a string literal, then declare namespace directly instead of resolving the constant.
+  * [ ] If right-hand side is a string literal, then declare namespace directly in Alpha phase instead of resolving the constant at Beta phase (in which case it is preceded by an UnresolvedThingy).
 * [x] Block
 * [x] Labeled statement
 * [x] If statement
