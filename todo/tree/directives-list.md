@@ -26,7 +26,7 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [x] Configuration directive
 * [x] Import directive
 * [x] Use namespace directive
-* [ ] Include directive
+* [x] Include directive
 * [ ] Normal configuration directive
   * [ ] Evaluate constant with `ExpressionSubverifier::eval_config_constant()`
 * [ ] Package concatenation directive

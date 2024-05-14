@@ -132,6 +132,21 @@ impl DirectiveSubverifier {
                     _ => panic!(),
                 }
             },
+            Directive::IncludeDirective(incdrtv) => {
+                if incdrtv.nested_directives.len() == 0 {
+                    return Ok(());
+                }
+                let phase = verifier.lazy_init_drtv_phase(drtv, VerifierPhase::Alpha);
+                if phase == VerifierPhase::Finished {
+                    return Ok(());
+                }
+                if Self::verify_directives(verifier, &incdrtv.nested_directives).is_err() {
+                    Err(DeferError(None))
+                } else {
+                    verifier.set_drtv_phase(drtv, VerifierPhase::Finished);
+                    Ok(())
+                }
+            },
             _ => Ok(()),
         }
     }
