@@ -151,6 +151,18 @@ impl DirectiveSubverifier {
                 Self::verify_normal_config_drtv(verifier, drtv, cfgdrtv),
             Directive::PackageConcatDirective(pckgcat) =>
                 Self::verify_package_concat_drtv(verifier, drtv, pckgcat),
+            Directive::DirectiveInjection(inj) => {
+                let phase = verifier.lazy_init_drtv_phase(drtv, VerifierPhase::Alpha);
+                if phase == VerifierPhase::Finished {
+                    return Ok(());
+                }
+                if Self::verify_directives(verifier, inj.directives.borrow().as_ref()).is_err() {
+                    Err(DeferError(None))
+                } else {
+                    verifier.set_drtv_phase(drtv, VerifierPhase::Finished);
+                    Ok(())
+                }
+            },
             _ => Ok(()),
         }
     }

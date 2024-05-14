@@ -29,4 +29,4 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [x] Include directive
 * [x] Normal configuration directive
 * [x] Package concatenation directive
-* [ ] Directive injection
+* [x] Directive injection
