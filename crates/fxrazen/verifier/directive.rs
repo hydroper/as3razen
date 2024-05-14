@@ -156,6 +156,65 @@ impl DirectiveSubverifier {
     }
 
     fn verify_package_concat_drtv(verifier: &mut Subverifier, drtv: &Rc<Directive>, pckgcat: &PackageConcatDirective) -> Result<(), DeferError> {
+        let phase = verifier.lazy_init_drtv_phase(drtv, VerifierPhase::Alpha);
+        if phase == VerifierPhase::Finished {
+            return Ok(());
+        }
+
+        let host = verifier.host.clone();
+        let alias_or_pckg = host.lazy_node_mapping(drtv, || {
+            match &pckgcat.import_specifier {
+                ImportSpecifier::Identifier(name) => {
+                    // Initially unresolved import; resolve it in Beta phase.
+                    let Some(public_ns) = verifier.scope().search_system_ns_in_scope_chain(SystemNamespaceKind::Public) else {
+                        return host.invalidation_thingy();
+                    };
+                    let qname = host.factory().create_qname(&public_ns, name.0.clone());
+                    let mut alias = host.factory().create_alias(qname, host.unresolved_thingy());
+                    alias.set_location(Some(drtv.location()));
+
+                    // Define the alias, handling any conflict.
+                    let mut out_names = verifier.scope().search_hoist_scope().properties(&host);
+                    if let Some(prev) = out_names.get(&qname) {
+                        alias = verifier.handle_definition_conflict(&prev, &alias);
+                        host.node_mapping().set(drtv, Some(alias));
+                    } else {
+                        out_names.set(qname, alias);
+                    }
+
+                    alias
+                },
+                ImportSpecifier::Wildcard(_) => {
+                    let pckg = host.factory().create_package(pckgcat.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>());
+                    let scope = verifier.scope().search_hoist_scope();
+                    if !scope.is::<PackageScope>() {
+                        return host.invalidation_thingy();
+                    }
+                    scope.package().package_concats().push(pckg.clone());
+                    pckg
+                },
+                ImportSpecifier::Recursive(_) => {
+                    let pckg = host.factory().create_package(pckgcat.package_name.iter().map(|name| name.0.as_str()).collect::<Vec<_>>())
+                    let scope = verifier.scope().search_hoist_scope();
+                    if !scope.is::<PackageScope>() {
+                        return host.invalidation_thingy();
+                    }
+
+                    // Concatenate packages recursively, however
+                    // ensure the packages to be concatenated are not
+                    // circular.
+                    let recursive_pckgs = pckg.list_packages_recursively();
+                    todo_here();
+
+                    pckg
+                },
+            }
+        });
+        if alias_or_pckg.is::<InvalidationThingy>() {
+            verifier.set_drtv_phase(drtv, VerifierPhase::Finished);
+            return Ok(());
+        }
+
         todo_here()
     }
 

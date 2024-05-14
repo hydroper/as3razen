@@ -187,6 +187,13 @@ smodel! {
             panic!();
         }
 
+        pub fn is_entity_after_substitution(&self) -> bool {
+            self.is::<TypeAfterSubstitution>() ||
+            self.is::<VariableSlotAfterSubstitution>() ||
+            self.is::<VirtualSlotAfterSubstitution>() ||
+            self.is::<MethodSlotAfterSubstitution>()
+        }
+
         pub fn parent(&self) -> Option<Thingy> {
             panic!();
         }
@@ -1008,6 +1015,14 @@ smodel! {
                 }
             }
             true
+        }
+
+        pub fn list_packages_recursively(&self) -> Vec<Thingy> {
+            let mut r: Vec<Thingy> = vec![self.clone()];
+            for (_, pckg) in self.subpackages().borrow().iter() {
+                r.extend(pckg.list_packages_recursively());
+            }
+            r
         }
 
         fn to_string_1(&self) -> String {

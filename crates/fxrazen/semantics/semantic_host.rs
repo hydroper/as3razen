@@ -443,6 +443,10 @@ impl SemanticHost {
         self.unused_things.borrow()
     }
 
+    pub(crate) fn is_unused(&self, thingy: &Thingy) -> bool {
+        self.unused_things.borrow().contains(thingy)
+    }
+
     pub(crate) fn add_unused_thing(&self, thing: &Thingy) {
         self.unused_things.borrow_mut().push(thing.clone());
     }

@@ -33,7 +33,7 @@ impl PropertyLookupKey {
         }
     }
 
-    pub fn double_value(&self, host: &SemanticHost) -> Result<Option<f64>, DeferError> {
+    pub fn double_value(&self) -> Result<Option<f64>, DeferError> {
         Ok(match self {
             Self::Computed(d) => {
                 if d.is::<NumberConstant>() {
@@ -65,7 +65,7 @@ impl<'a> PropertyLookup<'a> {
             return Ok(Some(base.clone()));
         }
         let local_name = key.local_name();
-        let double_key = map_defer_error(key.double_value(self.0))?;
+        let double_key = map_defer_error(key.double_value())?;
 
         // If base is a class
         if base.is_class_or_equivalent() {

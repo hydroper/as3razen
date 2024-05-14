@@ -3,8 +3,12 @@ use crate::ns::*;
 pub struct Unused<'a>(pub &'a SemanticHost);
 
 impl<'a> Unused<'a> {
-    pub(crate) fn all(&self) -> std::cell::Ref<Vec<Thingy>> {
+    pub fn all(&self) -> std::cell::Ref<Vec<Thingy>> {
         self.0.unused_things()
+    }
+
+    pub fn is_unused(&self, thingy: &Thingy) -> bool {
+        self.0.is_unused(thingy)
     }
 
     pub(crate) fn add(&self, thing: &Thingy) {
@@ -25,7 +29,11 @@ impl<'a> Unused<'a> {
         }
         let qn = property.name();
         if !qn.in_public_or_protected_ns() {
-            self.0.remove_unused_thing(property);
+            if property.is_entity_after_substitution() {
+                self.mark_used(&property.origin());
+            } else {
+                self.0.remove_unused_thing(property);
+            }
         }
     }
 }
