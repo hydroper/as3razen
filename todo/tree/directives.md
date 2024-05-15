@@ -31,6 +31,7 @@ The `StatementSubverifier::verify_statement()` method will verify a statement or
 * [ ] Assign meta-data to the first variable binding's slot after full resolution.
 * [ ] Assign `[Bindable]` semantics to topmost variable slots after full resolution.
 * [ ] If the variable's parent is a fixture, do not allow destructuring.
+* [ ] If block scoping is on, do not hoist variable.
 
 ## Inheritance
 
