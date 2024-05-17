@@ -54,6 +54,10 @@ Procedure:
       * [ ] Try resolving type annotation if any; if resolved
         * [ ] Update the binding slot's static type
 * [ ] Epsilon
+  * [ ] Check if a property of the same name is defined in an inheritance parent. (Since destructuring is not allowed in fixtures, this only considers simple identifier patterns.)
+    * [ ] Report a *redefining* error if a base property is found.
+  * [ ] Handle the `[Bindable]` meta-data for simple identifier patterns
+  * [ ] Handle the `[Embed]` meta-data for simple identifier patterns
 * [ ] Omega
   * [ ] Let *init* be `None`.
   * [ ] Try resolving type annotation if any; defer if unresolved.
