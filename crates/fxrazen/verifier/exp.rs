@@ -810,6 +810,15 @@ impl ExpSubverifier {
 
         let base_st = base.static_type(&verifier.host);
         let base_st_esc = base_st.escape_of_non_nullable();
+        let class_type = verifier.host.class_type().defer()?;
+
+        // Check call to a Class typed object.
+        if base_st_esc == class_type {
+            for arg in &exp.arguments {
+                verifier.verify_expression(arg, &default())?;
+            }
+            return Ok(Some(verifier.host.factory().create_value(&verifier.host.any_type())));
+        }
 
         if base_st_esc.is::<FunctionType>() {
             let sig = base_st_esc;
