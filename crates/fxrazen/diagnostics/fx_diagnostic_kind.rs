@@ -62,6 +62,7 @@ pub enum FxDiagnosticKind {
     NotANamespaceConstant = 2106,
     CannotResolveConfigConstant = 2107,
     ConcatenatingSelfReferentialPackage = 2108,
+    CallOnDateType = 2109,
 }
 
 impl FxDiagnosticKind {

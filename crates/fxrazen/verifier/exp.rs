@@ -752,6 +752,7 @@ impl ExpSubverifier {
         // Type cast or new Array
         if let Some(base_type) = base.as_type() {
             let array_type = verifier.host.array_type().defer()?;
+            let date_type = verifier.host.date_type().defer()?;
             // new Array
             if base_type == array_type || base_type.type_after_sub_has_origin(&array_type) {
                 for arg in &exp.arguments {
@@ -759,6 +760,14 @@ impl ExpSubverifier {
                 }
                 verifier.add_warning(&exp.base.location(), FxDiagnosticKind::CallOnArrayType, diagarg![]);
                 return Ok(Some(verifier.host.factory().create_value(&array_type)));
+            // Date(x)
+            } else if base_type == date_type {
+                let string_type = verifier.host.string_type().defer()?;
+                for arg in &exp.arguments {
+                    verifier.verify_expression(arg, &default())?;
+                }
+                verifier.add_warning(&exp.base.location(), FxDiagnosticKind::CallOnDateType, diagarg![]);
+                return Ok(Some(verifier.host.factory().create_value(&string_type)));
             // Type cast
             } else {
                 let mut first = true;

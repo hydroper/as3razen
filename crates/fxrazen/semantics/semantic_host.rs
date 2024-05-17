@@ -36,6 +36,7 @@ pub struct SemanticHost {
     xml_type: RefCell<Option<Thingy>>,
     xml_list_type: RefCell<Option<Thingy>>,
     reg_exp_type: RefCell<Option<Thingy>>,
+    date_type: RefCell<Option<Thingy>>,
     promise_type: RefCell<Option<Thingy>>,
     vector_type: RefCell<Option<Thingy>>,
     proxy_type: RefCell<Option<Thingy>>,
@@ -116,6 +117,7 @@ impl SemanticHost {
             xml_type: RefCell::new(None),
             xml_list_type: RefCell::new(None),
             reg_exp_type: RefCell::new(None),
+            date_type: RefCell::new(None),
             promise_type: RefCell::new(None),
             vector_type: RefCell::new(None),
             proxy_type: RefCell::new(None),
@@ -277,6 +279,7 @@ impl SemanticHost {
     global_lookup!(xml_type, "XML");
     global_lookup!(xml_list_type, "XMLList");
     global_lookup!(reg_exp_type, "RegExp");
+    global_lookup!(date_type, "Date");
     global_lookup!(promise_type, "Promise");
 
     pub fn array_type_of_any(&self) -> Result<Thingy, DeferError> {

@@ -66,6 +66,7 @@ lazy_static! {
         FxDiagnosticKind::NotANamespaceConstant.id() => "Not a Namespace constant.".into(),
         FxDiagnosticKind::CannotResolveConfigConstant.id() => "Can not resolve configuration constant: '{1}'".into(),
         FxDiagnosticKind::ConcatenatingSelfReferentialPackage.id() => "Concatenating a self referential package.".into(),
+        FxDiagnosticKind::CallOnDateType.id() => "'Date(...)' is not a cast. It ignores its arguments and returns a String value equal to 'new Date().toString()'. To cast a value to type Date use 'x as Date' instead of 'Date(x)'.".into(),
         // FxDiagnosticKind::K.id() => ".".into(),
     };
 }
