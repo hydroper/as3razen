@@ -30,6 +30,7 @@ The `StatementSubverifier::verify_statement()` method will verify a statement or
 * [ ] Assign ASDoc to the first topmost variable binding's slot after full resolution.
 * [ ] Assign meta-data to the first variable binding's slot after full resolution.
 * [ ] Assign `[Bindable]` semantics to topmost variable slots after full resolution.
+* [ ] Handle the `[Embed]` meta-data.
 * [ ] If the variable's parent is a fixture, do not allow destructuring.
 * [ ] If block scoping is on, do not hoist variable.
 
@@ -45,6 +46,7 @@ The `StatementSubverifier::verify_statement()` method will verify a statement or
 * [ ] Read the `[Options]` meta-data and apply `Options` classes restrictions
 * [ ] Assign every `[Event]` semantics to the class
 * [ ] Handle the `[Bindable]` meta-data right after variables are declared
+* [ ] Handle the `[Embed]` meta-data.
 * [ ] Assign attributes correctly (`static`, `dynamic`, `abstract`, and `final`)
 * [ ] Mark unused
 
