@@ -34,6 +34,45 @@ The `StatementSubverifier::verify_statement()` method will verify a statement or
 * [ ] If the variable's parent is a fixture, do not allow destructuring.
 * [ ] If block scoping is on, do not hoist variable.
 
+Procedure:
+
+* [ ] Alpha
+  * [ ] Decide whether to hoist the variable or not (`blockScope` on?)
+  * [ ] If the parent is a fixture, do not allow destructuring, in which case the pattern shall be invalidated.
+  * [ ] Call `DestructuringDeclarationSubverifier::verify_pattern(...)`
+  * [ ] If the first topmost variable binding's slot is not invalidated
+    * [ ] Assign ASDoc to the first topmost variable binding's slot.
+    * [ ] Assign meta-data to the first variable binding's slot.
+* [ ] Beta
+  * [ ] If a binding is a simple identifier
+    * [ ] Try resolving type annotation if any; if resolved
+      * [ ] If a binding's slot is not invalidated
+        * [ ] Update the binding slot's static type
+* [ ] Delta
+  * [ ] If a binding is a simple identifier
+    * [ ] If binding slot's not invalidated and its static type is unresolved
+      * [ ] Try resolving type annotation if any; if resolved
+        * [ ] Update the binding slot's static type
+* [ ] Epsilon
+* [ ] Omega
+  * [ ] Let *init* be `None`.
+  * [ ] Try resolving type annotation if any; defer if unresolved.
+  * [ ] If there is an initialiser
+    * [ ] If there is a type annotation
+      * [ ] Implicitly coerce it to the annotated type and assign the result to *init*.
+    * [ ] Else
+      * [ ] Assign the result of verification of the initialiser into *init*.
+  * [ ] Lazy initialise *init1*
+    * [ ] If *init* is some and the compiler option `inferTypes` is on
+      * [ ] Return *init*
+    * [ ] Else
+      * [ ] If there is no type annotation
+        * [ ] Report a warning
+        * [ ] Return a value of the `*` type.
+      * [ ] Else
+        * [ ] Return a value whose type is the annotated type.
+  * [ ] Call `DestructuringDeclarationSubverifier::verify_pattern(...)`
+
 ## Inheritance
 
 * [ ] For classes and interfaces, right after the phase in which the inheritance is solved, ensure the inheritance is not circular (an inherited type must not be equals to or a subtype of the inheritor type) by reporting a verify error in such case.
