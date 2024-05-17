@@ -27,19 +27,12 @@ The `StatementSubverifier::verify_statement()` method will verify a statement or
 
 ## Variable definitions
 
-* [ ] Assign ASDoc to the first topmost variable binding's slot after full resolution.
-* [ ] Assign meta-data to the first variable binding's slot after full resolution.
-* [ ] Assign `[Bindable]` semantics to topmost variable slots after full resolution.
-* [ ] Handle the `[Embed]` meta-data.
-* [ ] If the variable's parent is a fixture, do not allow destructuring.
-* [ ] If block scoping is on, do not hoist variable.
-
 Procedure:
 
 * [ ] Alpha
   * [ ] Decide whether to hoist the variable or not (`blockScope` on?)
   * [ ] If the parent is a fixture, do not allow destructuring, in which case the pattern shall be invalidated.
-  * [ ] Call `DestructuringDeclarationSubverifier::verify_pattern(...)`
+  * [ ] Call `DestructuringDeclarationSubverifier::verify_pattern(...)` without deferring (alpha phase)
   * [ ] If the first topmost variable binding's slot is not invalidated
     * [ ] Assign ASDoc to the first topmost variable binding's slot.
     * [ ] Assign meta-data to the first variable binding's slot.
@@ -66,7 +59,7 @@ Procedure:
       * [ ] Implicitly coerce it to the annotated type and assign the result to *init*.
     * [ ] Else
       * [ ] Assign the result of verification of the initialiser into *init*.
-  * [ ] Lazy initialise *init1*
+  * [ ] Lazy initialise *init1* (`cached_var_init`)
     * [ ] If *init* is some and the compiler option `inferTypes` is on
       * [ ] Return *init*
     * [ ] Else
@@ -75,7 +68,7 @@ Procedure:
         * [ ] Return a value of the `*` type.
       * [ ] Else
         * [ ] Return a value whose type is the annotated type.
-  * [ ] Call `DestructuringDeclarationSubverifier::verify_pattern(...)`
+  * [ ] Call `DestructuringDeclarationSubverifier::verify_pattern(...)?` using *init1*
 
 ## Inheritance
 
