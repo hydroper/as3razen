@@ -70,6 +70,7 @@ Procedure:
       * [ ] Else
         * [ ] Return a value whose type is the annotated type.
   * [ ] Call `DestructuringDeclarationSubverifier::verify_pattern(...)?` using *init1*
+  * [ ] Remove *init1* from `cached_var_init`
 
 ## Inheritance
 
