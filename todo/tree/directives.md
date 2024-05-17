@@ -32,6 +32,7 @@ Procedure:
 * [ ] Alpha
   * [ ] Decide whether to hoist the variable or not (`blockScope` on?)
   * [ ] Check the `static` attribute to know where the output name goes exactly.
+  * [ ] Determine the system namespace according to the attribute combination (`static` + `protected` = `static protected`).
   * [ ] If the parent is a fixture, do not allow destructuring, in which case the pattern shall be invalidated.
   * [ ] Call `DestructuringDeclarationSubverifier::verify_pattern(...)` without deferring (alpha phase)
   * [ ] If the first topmost variable binding's slot is not invalidated
