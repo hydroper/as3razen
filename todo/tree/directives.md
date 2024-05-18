@@ -79,6 +79,10 @@ Procedure:
 * [ ] For classes and interfaces, right after the phase in which the inheritance is solved, ensure the inheritance is not circular (an inherited type must not be equals to or a subtype of the inheritor type) by reporting a verify error in such case.
 * [ ] For definitions within classes and interfaces, ensure they either override a method or do not redefine a previously defined property.
 
+## Class initialiser method
+
+Note that statements and static binding initializers within a class or enum block contribute code to the class initialiser method of AVM2, so control flow analysis should go from there rather than in the parent's initialiser (i.e. the package or top level).
+
 ## Class definitions
 
 * [ ] Assign ASDoc
