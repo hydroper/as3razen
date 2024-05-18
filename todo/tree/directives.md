@@ -66,12 +66,13 @@ Procedure:
       * [ ] Return *init*
     * [ ] Else
       * [ ] If there is no type annotation
-        * [ ] Report a warning
         * [ ] Return a value of the `*` type.
       * [ ] Else
         * [ ] Return a value whose type is the annotated type.
   * [ ] Call `DestructuringDeclarationSubverifier::verify_pattern(...)?` using *init1*
   * [ ] Remove *init1* from `cached_var_init`
+  * [ ] If there is no type annotation and (*init* is none or `inferTypes` is off)
+    * [ ] Report a warning
 
 ## Inheritance
 
