@@ -485,6 +485,31 @@ impl ExpSubverifier {
         while let Some(scope1) = scope {
             let open_ns_set = scope1.concat_open_ns_set_of_scope_chain();
             let mut r: Option<Thingy> = None;
+            if scope1.is::<PackageScope>() {
+                let p = scope1.package();
+                if &dot_seq[0..(dot_seq.len() - 1)] == &p.fully_qualified_name_list() {
+                    match PropertyLookup(&verifier.host).lookup_in_object(&p, &open_ns_set, None, &PropertyLookupKey::LocalName(dot_seq.last().unwrap().clone())) {
+                        Ok(Some(r1)) => {
+                            if r.is_some() && !r.as_ref().unwrap().fixture_reference_value_equals(&r1) {
+                                verifier.add_verify_error(&member_exp.identifier.location, FxDiagnosticKind::AmbiguousReference, diagarg![dot_seq.last().unwrap().clone()]);
+                                return Ok(None);
+                            }
+                            r = Some(r1);
+                        },
+                        Ok(None) => {},
+                        Err(PropertyLookupError::AmbiguousReference(name)) => {
+                            verifier.add_verify_error(&member_exp.identifier.location, FxDiagnosticKind::AmbiguousReference, diagarg![name.clone()]);
+                            return Ok(Some(verifier.host.invalidation_thingy()));
+                        },
+                        Err(PropertyLookupError::Defer) => {
+                            return Err(DeferError(None));
+                        },
+                        Err(_) => {
+                            panic!();
+                        },
+                    }
+                }
+            }
             for import in scope1.import_list().iter() {
                 if let Some(r1) = Self::import_shadowing_package_name(verifier, &open_ns_set, &dot_seq, &import, &member_exp.identifier.location)? {
                     if r.is_some() && !r.as_ref().unwrap().fixture_reference_value_equals(&r1) {
