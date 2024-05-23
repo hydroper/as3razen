@@ -1,0 +1,28 @@
+{
+  "tabs": [
+    {
+      "name": "FXRazen",
+      "tabGroups": [
+        {
+          "files": [
+            "file:///c%3A/Users/mathe/UnsyncDocuments/fxrazen/crates/fxrazen/diagnostics/fx_diagnostic_kind.rs",
+            "file:///c%3A/Users/mathe/UnsyncDocuments/fxrazen/crates/fxrazen/diagnostics/fx_diagnostics_texts.rs",
+            "file:///c%3A/Users/mathe/UnsyncDocuments/fxrazen/crates/fxrazen/verifier/directive.rs",
+            "file:///c%3A/Users/mathe/UnsyncDocuments/fxrazen/todo/tree/directives.md",
+            "file:///c%3A/Users/mathe/UnsyncDocuments/fxrazen/todo/tree/directives-list.md",
+            "file:///c%3A/Users/mathe/UnsyncDocuments/fxrazen/todo/embed.md"
+          ],
+          "viewColumn": 1
+        }
+      ],
+      "layout": {
+        "orientation": 1,
+        "groups": [
+          {
+            "size": 663
+          }
+        ]
+      }
+    }
+  ]
+}
