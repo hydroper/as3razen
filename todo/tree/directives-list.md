@@ -17,12 +17,16 @@ Tip: use a mapping from directive to phase for certain of the following directiv
 * [x] If statement
 * [x] Switch statement
 * [x] Switch type statement
+  * [ ] Verify case binding if any
 * [x] Do statement
 * [x] While statement
 * [x] For statement
+  * [ ] Verify variables if any
 * [x] For..in statement
+  * [ ] Verify variable if any
 * [x] With statement
 * [x] Try statement
+  * [ ] Verify catch binding
 * [x] Configuration directive
 * [x] Import directive
 * [x] Use namespace directive
