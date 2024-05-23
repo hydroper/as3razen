@@ -73,6 +73,8 @@ Procedure:
   * [ ] Remove *init1* from `cached_var_init`
   * [ ] If there is no type annotation and (*init* is none or `inferTypes` is off)
     * [ ] Report a warning
+  * [ ] If variable is marked constant, is not `[Embed]` and does not contain an initializer
+    * [ ] Report an error.
 
 ## Inheritance
 
