@@ -3,8 +3,10 @@
 ## Embed meta-data applied to variable definition
 
 * [ ] Handle SWF (default for .swf files)
+  * [ ] Attach BinaryData in SWF
 * [ ] Handle image (default for .png, .jpg, .jpeg and .bmp files)
 * [ ] Handle `application/octet-stream`
+  * [ ] Attach BinaryData in SWF
   * [ ] Handle `encrypted="true"`
 * [ ] Handle font
 
