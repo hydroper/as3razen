@@ -2,11 +2,11 @@
 
 ## includeSources
 
-The `includeSources` option of a FXRazen package includes sources recursively.
+The `includeSources` option of a Razen package includes sources recursively.
 
 ## excludeSources
 
-The `excludeSources` option of a FXRazen package excludes sources recursively, useful for excluding `include "file.as";` directive's files.
+The `excludeSources` option of a Razen package excludes sources recursively, useful for excluding `include "file.as";` directive's files.
 
 ## sourcePath
 

@@ -1,16 +1,16 @@
 {
   "tabs": [
     {
-      "name": "FXRazen",
+      "name": "Razen",
       "tabGroups": [
         {
           "files": [
-            "file:///c%3A/Users/mathe/UnsyncDocuments/fxrazen/crates/fxrazen/diagnostics/fx_diagnostic_kind.rs",
-            "file:///c%3A/Users/mathe/UnsyncDocuments/fxrazen/crates/fxrazen/diagnostics/fx_diagnostics_texts.rs",
-            "file:///c%3A/Users/mathe/UnsyncDocuments/fxrazen/crates/fxrazen/verifier/directive.rs",
-            "file:///c%3A/Users/mathe/UnsyncDocuments/fxrazen/todo/tree/directives.md",
-            "file:///c%3A/Users/mathe/UnsyncDocuments/fxrazen/todo/tree/directives-list.md",
-            "file:///c%3A/Users/mathe/UnsyncDocuments/fxrazen/todo/embed.md"
+            "file:///c%3A/Users/mathe/UnsyncDocuments/razen/crates/razen/diagnostics/fx_diagnostic_kind.rs",
+            "file:///c%3A/Users/mathe/UnsyncDocuments/razen/crates/razen/diagnostics/fx_diagnostics_texts.rs",
+            "file:///c%3A/Users/mathe/UnsyncDocuments/razen/crates/razen/verifier/directive.rs",
+            "file:///c%3A/Users/mathe/UnsyncDocuments/razen/todo/tree/directives.md",
+            "file:///c%3A/Users/mathe/UnsyncDocuments/razen/todo/tree/directives-list.md",
+            "file:///c%3A/Users/mathe/UnsyncDocuments/razen/todo/embed.md"
           ],
           "viewColumn": 1
         }

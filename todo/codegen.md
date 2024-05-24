@@ -2,7 +2,7 @@
 
 ## External projects
 
-External FXRazen projects are external libraries that do not generate any code, typically used for builtins such as AIR globals. In these cases, only the verifier is responsible for handling the semantic model.
+External Razen projects are external libraries that do not generate any code, typically used for builtins such as AIR globals. In these cases, only the verifier is responsible for handling the semantic model.
 
 ## Vector Data Type
 

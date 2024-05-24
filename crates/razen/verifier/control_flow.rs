@@ -9,7 +9,7 @@ pub(crate) struct ControlFlowAnalysisIsUnimplemented;
 impl ControlFlowAnalysisIsUnimplemented {
     pub fn unimplemented() {
         if !REPORTED_UNIMPLEMENTED.get() {
-            println!("Warning: Control flow analysis is not implemented in FXRazen in the present.");
+            println!("Warning: Control flow analysis is not implemented in Razen in the present.");
             REPORTED_UNIMPLEMENTED.set(true);
         }
     }

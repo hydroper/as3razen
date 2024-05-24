@@ -196,7 +196,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "fxrazen"
+name = "htmlentity"
+version = "1.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bab11d4e4796b618b77cabd8f0729eb8033891609820303af715e9306dbb95cd"
+dependencies = [
+ "anyhow",
+ "lazy_static",
+ "thiserror",
+]
+
+[[package]]
+name = "hydroper_razen"
 version = "0.1.5"
 dependencies = [
  "as3_parser",
@@ -213,17 +224,6 @@ dependencies = [
  "num-derive",
  "num-traits",
  "smodel",
-]
-
-[[package]]
-name = "htmlentity"
-version = "1.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bab11d4e4796b618b77cabd8f0729eb8033891609820303af715e9306dbb95cd"
-dependencies = [
- "anyhow",
- "lazy_static",
- "thiserror",
 ]
 
 [[package]]

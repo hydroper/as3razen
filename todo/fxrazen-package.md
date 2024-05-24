@@ -1,3 +1,3 @@
-# FXRazen Package
+# Razen Package
 
-FXRazen would include a package manager within itself.
+Razen would include a package manager within itself.

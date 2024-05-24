@@ -6,7 +6,7 @@
 
 ## Sections
 
-Additional Markdown sections may be described in the FXRazen package's `asdoc.xml` file, used when rendering the ASDoc documentation for a FXRazen package.
+Additional Markdown sections may be described in the Razen package's `asdoc.xml` file, used when rendering the ASDoc documentation for a Razen package.
 
 ```xml
 <?xml version="1.0"?>

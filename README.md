@@ -2,9 +2,9 @@
   <img src="assets/banner.png" alt="Banner">
 </p>
 
-FXRazen is an ActionScript 3 compiler under development, for use with the Adobe AIR technology. It will compile a dialect of MXML supporting a new component set.
+Razen is an ActionScript 3 compiler under development, for use with the Adobe AIR technology. It will compile a dialect of MXML supporting a new component set.
 
-The FXRazen infrastructure is implemented in Rust.
+The Razen infrastructure is implemented in Rust.
 
 ## Research
 
@@ -24,4 +24,4 @@ The FXRazen infrastructure is implemented in Rust.
 
 Apache 2.0, copyright © Hydroper
 
-[First commit](https://github.com/hydroper/fxrazen/commit/38d07aa5e382b131a11e222fe3745a37d4728e61)
+[First commit](https://github.com/hydroper/razen/commit/38d07aa5e382b131a11e222fe3745a37d4728e61)
