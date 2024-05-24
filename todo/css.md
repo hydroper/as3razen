@@ -24,3 +24,5 @@ package com.example.controls {
     }
 }
 ```
+
+The `[CSS]` meta-data could also be applied to user interface themes.
