@@ -1,7 +1,3 @@
-Razen is an ActionScript 3 compiler under development, for use with the Adobe AIR technology. It will compile a dialect of MXML supporting a new component set.
-
-The Razen infrastructure is implemented in Rust.
-
 ## Research
 
 [![](https://img.shields.io/badge/See-Rust%20Guide-blue)](https://github.com/hydroper/as3parser/wiki/Rust-for-ActionScript-developers)
@@ -9,12 +5,6 @@ The Razen infrastructure is implemented in Rust.
 [![](https://img.shields.io/badge/See-Building%20a%20Compiler-blue)](https://github.com/hydroper/as3parser/wiki/Building-a-compiler)
 
 [![](https://img.shields.io/badge/See-References-blue)](https://github.com/hydroper/as3parser/wiki/References)
-
-<!--
-
-[![](https://img.shields.io/badge/See-Old%20Codebase-blue)](https://github.com/hydroper-jet/privcompiler/tree/master/src/compiler)
-
--->
 
 ## License
 
